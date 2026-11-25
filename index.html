@@ -113,7 +113,7 @@
 
       <div id="adminControls" style="display:none;">
         <div class="admin-section">
-          <h4 id="admH1">1. زیرِ التوا درخواستیں (انتظامیہ )</h4>
+          <h4 id="admH1">1. زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)</h4>
           <div id="pendingRequestsList"></div>
         </div>
 
@@ -203,7 +203,7 @@
         roleSelect: "منتخب کریں",
         rolePublic: "عام عوام (Public)",
         roleMgmt: "انتظامیہ (Management - ایڈمن منظوری درکار)",
-        roleAbroad: " بیرونِ ملک (Abroad - ایڈمن منظوری درکار)",
+        roleAbroad: "بیرونِ ملک (Abroad - ایڈمن منظوری درکار)",
         registerBtn: "اکاؤنٹ بنائیں",
         logoutBtn: "لاگ آؤٹ",
         loading: "لوڈ ہو رہا ہے...",
@@ -215,8 +215,8 @@
         roleAdminLabel: "ایڈمن (Admin)",
         rolePublicLabel: "عام عوام (Public)",
         roleMgmtLabel: "انتظامیہ (Management)",
-        roleAbroadLabel: "ایبراڈ / بیرونِ ملک (Abroad)",
-        admH1: "1. زیرِ التوا درخواستیں (انتظامیہ / ایبراڈ)",
+        roleAbroadLabel: "بیرونِ ملک (Abroad)",
+        admH1: "1. زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)",
         admH2: "2. ممبر کے جمع کروائے گئے فنڈز درج کریں",
         lblFundMember: "ممبر منتخب کریں",
         lblFundAmount: "رقم (مثلاً 5000)",
@@ -559,4 +559,345 @@
       if (window.appState.handlers.loginUser) {
         await window.appState.handlers.loginUser(phone, password);
       } else {
-        window.showAuthMsg(l === "en" ? "Database connecting, please wait a second and try again." : "ڈیٹا بیس لوڈ ہو رہا ہے، ایک لمحہ بعد دوبارہ کوشش کریں۔",
+        window.showAuthMsg(l === "en" ? "Database connecting, please wait a second and try again." : "ڈیٹا بیس لوڈ ہو رہا ہے، ایک لمحہ بعد دوبارہ کوشش کریں۔", "error");
+      }
+    });
+
+    el("logoutBtn").addEventListener("click", () => {
+      window.appState.currentUser = null;
+      window.appState.activeSection = null;
+      el("portalCard").style.display = "none";
+      el("adminControls").style.display = "none";
+      el("authCard").style.display = "block";
+      el("loginPass").value = "";
+      el("authMsg").className = "msg";
+    });
+  </script>
+
+  <!-- FIREBASE DATA SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, doc, setDoc, getDoc, updateDoc, addDoc,
+      collection, query, where, getDocs, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkjIRnblF6G-7OfXoc-yvLxh2Mu4CbfjQ",
+      authDomain: "dm-milad-organization.firebaseapp.com",
+      projectId: "dm-milad-organization",
+      storageBucket: "dm-milad-organization.firebasestorage.app",
+      messagingSenderId: "496312588251",
+      appId: "1:496312588251:web:f19613597d27598cdcb9fe",
+      measurementId: "G-BLPHEGFDVL"
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    let db = null;
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      window.appState.dbReady = true;
+    } catch (e) {
+      db = null;
+    }
+
+    async function renderFunds(area) {
+      const u = window.appState.currentUser;
+      const q = query(collection(db, "funds"), where("memberPhone", "==", u.phone));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        area.innerHTML = `<div class='item-box'>${window.t("noFunds")}</div>`;
+        return;
+      }
+      let total = 0;
+      let rows = "";
+      snap.forEach((d) => {
+        const f = d.data();
+        const amt = Number(f.amount || 0);
+        total += amt;
+        rows += `<tr><td>${f.note || "-"}</td><td>${amt}</td></tr>`;
+      });
+      area.innerHTML = `
+        <h4>${window.t("fundsTitle", { total })}</h4>
+        <table>
+          <thead><tr><th>${window.t("colNote")}</th><th>${window.t("colAmount")}</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    async function renderImageList(area, colName, title) {
+      const snap = await getDocs(collection(db, colName));
+      if (snap.empty) {
+        area.innerHTML = `<div class='item-box'>${window.t("noImages", { title })}</div>`;
+        return;
+      }
+      let html = `<h4>${title}</h4>`;
+      snap.forEach((d) => {
+        const item = d.data();
+        html += `<div class="item-box">
+          <strong>${item.title || ""}</strong>
+          ${item.src ? `<img src="${item.src}" alt="${item.title || ""}" />` : ""}
+        </div>`;
+      });
+      area.innerHTML = html;
+    }
+
+    async function renderFolderMedia(area, category, title) {
+      const q = query(collection(db, "media"), where("category", "==", category));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        area.innerHTML = `<div class='item-box'>${window.t("noFolders", { title })}</div>`;
+        return;
+      }
+
+      const folders = {};
+      snap.forEach((d) => {
+        const m = d.data();
+        const folder = m.folder || "General";
+        if (!folders[folder]) folders[folder] = [];
+        folders[folder].push(m);
+      });
+
+      const folderNames = Object.keys(folders).sort().reverse();
+      area.innerHTML = `
+        <h4>${title}</h4>
+        <div class="field">
+          <label>${window.t("selectFolder")}</label>
+          <select id="folderSelector">
+            ${folderNames.map((fn) => `<option value="${fn}">${fn} (${folders[fn].length})</option>`).join("")}
+          </select>
+        </div>
+        <div id="folderItems"></div>`;
+
+      const renderItems = (fn) => {
+        const list = folders[fn] || [];
+        el("folderItems").innerHTML = list.map((m) => `
+          <div class="item-box">
+            <span class="folder-tag">${fn}</span>
+            <div><strong>${m.title || ""}</strong></div>
+            ${category === "videos"
+              ? (m.src ? `<div style="margin-top:6px;"><a href="${m.src}" target="_blank" rel="noopener">${window.t("openVideo")}</a></div>` : "")
+              : (m.src ? `<img src="${m.src}" alt="${m.title || ""}" />` : "")
+            }
+          </div>
+        `).join("");
+      };
+
+      renderItems(folderNames[0]);
+      el("folderSelector").addEventListener("change", (e) => renderItems(e.target.value));
+    }
+
+    async function loadPendingRequests() {
+      if (!db || !window.appState.currentUser || window.appState.currentUser.role !== "admin") return;
+      const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending_approval")));
+      const box = el("pendingRequestsList");
+      if (snap.empty) {
+        box.innerHTML = `<div class='item-box'>${window.t("noPending")}</div>`;
+        return;
+      }
+      box.innerHTML = "";
+      snap.forEach((d) => {
+        const u = d.data();
+        const div = document.createElement("div");
+        div.className = "item-box";
+        div.innerHTML = `
+          <div><strong>${u.name}</strong> (${u.phone})</div>
+          <div style="font-size:12px;">${u.role === "abroad" ? window.t("roleAbroadLabel") : window.t("roleMgmtLabel")}</div>
+          <div class="req-actions">
+            <button type="button" class="btn btn-approve" data-id="${d.id}">${window.t("approveBtn")}</button>
+            <button type="button" class="btn btn-reject" data-id="${d.id}">${window.t("rejectBtn")}</button>
+          </div>`;
+        box.appendChild(div);
+      });
+
+      box.querySelectorAll(".btn-approve").forEach((b) => {
+        b.addEventListener("click", async () => {
+          await updateDoc(doc(db, "users", b.dataset.id), { status: "active" });
+          loadPendingRequests();
+          loadMembersForFunds();
+        });
+      });
+
+      box.querySelectorAll(".btn-reject").forEach((b) => {
+        b.addEventListener("click", async () => {
+          await updateDoc(doc(db, "users", b.dataset.id), { status: "rejected" });
+          loadPendingRequests();
+        });
+      });
+    }
+
+    async function loadMembersForFunds() {
+      if (!db) return;
+      const snap = await getDocs(collection(db, "users"));
+      const sel = el("fundMemberSelect");
+      sel.innerHTML = "";
+      snap.forEach((d) => {
+        const u = d.data();
+        if (u.role === "management" && u.status === "active") {
+          const opt = document.createElement("option");
+          opt.value = u.phone;
+          opt.textContent = `${u.name} (${u.phone})`;
+          sel.appendChild(opt);
+        }
+      });
+    }
+
+    window.appState.handlers.selectSection = async (sectionKey) => {
+      const area = el("contentArea");
+      area.innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+      if (!db) {
+        area.innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Database offline." : "ڈیٹا بیس دستیاب نہیں۔"}</div>`;
+        return;
+      }
+      try {
+        if (sectionKey === "funds") await renderFunds(area);
+        else if (sectionKey === "expenses") await renderImageList(area, "expenses", window.t("expensesTitle"));
+        else if (sectionKey === "langar") await renderImageList(area, "langar", window.t("langarTitle"));
+        else if (sectionKey === "photos") await renderFolderMedia(area, "photos", window.t("photosTitle"));
+        else if (sectionKey === "videos") await renderFolderMedia(area, "videos", window.t("videosTitle"));
+      } catch (err) {
+        area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error"}</div>`;
+      }
+    };
+
+    window.appState.handlers.loadPendingRequests = () => loadPendingRequests().catch(() => {});
+    window.appState.handlers.onAdminOpen = () => {
+      loadPendingRequests().catch(() => {});
+      loadMembersForFunds().catch(() => {});
+    };
+
+    window.appState.handlers.loginUser = async (phone, password) => {
+      const l = window.appState.lang;
+      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+      el("loginBtn").disabled = true;
+      try {
+        const snap = await getDoc(doc(db, "users", phone));
+        if (!snap.exists()) return window.showAuthMsg(l === "en" ? "Account not found." : "اکاؤنٹ نہیں ملا۔", "error");
+        const user = snap.data();
+        if (user.password !== password) return window.showAuthMsg(l === "en" ? "Incorrect password." : "پاس ورڈ غلط ہے۔", "error");
+        if ((user.role === "management" || user.role === "abroad") && user.status === "pending_approval") {
+          return window.showAuthMsg(l === "en" ? "Your account is awaiting Admin approval." : "آپ کا اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔", "error");
+        }
+        if (user.status === "rejected") {
+          return window.showAuthMsg(l === "en" ? "Your account request was rejected." : "آپ کی اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔", "error");
+        }
+        window.appState.currentUser = user;
+        window.openPortal();
+      } catch (err) {
+        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("loginBtn").disabled = false;
+      }
+    };
+
+    el("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const l = window.appState.lang;
+      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+
+      const name = el("regName").value.trim();
+      const phone = window.normalizePhone(el("regPhone").value);
+      const password = el("regPass").value;
+      const role = el("regRole").value;
+
+      if (!name) return window.showAuthMsg(l === "en" ? "Please enter your full name." : "براہِ کرم پورا نام لکھیں۔", "error");
+      if (!window.isValidPhone(phone)) return window.showAuthMsg(l === "en" ? "Enter a valid phone number (e.g. 03001234567)." : "درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
+      if (phone === BUILT_IN_ADMIN.phone) return window.showAuthMsg(l === "en" ? "This number is reserved for Admin." : "یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
+      if (password.length < 6) return window.showAuthMsg(l === "en" ? "Password must be at least 6 characters." : "پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
+      if (!role) return window.showAuthMsg(l === "en" ? "Please select an account type." : "براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
+
+      el("registerBtn").disabled = true;
+      try {
+        const ref = doc(db, "users", phone);
+        const snap = await getDoc(ref);
+        if (snap.exists()) return window.showAuthMsg(l === "en" ? "An account already exists for this number." : "اس نمبر پر پہلے سے اکاؤنٹ موجود ہے۔", "error");
+
+        const needsApproval = role === "management" || role === "abroad";
+        await setDoc(ref, {
+          name,
+          phone,
+          password,
+          role,
+          status: needsApproval ? "pending_approval" : "active",
+          createdAt: serverTimestamp()
+        });
+
+        el("registerForm").reset();
+        el("tabLogin").click();
+        el("loginPhone").value = phone;
+        window.showAuthMsg(
+          needsApproval
+            ? (l === "en" ? "Account created! You can log in after Admin approval." : "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔")
+            : (l === "en" ? "Public account created! You can log in now." : "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔"),
+          "success"
+        );
+      } catch (err) {
+        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("registerBtn").disabled = false;
+      }
+    });
+
+    el("addFundBtn").addEventListener("click", async () => {
+      const l = window.appState.lang;
+      if (!db) return;
+      const memberPhone = el("fundMemberSelect").value;
+      const amount = Number(el("fundAmount").value);
+      const note = el("fundNote").value.trim();
+      if (!memberPhone || !amount) return window.showAdminMsg(l === "en" ? "Select member and enter amount." : "ممبر اور رقم درج کریں۔", "error");
+
+      await addDoc(collection(db, "funds"), { memberPhone, amount, note, createdAt: serverTimestamp() });
+      el("fundAmount").value = "";
+      el("fundNote").value = "";
+      window.showAdminMsg(l === "en" ? "Fund record saved." : "فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
+    });
+
+    el("addExpenseBtn").addEventListener("click", async () => {
+      const l = window.appState.lang;
+      if (!db) return;
+      const title = el("expenseTitle").value.trim();
+      let src = el("expenseUrl").value.trim();
+      const file = el("expenseFile").files[0];
+      if (file) src = await fileToDataUrl(file);
+      if (!title || !src) return window.showAdminMsg(l === "en" ? "Enter title and photo URL or file." : "عنوان اور تصویر (یا لنک) درج کریں۔", "error");
+
+      await addDoc(collection(db, "expenses"), { title, src, createdAt: serverTimestamp() });
+      el("expenseTitle").value = "";
+      el("expenseUrl").value = "";
+      el("expenseFile").value = "";
+      window.showAdminMsg(l === "en" ? "Expense photo saved." : "اخراجات کی تصویر محفوظ ہو گئی۔", "success");
+      if (window.appState.activeSection === "expenses") window.appState.handlers.selectSection("expenses");
+    });
+
+    el("addMediaBtn").addEventListener("click", async () => {
+      const l = window.appState.lang;
+      if (!db) return;
+      const category = el("mediaCategory").value;
+      const folder = el("mediaFolder").value.trim();
+      const title = el("mediaTitle").value.trim();
+      let src = el("mediaUrl").value.trim();
+      const file = el("mediaFile").files[0];
+      if (file && category !== "videos") src = await fileToDataUrl(file);
+      if (!folder || !title || !src) return window.showAdminMsg(l === "en" ? "Enter folder, title, and link/photo." : "فولڈر، عنوان اور لنک/تصویر درج کریں۔", "error");
+
+      await addDoc(collection(db, "media"), { category, folder, title, src, createdAt: serverTimestamp() });
+      el("mediaTitle").value = "";
+      el("mediaUrl").value = "";
+      el("mediaFile").value = "";
+      window.showAdminMsg(l === "en" ? `Saved to folder (${folder}).` : `فولڈر (${folder}) میں محفوظ ہو گیا۔`, "success");
+      if (window.appState.activeSection === category) window.appState.handlers.selectSection(category);
+    });
+  </script>
+</body>
+</html>

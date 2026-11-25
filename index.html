@@ -1,0 +1,379 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DM Milad Organization</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; padding: 14px; background: #f4f6f5; color: #1f2933; }
+    .card { max-width: 480px; margin: 0 auto 16px; background: #fff; padding: 18px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
+    h2, h3 { margin: 0; color: #14532d; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 17px; }
+    .lang-btn, .sec-btn { padding: 7px 12px; background: #374151; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+    .tab-btn { flex: 1; padding: 10px; border: 1px solid #15803d; background: #fff; color: #15803d; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    .tab-btn.active { background: #15803d; color: #fff; }
+    .field { margin-bottom: 12px; }
+    label.field-label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; }
+    input[type="text"], input[type="tel"], input[type="password"] { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; }
+    .role-options { display: flex; gap: 10px; margin-top: 6px; }
+    .role-option { flex: 1; display: flex; align-items: center; gap: 8px; padding: 10px; background: #f9fafb; border: 1px solid #9ca3af; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .role-option input { width: 18px; height: 18px; accent-color: #15803d; }
+    button.primary-btn { width: 100%; padding: 11px; background: #15803d; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 4px; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .msg { margin-top: 12px; padding: 10px; border-radius: 6px; font-size: 14px; display: none; line-height: 1.5; }
+    .msg.error { display: block; background: #fee2e2; color: #991b1b; }
+    .msg.success { display: block; background: #dcfce7; color: #166534; }
+    .req-item { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; margin-bottom: 8px; background: #f9fafb; }
+    .req-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .btn-approve { flex: 1; padding: 8px; background: #15803d; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .btn-reject { flex: 1; padding: 8px; background: #b91c1c; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .dashboard-box { display: none; padding: 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; }
+    .logout-btn { margin-top: 12px; padding: 9px 14px; background: #b91c1c; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-bar">
+      <h2 id="mainTitle">DM Milad Organization</h2>
+      <button type="button" id="langToggle" class="lang-btn">اردو</button>
+    </div>
+
+    <div id="authArea">
+      <div class="tabs">
+        <button type="button" id="tabLogin" class="tab-btn active">Login</button>
+        <button type="button" id="tabRegister" class="tab-btn">Create Account</button>
+      </div>
+
+      <!-- LOGIN SECTION (DEFAULT MAIN SCREEN) -->
+      <div id="loginSection">
+        <div class="field">
+          <label class="field-label" id="lblLoginPhone" for="loginPhone">Phone number</label>
+          <input id="loginPhone" type="tel" placeholder="+923001234567" />
+        </div>
+        <div class="field">
+          <label class="field-label" id="lblLoginPass" for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" placeholder="Password" />
+        </div>
+        <button type="button" id="loginBtn" class="primary-btn">Login</button>
+      </div>
+
+      <!-- REGISTER SECTION (NO OTP) -->
+      <form id="createAccountForm" style="display:none;" novalidate>
+        <div class="field">
+          <label class="field-label" id="lblName" for="fullName">Full name</label>
+          <input id="fullName" type="text" placeholder="Full name" required />
+        </div>
+        <div class="field">
+          <label class="field-label" id="lblPhone" for="phoneNumber">Phone number</label>
+          <input id="phoneNumber" type="tel" placeholder="+923001234567" required />
+        </div>
+        <div class="field">
+          <label class="field-label" id="lblPassword" for="password">Password</label>
+          <input id="password" type="password" placeholder="At least 6 characters" required />
+        </div>
+        <div class="field">
+          <span class="field-label" id="lblRoleTitle">Account Type</span>
+          <div class="role-options">
+            <label class="role-option" for="roleManagement">
+              <input id="roleManagement" name="accountRole" type="radio" value="management" />
+              <span id="txtManagement">Management</span>
+            </label>
+            <label class="role-option" for="rolePublic">
+              <input id="rolePublic" name="accountRole" type="radio" value="public" />
+              <span id="txtPublic">Public</span>
+            </label>
+          </div>
+        </div>
+        <button type="submit" id="registerBtn" class="primary-btn">Create Account</button>
+      </form>
+    </div>
+
+    <!-- LOGGED IN DASHBOARD -->
+    <div id="userDashboard" class="dashboard-box">
+      <div id="welcomeText" style="font-size:16px; font-weight:bold; color:#14532d;"></div>
+      <div id="roleInfoText" style="margin-top:6px; font-size:14px;"></div>
+      <button type="button" id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
+
+    <div id="formMessage" class="msg"></div>
+  </div>
+
+  <!-- ADMIN APPROVAL -->
+  <div class="card">
+    <div class="top-bar">
+      <h3 id="adminTitle">Admin Approval</h3>
+      <button type="button" id="toggleAdminBtn" class="sec-btn">Open</button>
+    </div>
+    <div id="adminPanel" style="display:none;">
+      <div class="field">
+        <label class="field-label" id="lblAdminPin" for="adminPin">Admin PIN</label>
+        <input id="adminPin" type="password" placeholder="Enter Admin PIN" />
+      </div>
+      <button type="button" id="loadPendingBtn" class="primary-btn">Load Pending Management</button>
+      <div id="pendingList" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkjIRnblF6G-7OfXoc-yvLxh2Mu4CbfjQ",
+      authDomain: "dm-milad-organization.firebaseapp.com",
+      projectId: "dm-milad-organization",
+      storageBucket: "dm-milad-organization.firebasestorage.app",
+      messagingSenderId: "496312588251",
+      appId: "1:496312588251:web:f19613597d27598cdcb9fe",
+      measurementId: "G-BLPHEGFDVL"
+    };
+
+    const ADMIN_PIN = "2026";
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let currentLang = "en";
+
+    const texts = {
+      en: {
+        dir: "ltr", toggleBtn: "اردو", tabLogin: "Login", tabRegister: "Create Account",
+        lblLoginPhone: "Phone number", lblLoginPass: "Password", loginBtn: "Login",
+        lblName: "Full name", phName: "Full name", lblPhone: "Phone number", phPhone: "+923001234567",
+        lblPassword: "Password", phPassword: "At least 6 characters", lblRoleTitle: "Account Type",
+        txtManagement: "Management", txtPublic: "Public", registerBtn: "Create Account",
+        adminTitle: "Admin Approval", openBtn: "Open", closeBtn: "Hide",
+        lblAdminPin: "Admin PIN", phAdminPin: "Enter Admin PIN", loadBtn: "Load Pending Management",
+        approveBtn: "Approve", rejectBtn: "Reject", noPending: "No pending Management requests.",
+        wrongPin: "Invalid Admin PIN.", errName: "Please enter full name.",
+        errPhone: "Use +923001234567 format.", errPass: "Password must be at least 6 characters.",
+        errRole: "Select Management or Public.", alreadyExists: "This phone number is already registered.",
+        okManagement: "Account created! Management account is pending admin approval.",
+        okPublic: "Public account created! You can now login.",
+        notFound: "Account not found.", wrongPass: "Incorrect password.",
+        pendingMsg: "Your Management account is pending admin approval.",
+        rejectedMsg: "Your Management account request was rejected.",
+        loginOk: "Welcome, ", logoutBtn: "Logout"
+      },
+      ur: {
+        dir: "rtl", toggleBtn: "English", tabLogin: "لاگ ان", tabRegister: "نیا اکاؤنٹ",
+        lblLoginPhone: "فون نمبر", lblLoginPass: "پاس ورڈ", loginBtn: "لاگ ان کریں",
+        lblName: "پورا نام", phName: "پورا نام لکھیں", lblPhone: "فون نمبر", phPhone: "+923001234567",
+        lblPassword: "پاس ورڈ", phPassword: "کم از کم 6 حروف", lblRoleTitle: "اکاؤنٹ کی قسم",
+        txtManagement: "انتظامیہ", txtPublic: "عوام", registerBtn: "اکاؤنٹ بنائیں",
+        adminTitle: "ایڈمن منظوری", openBtn: "کھولیں", closeBtn: "بند کریں",
+        lblAdminPin: "ایڈمن پن", phAdminPin: "ایڈمن پن لکھیں", loadBtn: "زیرِ التوا انتظامیہ دیکھیں",
+        approveBtn: "منظور کریں", rejectBtn: "مسترد کریں", noPending: "کوئی زیرِ التوا درخواست نہیں ہے۔",
+        wrongPin: "غلط ایڈمن پن۔", errName: "پورا نام لکھیں۔",
+        errPhone: "نمبر +923001234567 کی صورت میں لکھیں۔", errPass: "پاس ورڈ کم از کم 6 حروف کا ہو۔",
+        errRole: "انتظامیہ یا عوام منتخب کریں۔", alreadyExists: "اس فون نمبر پر پہلے سے اکاؤنٹ موجود ہے۔",
+        okManagement: "اکاؤنٹ بن گیا! انتظامیہ اکاؤنٹ ایڈمن منظوری کے منتظر ہے۔",
+        okPublic: "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔",
+        notFound: "اکاؤنٹ نہیں ملا۔", wrongPass: "پاس ورڈ غلط ہے۔",
+        pendingMsg: "آپ کا انتظامیہ اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔",
+        rejectedMsg: "آپ کی انتظامیہ اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔",
+        loginOk: "خوش آمدید، ", logoutBtn: "لاگ آؤٹ"
+      }
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      const t = texts[lang];
+      document.documentElement.lang = lang;
+      document.documentElement.dir = t.dir;
+      document.body.dir = t.dir;
+
+      el("langToggle").textContent = t.toggleBtn;
+      el("tabLogin").textContent = t.tabLogin;
+      el("tabRegister").textContent = t.tabRegister;
+      el("lblLoginPhone").textContent = t.lblLoginPhone;
+      el("loginPhone").placeholder = t.phPhone;
+      el("lblLoginPass").textContent = t.lblLoginPass;
+      el("loginBtn").textContent = t.loginBtn;
+      el("lblName").textContent = t.lblName;
+      el("fullName").placeholder = t.phName;
+      el("lblPhone").textContent = t.lblPhone;
+      el("phoneNumber").placeholder = t.phPhone;
+      el("lblPassword").textContent = t.lblPassword;
+      el("password").placeholder = t.phPassword;
+      el("lblRoleTitle").textContent = t.lblRoleTitle;
+      el("txtManagement").textContent = t.txtManagement;
+      el("txtPublic").textContent = t.txtPublic;
+      el("registerBtn").textContent = t.registerBtn;
+      el("logoutBtn").textContent = t.logoutBtn;
+      el("adminTitle").textContent = t.adminTitle;
+      el("toggleAdminBtn").textContent = el("adminPanel").style.display === "none" ? t.openBtn : t.closeBtn;
+      el("lblAdminPin").textContent = t.lblAdminPin;
+      el("adminPin").placeholder = t.phAdminPin;
+      el("loadPendingBtn").textContent = t.loadBtn;
+    }
+
+    function showMsg(text, type) {
+      const box = el("formMessage");
+      box.textContent = text;
+      box.className = "msg " + type;
+    }
+
+    function switchToLogin() {
+      el("tabLogin").classList.add("active");
+      el("tabRegister").classList.remove("active");
+      el("loginSection").style.display = "block";
+      el("createAccountForm").style.display = "none";
+    }
+
+    el("langToggle").addEventListener("click", () => applyLanguage(currentLang === "en" ? "ur" : "en"));
+
+    el("tabLogin").addEventListener("click", () => {
+      switchToLogin();
+      el("formMessage").className = "msg";
+    });
+
+    el("tabRegister").addEventListener("click", () => {
+      el("tabRegister").classList.add("active");
+      el("tabLogin").classList.remove("active");
+      el("loginSection").style.display = "none";
+      el("createAccountForm").style.display = "block";
+      el("formMessage").className = "msg";
+    });
+
+    // CREATE ACCOUNT (NO OTP)
+    el("createAccountForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const t = texts[currentLang];
+      const fullName = el("fullName").value.trim();
+      const phoneNumber = el("phoneNumber").value.trim();
+      const password = el("password").value;
+      const roleEl = document.querySelector('input[name="accountRole"]:checked');
+
+      if (!fullName) return showMsg(t.errName, "error");
+      if (!/^\+[1-9]\d{7,14}$/.test(phoneNumber)) return showMsg(t.errPhone, "error");
+      if (password.length < 6) return showMsg(t.errPass, "error");
+      if (!roleEl) return showMsg(t.errRole, "error");
+
+      el("registerBtn").disabled = true;
+      try {
+        const userRef = doc(db, "users", phoneNumber);
+        const existing = await getDoc(userRef);
+        if (existing.exists()) {
+          showMsg(t.alreadyExists, "error");
+          return;
+        }
+
+        const isMgmt = roleEl.value === "management";
+        await setDoc(userRef, {
+          fullName,
+          phoneNumber,
+          password,
+          role: roleEl.value,
+          status: isMgmt ? "pending_approval" : "active",
+          createdAt: serverTimestamp()
+        });
+
+        el("createAccountForm").reset();
+        switchToLogin();
+        el("loginPhone").value = phoneNumber;
+        showMsg(isMgmt ? t.okManagement : t.okPublic, "success");
+      } catch (err) {
+        showMsg(err.message, "error");
+      } finally {
+        el("registerBtn").disabled = false;
+      }
+    });
+
+    // LOGIN
+    el("loginBtn").addEventListener("click", async () => {
+      const t = texts[currentLang];
+      const phone = el("loginPhone").value.trim();
+      const pass = el("loginPassword").value;
+      if (!/^\+[1-9]\d{7,14}$/.test(phone)) return showMsg(t.errPhone, "error");
+      if (!pass) return showMsg(t.wrongPass, "error");
+
+      el("loginBtn").disabled = true;
+      try {
+        const snap = await getDoc(doc(db, "users", phone));
+        if (!snap.exists()) return showMsg(t.notFound, "error");
+
+        const user = snap.data();
+        if (user.password !== pass) return showMsg(t.wrongPass, "error");
+        if (user.role === "management" && user.status === "pending_approval") return showMsg(t.pendingMsg, "error");
+        if (user.role === "management" && user.status === "rejected") return showMsg(t.rejectedMsg, "error");
+
+        el("formMessage").className = "msg";
+        el("authArea").style.display = "none";
+        el("userDashboard").style.display = "block";
+        el("welcomeText").textContent = t.loginOk + (user.fullName || phone);
+        el("roleInfoText").textContent = (user.role === "management" ? t.txtManagement : t.txtPublic) + " (" + phone + ")";
+      } catch (err) {
+        showMsg(err.message, "error");
+      } finally {
+        el("loginBtn").disabled = false;
+      }
+    });
+
+    el("logoutBtn").addEventListener("click", () => {
+      el("userDashboard").style.display = "none";
+      el("authArea").style.display = "block";
+      el("loginPassword").value = "";
+      switchToLogin();
+    });
+
+    // ADMIN APPROVAL
+    el("toggleAdminBtn").addEventListener("click", () => {
+      const t = texts[currentLang];
+      const panel = el("adminPanel");
+      const open = panel.style.display === "none";
+      panel.style.display = open ? "block" : "none";
+      el("toggleAdminBtn").textContent = open ? t.closeBtn : t.openBtn;
+    });
+
+    async function loadPendingUsers() {
+      const t = texts[currentLang];
+      if (el("adminPin").value.trim() !== ADMIN_PIN) {
+        el("pendingList").innerHTML = `<div class="msg error">${t.wrongPin}</div>`;
+        return;
+      }
+      const q = query(collection(db, "users"), where("role", "==", "management"), where("status", "==", "pending_approval"));
+      const snap = await getDocs(q);
+      const list = el("pendingList");
+      list.innerHTML = "";
+
+      if (snap.empty) {
+        list.innerHTML = `<div class="msg success">${t.noPending}</div>`;
+        return;
+      }
+
+      snap.forEach((d) => {
+        const u = d.data();
+        const item = document.createElement("div");
+        item.className = "req-item";
+        item.innerHTML = `<div><strong>${u.fullName || ""}</strong><br/>${u.phoneNumber || ""}</div>
+          <div class="req-actions">
+            <button type="button" class="btn-approve" data-id="${d.id}">${t.approveBtn}</button>
+            <button type="button" class="btn-reject" data-id="${d.id}">${t.rejectBtn}</button>
+          </div>`;
+        list.appendChild(item);
+      });
+
+      list.querySelectorAll(".btn-approve").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          await updateDoc(doc(db, "users", btn.dataset.id), { status: "active" });
+          loadPendingUsers();
+        });
+      });
+      list.querySelectorAll(".btn-reject").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          await updateDoc(doc(db, "users", btn.dataset.id), { status: "rejected" });
+          loadPendingUsers();
+        });
+      });
+    }
+
+    el("loadPendingBtn").addEventListener("click", loadPendingUsers);
+  </script>
+</body>
+</html>

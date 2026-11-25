@@ -87,7 +87,7 @@
             <option id="optRoleSelect" value="">منتخب کریں</option>
             <option id="optRolePublic" value="public">عام عوام (Public)</option>
             <option id="optRoleMgmt" value="management">انتظامیہ (Management - ایڈمن منظوری درکار)</option>
-            <option id="optRoleAbroad" value="abroad"> بیرونِ ملک (Abroad - ایڈمن منظوری درکار)</option>
+            <option id="optRoleAbroad" value="abroad">بیرونِ ملک (Abroad - ایڈمن منظوری درکار)</option>
           </select>
         </div>
         <button type="submit" id="registerBtn" class="btn btn-primary">اکاؤنٹ بنائیں</button>
@@ -113,7 +113,7 @@
 
       <div id="adminControls" style="display:none;">
         <div class="admin-section">
-          <h4 id="admH1">1. زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)</h4>
+          <h4 id="admH1">1. زیرِ التوا درخواستیں (انتظامیہ )</h4>
           <div id="pendingRequestsList"></div>
         </div>
 
@@ -179,23 +179,8 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore, doc, setDoc, getDoc, updateDoc, addDoc,
-      collection, query, where, getDocs, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAkjIRnblF6G-7OfXoc-yvLxh2Mu4CbfjQ",
-      authDomain: "dm-milad-organization.firebaseapp.com",
-      projectId: "dm-milad-organization",
-      storageBucket: "dm-milad-organization.firebasestorage.app",
-      messagingSenderId: "496312588251",
-      appId: "1:496312588251:web:f19613597d27598cdcb9fe",
-      measurementId: "G-BLPHEGFDVL"
-    };
-
+  <!-- CORE UI, LANGUAGE & LOGIN SCRIPT (NO MODULE DEPENDENCY) -->
+  <script>
     const BUILT_IN_ADMIN = {
       phone: "03345049441",
       password: "Qn@104876",
@@ -230,7 +215,7 @@
         roleAdminLabel: "ایڈمن (Admin)",
         rolePublicLabel: "عام عوام (Public)",
         roleMgmtLabel: "انتظامیہ (Management)",
-        roleAbroadLabel: "بیرونِ ملک (Abroad)",
+        roleAbroadLabel: "ایبراڈ / بیرونِ ملک (Abroad)",
         admH1: "1. زیرِ التوا درخواستیں (انتظامیہ / ایبراڈ)",
         admH2: "2. ممبر کے جمع کروائے گئے فنڈز درج کریں",
         lblFundMember: "ممبر منتخب کریں",
@@ -333,103 +318,201 @@
 
     const el = (id) => document.getElementById(id);
 
-    let currentUser = null;
-    let activeSection = null;
-    let lang = "ur";
+    window.appState = {
+      currentUser: null,
+      activeSection: null,
+      lang: "ur",
+      dbReady: false,
+      handlers: {}
+    };
 
-    const t = (key, vars = {}) => {
-      let str = (I18N[lang] && I18N[lang][key]) || I18N.ur[key] || key;
+    window.t = (key, vars = {}) => {
+      const l = window.appState.lang || "ur";
+      let str = (I18N[l] && I18N[l][key]) || I18N.ur[key] || key;
       Object.entries(vars).forEach(([k, v]) => {
         str = str.replace(`{${k}}`, v);
       });
       return str;
     };
 
-    function normalizePhone(raw) {
+    window.normalizePhone = (raw) => {
       let clean = String(raw || "").replace(/[^\d+]/g, "");
       if (clean.startsWith("+92")) clean = "0" + clean.slice(3);
       else if (clean.startsWith("92")) clean = "0" + clean.slice(2);
       return clean;
-    }
+    };
 
-    function isValidPhone(phone) {
-      return /^\d{7,15}$/.test(phone);
-    }
+    window.isValidPhone = (phone) => /^\d{7,15}$/.test(phone);
 
-    function showAuthMsg(text, type) {
+    window.showAuthMsg = (text, type) => {
       const box = el("authMsg");
       box.textContent = text;
       box.className = "msg " + type;
-    }
+    };
 
-    function showAdminMsg(text, type) {
+    window.showAdminMsg = (text, type) => {
       const box = el("adminMsg");
       box.textContent = text;
       box.className = "msg " + type;
-    }
+    };
 
-    function applyTranslations() {
-      const isUr = lang === "ur";
-      document.documentElement.lang = lang;
+    window.getSectionsForRole = (role) => {
+      if (role === "public") {
+        return [
+          { key: "photos", label: window.t("secPhotos") },
+          { key: "videos", label: window.t("secVideos") }
+        ];
+      }
+      if (role === "management") {
+        return [
+          { key: "funds", label: window.t("secFunds") },
+          { key: "expenses", label: window.t("secExpenses") },
+          { key: "photos", label: window.t("secPhotos") },
+          { key: "videos", label: window.t("secVideos") }
+        ];
+      }
+      if (role === "abroad") {
+        return [
+          { key: "photos", label: window.t("secPhotos") },
+          { key: "videos", label: window.t("secVideos") },
+          { key: "langar", label: window.t("secLangar") }
+        ];
+      }
+      return [
+        { key: "photos", label: window.t("secPhotos") },
+        { key: "videos", label: window.t("secVideos") },
+        { key: "expenses", label: window.t("secExpenses") },
+        { key: "langar", label: window.t("secLangar") }
+      ];
+    };
+
+    window.updatePortalHeader = () => {
+      const u = window.appState.currentUser;
+      if (!u) return;
+      el("portalUserName").textContent = u.name;
+      const roleMap = {
+        admin: window.t("roleAdminLabel"),
+        public: window.t("rolePublicLabel"),
+        management: window.t("roleMgmtLabel"),
+        abroad: window.t("roleAbroadLabel")
+      };
+      el("portalUserRole").textContent = `${roleMap[u.role] || u.role} | ${u.phone}`;
+    };
+
+    window.renderRoleMenu = () => {
+      const u = window.appState.currentUser;
+      if (!u) return;
+      const sections = window.getSectionsForRole(u.role);
+      const menu = el("roleMenu");
+      menu.innerHTML = "";
+
+      if (!window.appState.activeSection && sections.length > 0) {
+        window.appState.activeSection = sections[0].key;
+      }
+
+      sections.forEach((sec) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "menu-btn" + (window.appState.activeSection === sec.key ? " active" : "");
+        btn.textContent = sec.label;
+        btn.addEventListener("click", () => {
+          window.appState.activeSection = sec.key;
+          window.renderRoleMenu();
+          if (window.appState.handlers.selectSection) {
+            window.appState.handlers.selectSection(sec.key);
+          } else {
+            el("contentArea").innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+          }
+        });
+        menu.appendChild(btn);
+      });
+
+      if (window.appState.handlers.selectSection && window.appState.activeSection) {
+        window.appState.handlers.selectSection(window.appState.activeSection);
+      } else {
+        el("contentArea").innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+      }
+    };
+
+    window.openPortal = () => {
+      const u = window.appState.currentUser;
+      if (!u) return;
+      el("authCard").style.display = "none";
+      el("portalCard").style.display = "block";
+      window.updatePortalHeader();
+
+      const isAdmin = u.role === "admin";
+      el("adminControls").style.display = isAdmin ? "block" : "none";
+      window.renderRoleMenu();
+
+      if (isAdmin && window.appState.handlers.onAdminOpen) {
+        window.appState.handlers.onAdminOpen();
+      }
+    };
+
+    window.applyTranslations = () => {
+      const l = window.appState.lang;
+      const isUr = l === "ur";
+      document.documentElement.lang = l;
       document.documentElement.dir = isUr ? "rtl" : "ltr";
       document.body.dir = isUr ? "rtl" : "ltr";
 
-      el("appTitle").textContent = t("appHeading");
-      el("langBtn").textContent = t("toggleBtn");
-      el("portalLangBtn").textContent = t("toggleBtn");
-      el("tabLogin").textContent = t("tabLogin");
-      el("tabRegister").textContent = t("tabRegister");
-      el("lblLoginPhone").textContent = t("loginPhone");
-      el("lblLoginPass").textContent = t("loginPass");
-      el("loginBtn").textContent = t("loginBtn");
+      el("appTitle").textContent = window.t("appHeading");
+      el("langBtn").textContent = window.t("toggleBtn");
+      el("portalLangBtn").textContent = window.t("toggleBtn");
+      el("tabLogin").textContent = window.t("tabLogin");
+      el("tabRegister").textContent = window.t("tabRegister");
+      el("lblLoginPhone").textContent = window.t("loginPhone");
+      el("lblLoginPass").textContent = window.t("loginPass");
+      el("loginBtn").textContent = window.t("loginBtn");
 
-      el("lblRegName").textContent = t("regName");
-      el("lblRegPhone").textContent = t("regPhone");
-      el("lblRegPass").textContent = t("regPass");
-      el("lblRegRole").textContent = t("regRole");
-      el("optRoleSelect").textContent = t("roleSelect");
-      el("optRolePublic").textContent = t("rolePublic");
-      el("optRoleMgmt").textContent = t("roleMgmt");
-      el("optRoleAbroad").textContent = t("roleAbroad");
-      el("registerBtn").textContent = t("registerBtn");
-      el("logoutBtn").textContent = t("logoutBtn");
+      el("lblRegName").textContent = window.t("regName");
+      el("lblRegPhone").textContent = window.t("regPhone");
+      el("lblRegPass").textContent = window.t("regPass");
+      el("lblRegRole").textContent = window.t("regRole");
+      el("optRoleSelect").textContent = window.t("roleSelect");
+      el("optRolePublic").textContent = window.t("rolePublic");
+      el("optRoleMgmt").textContent = window.t("roleMgmt");
+      el("optRoleAbroad").textContent = window.t("roleAbroad");
+      el("registerBtn").textContent = window.t("registerBtn");
+      el("logoutBtn").textContent = window.t("logoutBtn");
 
-      el("admH1").textContent = t("admH1");
-      el("admH2").textContent = t("admH2");
-      el("lblFundMember").textContent = t("lblFundMember");
-      el("lblFundAmount").textContent = t("lblFundAmount");
-      el("lblFundNote").textContent = t("lblFundNote");
-      el("addFundBtn").textContent = t("addFundBtn");
-      el("admH3").textContent = t("admH3");
-      el("lblExpTitle").textContent = t("lblExpTitle");
-      el("lblExpMedia").textContent = t("lblExpMedia");
-      el("addExpenseBtn").textContent = t("addExpenseBtn");
-      el("admH4").textContent = t("admH4");
-      el("lblMediaCat").textContent = t("lblMediaCat");
-      el("optCatPhotos").textContent = t("catPhotos");
-      el("optCatVideos").textContent = t("catVideos");
-      el("optCatLangar").textContent = t("catLangar");
-      el("lblMediaFolder").textContent = t("lblMediaFolder");
-      el("lblMediaTitle").textContent = t("lblMediaTitle");
-      el("lblMediaUrl").textContent = t("lblMediaUrl");
-      el("addMediaBtn").textContent = t("addMediaBtn");
+      el("admH1").textContent = window.t("admH1");
+      el("admH2").textContent = window.t("admH2");
+      el("lblFundMember").textContent = window.t("lblFundMember");
+      el("lblFundAmount").textContent = window.t("lblFundAmount");
+      el("lblFundNote").textContent = window.t("lblFundNote");
+      el("addFundBtn").textContent = window.t("addFundBtn");
+      el("admH3").textContent = window.t("admH3");
+      el("lblExpTitle").textContent = window.t("lblExpTitle");
+      el("lblExpMedia").textContent = window.t("lblExpMedia");
+      el("addExpenseBtn").textContent = window.t("addExpenseBtn");
+      el("admH4").textContent = window.t("admH4");
+      el("lblMediaCat").textContent = window.t("lblMediaCat");
+      el("optCatPhotos").textContent = window.t("catPhotos");
+      el("optCatVideos").textContent = window.t("catVideos");
+      el("optCatLangar").textContent = window.t("catLangar");
+      el("lblMediaFolder").textContent = window.t("lblMediaFolder");
+      el("lblMediaTitle").textContent = window.t("lblMediaTitle");
+      el("lblMediaUrl").textContent = window.t("lblMediaUrl");
+      el("addMediaBtn").textContent = window.t("addMediaBtn");
 
-      if (currentUser) {
-        updatePortalHeader();
-        renderRoleMenu();
+      if (window.appState.currentUser) {
+        window.updatePortalHeader();
+        window.renderRoleMenu();
+        if (window.appState.currentUser.role === "admin" && window.appState.handlers.loadPendingRequests) {
+          window.appState.handlers.loadPendingRequests();
+        }
       }
+    };
+
+    function toggleLanguage() {
+      window.appState.lang = window.appState.lang === "ur" ? "en" : "ur";
+      window.applyTranslations();
     }
 
-    function setLanguage(nextLang) {
-      lang = nextLang;
-      applyTranslations();
-      if (currentUser && currentUser.role === "admin") {
-        loadPendingRequests().catch(() => {});
-      }
-    }
-
-    el("langBtn").addEventListener("click", () => setLanguage(lang === "ur" ? "en" : "ur"));
-    el("portalLangBtn").addEventListener("click", () => setLanguage(lang === "ur" ? "en" : "ur"));
+    el("langBtn").addEventListener("click", toggleLanguage);
+    el("portalLangBtn").addEventListener("click", toggleLanguage);
 
     el("tabLogin").addEventListener("click", () => {
       el("tabLogin").classList.add("active");
@@ -447,181 +530,33 @@
       el("authMsg").className = "msg";
     });
 
-    let db = null;
-    try {
-      const app = initializeApp(firebaseConfig);
-      db = getFirestore(app);
-    } catch (e) {
-      db = null;
-    }
-
-    function fileToDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    el("registerForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!db) return showAuthMsg(lang === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
-
-      const name = el("regName").value.trim();
-      const phone = normalizePhone(el("regPhone").value);
-      const password = el("regPass").value;
-      const role = el("regRole").value;
-
-      if (!name) return showAuthMsg(lang === "en" ? "Please enter your full name." : "براہِ کرم پورا نام لکھیں۔", "error");
-      if (!isValidPhone(phone)) return showAuthMsg(lang === "en" ? "Enter a valid phone number (e.g. 03001234567)." : "درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
-      if (phone === BUILT_IN_ADMIN.phone) return showAuthMsg(lang === "en" ? "This number is reserved for Admin." : "یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
-      if (password.length < 6) return showAuthMsg(lang === "en" ? "Password must be at least 6 characters." : "پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
-      if (!role) return showAuthMsg(lang === "en" ? "Please select an account type." : "براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
-
-      el("registerBtn").disabled = true;
-      try {
-        const ref = doc(db, "users", phone);
-        const snap = await getDoc(ref);
-        if (snap.exists()) return showAuthMsg(lang === "en" ? "An account already exists for this number." : "اس نمبر پر پہلے سے اکاؤنٹ موجود ہے۔", "error");
-
-        const needsApproval = role === "management" || role === "abroad";
-        await setDoc(ref, {
-          name,
-          phone,
-          password,
-          role,
-          status: needsApproval ? "pending_approval" : "active",
-          createdAt: serverTimestamp()
-        });
-
-        el("registerForm").reset();
-        el("tabLogin").click();
-        el("loginPhone").value = phone;
-        showAuthMsg(
-          needsApproval
-            ? (lang === "en" ? "Account created! You can log in after Admin approval." : "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔")
-            : (lang === "en" ? "Public account created! You can log in now." : "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔"),
-          "success"
-        );
-      } catch (err) {
-        showAuthMsg(err && err.message ? err.message : "Error", "error");
-      } finally {
-        el("registerBtn").disabled = false;
-      }
-    });
-
     el("loginBtn").addEventListener("click", async () => {
-      const phone = normalizePhone(el("loginPhone").value);
+      const l = window.appState.lang;
+      const phone = window.normalizePhone(el("loginPhone").value);
       const password = el("loginPass").value;
 
-      if (!isValidPhone(phone)) return showAuthMsg(lang === "en" ? "Enter a valid phone number." : "درست فون نمبر لکھیں۔", "error");
-      if (!password) return showAuthMsg(lang === "en" ? "Enter your password." : "پاس ورڈ درج کریں۔", "error");
+      if (!window.isValidPhone(phone)) {
+        return window.showAuthMsg(l === "en" ? "Enter a valid phone number." : "درست فون نمبر لکھیں۔", "error");
+      }
+      if (!password) {
+        return window.showAuthMsg(l === "en" ? "Enter your password." : "پاس ورڈ درج کریں۔", "error");
+      }
 
       if (phone === BUILT_IN_ADMIN.phone) {
         if (password !== BUILT_IN_ADMIN.password) {
-          return showAuthMsg(lang === "en" ? "Invalid admin password." : "ایڈمن پاس ورڈ غلط ہے۔", "error");
+          return window.showAuthMsg(l === "en" ? "Invalid admin password." : "ایڈمن پاس ورڈ غلط ہے۔", "error");
         }
-        currentUser = {
+        window.appState.currentUser = {
           phone: BUILT_IN_ADMIN.phone,
           name: BUILT_IN_ADMIN.name,
           role: "admin",
           status: "active"
         };
-        openPortal();
+        window.openPortal();
         return;
       }
 
-      if (!db) return showAuthMsg(lang === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
-
-      el("loginBtn").disabled = true;
-      try {
-        const snap = await getDoc(doc(db, "users", phone));
-        if (!snap.exists()) return showAuthMsg(lang === "en" ? "Account not found." : "اکاؤنٹ نہیں ملا۔", "error");
-
-        const user = snap.data();
-        if (user.password !== password) return showAuthMsg(lang === "en" ? "Incorrect password." : "پاس ورڈ غلط ہے۔", "error");
-        if ((user.role === "management" || user.role === "abroad") && user.status === "pending_approval") {
-          return showAuthMsg(lang === "en" ? "Your account is awaiting Admin approval." : "آپ کا اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔", "error");
-        }
-        if (user.status === "rejected") {
-          return showAuthMsg(lang === "en" ? "Your account request was rejected." : "آپ کی اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔", "error");
-        }
-
-        currentUser = user;
-        openPortal();
-      } catch (err) {
-        showAuthMsg(err && err.message ? err.message : "Error", "error");
-      } finally {
-        el("loginBtn").disabled = false;
-      }
-    });
-
-    el("logoutBtn").addEventListener("click", () => {
-      currentUser = null;
-      activeSection = null;
-      el("portalCard").style.display = "none";
-      el("adminControls").style.display = "none";
-      el("authCard").style.display = "block";
-      el("loginPass").value = "";
-      el("authMsg").className = "msg";
-    });
-
-    function updatePortalHeader() {
-      el("portalUserName").textContent = currentUser.name;
-      const roleMap = {
-        admin: t("roleAdminLabel"),
-        public: t("rolePublicLabel"),
-        management: t("roleMgmtLabel"),
-        abroad: t("roleAbroadLabel")
-      };
-      el("portalUserRole").textContent = `${roleMap[currentUser.role] || currentUser.role} | ${currentUser.phone}`;
-    }
-
-    function openPortal() {
-      el("authCard").style.display = "none";
-      el("portalCard").style.display = "block";
-      updatePortalHeader();
-
-      const isAdmin = currentUser.role === "admin";
-      el("adminControls").style.display = isAdmin ? "block" : "none";
-
-      renderRoleMenu();
-      if (isAdmin) {
-        loadPendingRequests().catch(() => {});
-        loadMembersForFunds().catch(() => {});
-      }
-    }
-
-    function getSectionsForRole(role) {
-      if (role === "public") {
-        return [
-          { key: "photos", label: t("secPhotos") },
-          { key: "videos", label: t("secVideos") }
-        ];
-      }
-      if (role === "management") {
-        return [
-          { key: "funds", label: t("secFunds") },
-          { key: "expenses", label: t("secExpenses") },
-          { key: "photos", label: t("secPhotos") },
-          { key: "videos", label: t("secVideos") }
-        ];
-      }
-      if (role === "abroad") {
-        return [
-          { key: "photos", label: t("secPhotos") },
-          { key: "videos", label: t("secVideos") },
-          { key: "langar", label: t("secLangar") }
-        ];
-      }
-      return [
-        { key: "photos", label: t("secPhotos") },
-        { key: "videos", label: t("secVideos") },
-        { key: "expenses", label: t("secExpenses") },
-        { key: "langar", label: t("secLangar") }
-      ];
-    }
-
-    function renderRoleMenu() {
-      const sections = getSectionsForRole
+      if (window.appState.handlers.loginUser) {
+        await window.appState.handlers.loginUser(phone, password);
+      } else {
+        window.showAuthMsg(l === "en" ? "Database connecting, please wait a second and try again." : "ڈیٹا بیس لوڈ ہو رہا ہے، ایک لمحہ بعد دوبارہ کوشش کریں۔",

@@ -1,126 +1,196 @@
-﻿<!DOCTYPE html>
-<html lang="en" dir="ltr">
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DM Milad Organization</title>
   <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { margin: 0; padding: 14px; background: #f4f6f5; color: #1f2933; }
-    .card { max-width: 480px; margin: 0 auto 16px; background: #fff; padding: 18px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
-    h2, h3 { margin: 0; color: #14532d; }
-    h2 { font-size: 20px; }
-    h3 { font-size: 17px; }
-    .lang-btn, .sec-btn { padding: 7px 12px; background: #374151; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
-    .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-    .tab-btn { flex: 1; padding: 10px; border: 1px solid #15803d; background: #fff; color: #15803d; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    * { box-sizing: border-box; font-family: "Noto Nastaliq Urdu", Arial, sans-serif; }
+    body { margin: 0; padding: 12px; background: #f1f5f9; color: #0f172a; line-height: 1.6; }
+    .container { max-width: 640px; margin: 0 auto; }
+    .card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); margin-bottom: 14px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+    h2, h3, h4 { margin: 0; color: #14532d; }
+    h2 { font-size: 19px; }
+    h3 { font-size: 16px; }
+    h4 { font-size: 14px; margin-bottom: 8px; }
+    .btn { padding: 8px 12px; border: none; border-radius: 7px; font-weight: bold; cursor: pointer; font-size: 13px; }
+    .btn-primary { background: #15803d; color: #fff; width: 100%; padding: 10px; font-size: 14px; }
+    .btn-secondary { background: #334155; color: #fff; }
+    .btn-danger { background: #b91c1c; color: #fff; }
+    .btn-approve { background: #15803d; color: #fff; flex: 1; }
+    .btn-reject { background: #b91c1c; color: #fff; flex: 1; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+    .tab-btn { flex: 1; padding: 9px; border: 1px solid #15803d; background: #fff; color: #15803d; border-radius: 7px; font-weight: bold; cursor: pointer; }
     .tab-btn.active { background: #15803d; color: #fff; }
-    .field { margin-bottom: 12px; }
-    label.field-label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; }
-    input[type="text"], input[type="tel"], input[type="password"] { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; }
-    .role-options { display: flex; gap: 10px; margin-top: 6px; }
-    .role-option { flex: 1; display: flex; align-items: center; gap: 8px; padding: 10px; background: #f9fafb; border: 1px solid #9ca3af; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    .role-option input { width: 18px; height: 18px; accent-color: #15803d; }
-    button.primary-btn { width: 100%; padding: 11px; background: #15803d; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 4px; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .msg { margin-top: 12px; padding: 10px; border-radius: 6px; font-size: 14px; display: none; line-height: 1.5; }
+    .field { margin-bottom: 10px; }
+    label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; }
+    input, select, textarea { width: 100%; padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 14px; background: #fff; }
+    .msg { margin-top: 10px; padding: 10px; border-radius: 7px; font-size: 13px; display: none; }
     .msg.error { display: block; background: #fee2e2; color: #991b1b; }
     .msg.success { display: block; background: #dcfce7; color: #166534; }
-    .req-item { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; margin-bottom: 8px; background: #f9fafb; }
+    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0; }
+    .menu-btn { padding: 11px 8px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; text-align: center; }
+    .menu-btn.active { background: #15803d; color: #fff; border-color: #15803d; }
+    .item-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 8px; background: #f8fafc; }
+    .item-box img { max-width: 100%; max-height: 240px; border-radius: 6px; display: block; margin-top: 6px; }
+    .folder-tag { display: inline-block; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-bottom: 6px; }
+    .admin-section { border-top: 2px dashed #cbd5e1; padding-top: 12px; margin-top: 14px; }
     .req-actions { display: flex; gap: 8px; margin-top: 8px; }
-    .btn-approve { flex: 1; padding: 8px; background: #15803d; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .btn-reject { flex: 1; padding: 8px; background: #b91c1c; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .dashboard-box { display: none; padding: 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; }
-    .logout-btn { margin-top: 12px; padding: 9px 14px; background: #b91c1c; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+    th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: start; }
+    th { background: #f1f5f9; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="top-bar">
-      <h2 id="mainTitle">DM Milad Organization</h2>
-      <button type="button" id="langToggle" class="lang-btn">اردو</button>
-    </div>
+  <div class="container">
+    <!-- AUTH CARD (NO ADMIN OR APPROVAL OPTION ON START) -->
+    <div id="authCard" class="card">
+      <div class="top-bar">
+        <h2 id="appTitle">DM Milad Organization</h2>
+        <button type="button" id="langBtn" class="btn btn-secondary">English</button>
+      </div>
 
-    <div id="authArea">
       <div class="tabs">
-        <button type="button" id="tabLogin" class="tab-btn active">Login</button>
-        <button type="button" id="tabRegister" class="tab-btn">Create Account</button>
+        <button type="button" id="tabLogin" class="tab-btn active">لاگ ان</button>
+        <button type="button" id="tabRegister" class="tab-btn">نیا اکاؤنٹ</button>
       </div>
 
-      <!-- LOGIN SECTION (DEFAULT MAIN SCREEN) -->
-      <div id="loginSection">
+      <div id="loginBox">
         <div class="field">
-          <label class="field-label" id="lblLoginPhone" for="loginPhone">Phone number</label>
-          <input id="loginPhone" type="tel" placeholder="+923001234567" />
+          <label id="lblLoginPhone" for="loginPhone">فون نمبر</label>
+          <input id="loginPhone" type="tel" placeholder="03345049441" />
         </div>
         <div class="field">
-          <label class="field-label" id="lblLoginPass" for="loginPassword">Password</label>
-          <input id="loginPassword" type="password" placeholder="Password" />
+          <label id="lblLoginPass" for="loginPass">پاس ورڈ</label>
+          <input id="loginPass" type="password" placeholder="پاس ورڈ" />
         </div>
-        <button type="button" id="loginBtn" class="primary-btn">Login</button>
+        <button type="button" id="loginBtn" class="btn btn-primary">لاگ ان کریں</button>
       </div>
 
-      <!-- REGISTER SECTION (NO OTP) -->
-      <form id="createAccountForm" style="display:none;" novalidate>
+      <form id="registerForm" style="display:none;" novalidate>
         <div class="field">
-          <label class="field-label" id="lblName" for="fullName">Full name</label>
-          <input id="fullName" type="text" placeholder="Full name" required />
+          <label id="lblRegName" for="regName">پورا نام</label>
+          <input id="regName" type="text" placeholder="پورا نام" />
         </div>
         <div class="field">
-          <label class="field-label" id="lblPhone" for="phoneNumber">Phone number</label>
-          <input id="phoneNumber" type="tel" placeholder="+923001234567" required />
+          <label id="lblRegPhone" for="regPhone">فون نمبر</label>
+          <input id="regPhone" type="tel" placeholder="03001234567" />
         </div>
         <div class="field">
-          <label class="field-label" id="lblPassword" for="password">Password</label>
-          <input id="password" type="password" placeholder="At least 6 characters" required />
+          <label id="lblRegPass" for="regPass">پاس ورڈ</label>
+          <input id="regPass" type="password" placeholder="کم از کم 6 حروف" />
         </div>
         <div class="field">
-          <span class="field-label" id="lblRoleTitle">Account Type</span>
-          <div class="role-options">
-            <label class="role-option" for="roleManagement">
-              <input id="roleManagement" name="accountRole" type="radio" value="management" />
-              <span id="txtManagement">Management</span>
-            </label>
-            <label class="role-option" for="rolePublic">
-              <input id="rolePublic" name="accountRole" type="radio" value="public" />
-              <span id="txtPublic">Public</span>
-            </label>
-          </div>
+          <label id="lblRegRole" for="regRole">اکاؤنٹ کی قسم</label>
+          <select id="regRole">
+            <option value="">منتخب کریں</option>
+            <option value="public">عام عوام (Public)</option>
+            <option value="management">انتظامیہ (Management - ایڈمن منظوری درکار)</option>
+            <option value="abroad">ایبراڈ / بیرونِ ملک (Abroad - ایڈمن منظوری درکار)</option>
+          </select>
         </div>
-        <button type="submit" id="registerBtn" class="primary-btn">Create Account</button>
+        <button type="submit" id="registerBtn" class="btn btn-primary">اکاؤنٹ بنائیں</button>
       </form>
+
+      <div id="authMsg" class="msg"></div>
     </div>
 
-    <!-- LOGGED IN DASHBOARD -->
-    <div id="userDashboard" class="dashboard-box">
-      <div id="welcomeText" style="font-size:16px; font-weight:bold; color:#14532d;"></div>
-      <div id="roleInfoText" style="margin-top:6px; font-size:14px;"></div>
-      <button type="button" id="logoutBtn" class="logout-btn">Logout</button>
-    </div>
-
-    <div id="formMessage" class="msg"></div>
-  </div>
-
-  <!-- ADMIN APPROVAL -->
-  <div class="card">
-    <div class="top-bar">
-      <h3 id="adminTitle">Admin Approval</h3>
-      <button type="button" id="toggleAdminBtn" class="sec-btn">Open</button>
-    </div>
-    <div id="adminPanel" style="display:none;">
-      <div class="field">
-        <label class="field-label" id="lblAdminPin" for="adminPin">Admin PIN</label>
-        <input id="adminPin" type="password" placeholder="Enter Admin PIN" />
+    <!-- USER / ADMIN PORTAL -->
+    <div id="portalCard" class="card" style="display:none;">
+      <div class="top-bar">
+        <div>
+          <h3 id="portalUserName">صارف</h3>
+          <div id="portalUserRole" style="font-size:12px; color:#475569;"></div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button type="button" id="portalLangBtn" class="btn btn-secondary">English</button>
+          <button type="button" id="logoutBtn" class="btn btn-danger">لاگ آؤٹ</button>
+        </div>
       </div>
-      <button type="button" id="loadPendingBtn" class="primary-btn">Load Pending Management</button>
-      <div id="pendingList" style="margin-top:10px;"></div>
+
+      <!-- DYNAMIC ROLE MENU -->
+      <div id="roleMenu" class="menu-grid"></div>
+
+      <!-- CONTENT VIEWER -->
+      <div id="contentArea"></div>
+
+      <!-- ADMIN CONTROL PANEL (ONLY FOR BUILT-IN ADMIN) -->
+      <div id="adminControls" style="display:none;">
+        <div class="admin-section">
+          <h4>1. زیرِ التوا درخواستیں (انتظامیہ / ایبراڈ)</h4>
+          <div id="pendingRequestsList"></div>
+        </div>
+
+        <div class="admin-section">
+          <h4>2. ممبر کے جمع کروائے گئے فنڈز درج کریں</h4>
+          <div class="field">
+            <label>ممبر منتخب کریں</label>
+            <select id="fundMemberSelect"></select>
+          </div>
+          <div class="field">
+            <label>رقم (مثلاً 5000)</label>
+            <input id="fundAmount" type="number" placeholder="رقم" />
+          </div>
+          <div class="field">
+            <label>تاریخ / تفصیل</label>
+            <input id="fundNote" type="text" placeholder="مثلاً 2026-11-25 ماہانہ چندہ" />
+          </div>
+          <button type="button" id="addFundBtn" class="btn btn-primary">فنڈ محفوظ کریں</button>
+        </div>
+
+        <div class="admin-section">
+          <h4>3. اخراجات کی تصویر شامل کریں</h4>
+          <div class="field">
+            <label>عنوان / تاریخ</label>
+            <input id="expenseTitle" type="text" placeholder="مثلاً 2026-11-25 محفل انتظام" />
+          </div>
+          <div class="field">
+            <label>تصویر کا لنک یا تصویر فائل منتخب کریں</label>
+            <input id="expenseUrl" type="text" placeholder="https://... تصویر کا لنک" />
+            <input id="expenseFile" type="file" accept="image/*" style="margin-top:6px;" />
+          </div>
+          <button type="button" id="addExpenseBtn" class="btn btn-primary">اخراجات کی تصویر محفوظ کریں</button>
+        </div>
+
+        <div class="admin-section">
+          <h4>4. تصاویر اور ویڈیوز کے فولڈرز (سال / تاریخ کے حساب سے)</h4>
+          <div class="field">
+            <label>سیکشن منتخب کریں</label>
+            <select id="mediaCategory">
+              <option value="photos">تصاویر (Photos)</option>
+              <option value="videos">ویڈیوز (Videos)</option>
+              <option value="langar">لنگر کی تفصیل (Langar Photos)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>فولڈر کا نام (سال / تاریخ، مثلاً 2026 / 2026-11-25)</label>
+            <input id="mediaFolder" type="text" placeholder="مثلاً 2026-11-25" />
+          </div>
+          <div class="field">
+            <label>عنوان</label>
+            <input id="mediaTitle" type="text" placeholder="تصویر یا ویڈیو کا عنوان" />
+          </div>
+          <div class="field">
+            <label>تصویر / ویڈیو کا لنک (یا تصویر فائل)</label>
+            <input id="mediaUrl" type="text" placeholder="https://... تصویر یا ویڈیو لنک" />
+            <input id="mediaFile" type="file" accept="image/*" style="margin-top:6px;" />
+          </div>
+          <button type="button" id="addMediaBtn" class="btn btn-primary">فولڈر میں محفوظ کریں</button>
+        </div>
+
+        <div id="adminMsg" class="msg"></div>
+      </div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getFirestore, doc, setDoc, getDoc, updateDoc, addDoc,
+      collection, query, where, getDocs, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAkjIRnblF6G-7OfXoc-yvLxh2Mu4CbfjQ",
@@ -132,248 +202,470 @@
       measurementId: "G-BLPHEGFDVL"
     };
 
-    const ADMIN_PIN = "2026";
+    // BUILT-IN ADMIN CREDENTIALS
+    const BUILT_IN_ADMIN = {
+      phone: "03345049441",
+      password: "Qn@104876",
+      name: "Admin (DM Milad)"
+    };
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let currentLang = "en";
-
-    const texts = {
-      en: {
-        dir: "ltr", toggleBtn: "اردو", tabLogin: "Login", tabRegister: "Create Account",
-        lblLoginPhone: "Phone number", lblLoginPass: "Password", loginBtn: "Login",
-        lblName: "Full name", phName: "Full name", lblPhone: "Phone number", phPhone: "+923001234567",
-        lblPassword: "Password", phPassword: "At least 6 characters", lblRoleTitle: "Account Type",
-        txtManagement: "Management", txtPublic: "Public", registerBtn: "Create Account",
-        adminTitle: "Admin Approval", openBtn: "Open", closeBtn: "Hide",
-        lblAdminPin: "Admin PIN", phAdminPin: "Enter Admin PIN", loadBtn: "Load Pending Management",
-        approveBtn: "Approve", rejectBtn: "Reject", noPending: "No pending Management requests.",
-        wrongPin: "Invalid Admin PIN.", errName: "Please enter full name.",
-        errPhone: "Use +923001234567 format.", errPass: "Password must be at least 6 characters.",
-        errRole: "Select Management or Public.", alreadyExists: "This phone number is already registered.",
-        okManagement: "Account created! Management account is pending admin approval.",
-        okPublic: "Public account created! You can now login.",
-        notFound: "Account not found.", wrongPass: "Incorrect password.",
-        pendingMsg: "Your Management account is pending admin approval.",
-        rejectedMsg: "Your Management account request was rejected.",
-        loginOk: "Welcome, ", logoutBtn: "Logout"
-      },
-      ur: {
-        dir: "rtl", toggleBtn: "English", tabLogin: "لاگ ان", tabRegister: "نیا اکاؤنٹ",
-        lblLoginPhone: "فون نمبر", lblLoginPass: "پاس ورڈ", loginBtn: "لاگ ان کریں",
-        lblName: "پورا نام", phName: "پورا نام لکھیں", lblPhone: "فون نمبر", phPhone: "+923001234567",
-        lblPassword: "پاس ورڈ", phPassword: "کم از کم 6 حروف", lblRoleTitle: "اکاؤنٹ کی قسم",
-        txtManagement: "انتظامیہ", txtPublic: "عوام", registerBtn: "اکاؤنٹ بنائیں",
-        adminTitle: "ایڈمن منظوری", openBtn: "کھولیں", closeBtn: "بند کریں",
-        lblAdminPin: "ایڈمن پن", phAdminPin: "ایڈمن پن لکھیں", loadBtn: "زیرِ التوا انتظامیہ دیکھیں",
-        approveBtn: "منظور کریں", rejectBtn: "مسترد کریں", noPending: "کوئی زیرِ التوا درخواست نہیں ہے۔",
-        wrongPin: "غلط ایڈمن پن۔", errName: "پورا نام لکھیں۔",
-        errPhone: "نمبر +923001234567 کی صورت میں لکھیں۔", errPass: "پاس ورڈ کم از کم 6 حروف کا ہو۔",
-        errRole: "انتظامیہ یا عوام منتخب کریں۔", alreadyExists: "اس فون نمبر پر پہلے سے اکاؤنٹ موجود ہے۔",
-        okManagement: "اکاؤنٹ بن گیا! انتظامیہ اکاؤنٹ ایڈمن منظوری کے منتظر ہے۔",
-        okPublic: "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔",
-        notFound: "اکاؤنٹ نہیں ملا۔", wrongPass: "پاس ورڈ غلط ہے۔",
-        pendingMsg: "آپ کا انتظامیہ اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔",
-        rejectedMsg: "آپ کی انتظامیہ اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔",
-        loginOk: "خوش آمدید، ", logoutBtn: "لاگ آؤٹ"
-      }
-    };
+    let currentUser = null;
+    let activeSection = null;
+    let lang = "ur";
 
     const el = (id) => document.getElementById(id);
 
-    function applyLanguage(lang) {
-      currentLang = lang;
-      const t = texts[lang];
-      document.documentElement.lang = lang;
-      document.documentElement.dir = t.dir;
-      document.body.dir = t.dir;
-
-      el("langToggle").textContent = t.toggleBtn;
-      el("tabLogin").textContent = t.tabLogin;
-      el("tabRegister").textContent = t.tabRegister;
-      el("lblLoginPhone").textContent = t.lblLoginPhone;
-      el("loginPhone").placeholder = t.phPhone;
-      el("lblLoginPass").textContent = t.lblLoginPass;
-      el("loginBtn").textContent = t.loginBtn;
-      el("lblName").textContent = t.lblName;
-      el("fullName").placeholder = t.phName;
-      el("lblPhone").textContent = t.lblPhone;
-      el("phoneNumber").placeholder = t.phPhone;
-      el("lblPassword").textContent = t.lblPassword;
-      el("password").placeholder = t.phPassword;
-      el("lblRoleTitle").textContent = t.lblRoleTitle;
-      el("txtManagement").textContent = t.txtManagement;
-      el("txtPublic").textContent = t.txtPublic;
-      el("registerBtn").textContent = t.registerBtn;
-      el("logoutBtn").textContent = t.logoutBtn;
-      el("adminTitle").textContent = t.adminTitle;
-      el("toggleAdminBtn").textContent = el("adminPanel").style.display === "none" ? t.openBtn : t.closeBtn;
-      el("lblAdminPin").textContent = t.lblAdminPin;
-      el("adminPin").placeholder = t.phAdminPin;
-      el("loadPendingBtn").textContent = t.loadBtn;
+    function normalizePhone(raw) {
+      let clean = (raw || "").replace(/[^\d+]/g, "");
+      if (clean.startsWith("+92")) clean = "0" + clean.slice(3);
+      else if (clean.startsWith("92")) clean = "0" + clean.slice(2);
+      return clean;
     }
 
-    function showMsg(text, type) {
-      const box = el("formMessage");
+    function isValidPhone(phone) {
+      return /^\d{7,15}$/.test(phone);
+    }
+
+    function setLanguage(nextLang) {
+      lang = nextLang;
+      const isUr = lang === "ur";
+      document.documentElement.lang = lang;
+      document.documentElement.dir = isUr ? "rtl" : "ltr";
+      document.body.dir = isUr ? "rtl" : "ltr";
+      el("langBtn").textContent = isUr ? "English" : "اردو";
+      el("portalLangBtn").textContent = isUr ? "English" : "اردو";
+      el("tabLogin").textContent = isUr ? "لاگ ان" : "Login";
+      el("tabRegister").textContent = isUr ? "نیا اکاؤنٹ" : "Create Account";
+      el("loginBtn").textContent = isUr ? "لاگ ان کریں" : "Login";
+      el("registerBtn").textContent = isUr ? "اکاؤنٹ بنائیں" : "Create Account";
+      el("logoutBtn").textContent = isUr ? "لاگ آؤٹ" : "Logout";
+      if (currentUser) renderRoleMenu();
+    }
+
+    function showAuthMsg(text, type) {
+      const box = el("authMsg");
       box.textContent = text;
       box.className = "msg " + type;
     }
 
-    function switchToLogin() {
-      el("tabLogin").classList.add("active");
-      el("tabRegister").classList.remove("active");
-      el("loginSection").style.display = "block";
-      el("createAccountForm").style.display = "none";
+    function showAdminMsg(text, type) {
+      const box = el("adminMsg");
+      box.textContent = text;
+      box.className = "msg " + type;
     }
 
-    el("langToggle").addEventListener("click", () => applyLanguage(currentLang === "en" ? "ur" : "en"));
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    el("langBtn").addEventListener("click", () => setLanguage(lang === "ur" ? "en" : "ur"));
+    el("portalLangBtn").addEventListener("click", () => setLanguage(lang === "ur" ? "en" : "ur"));
 
     el("tabLogin").addEventListener("click", () => {
-      switchToLogin();
-      el("formMessage").className = "msg";
+      el("tabLogin").classList.add("active");
+      el("tabRegister").classList.remove("active");
+      el("loginBox").style.display = "block";
+      el("registerForm").style.display = "none";
+      el("authMsg").className = "msg";
     });
 
     el("tabRegister").addEventListener("click", () => {
       el("tabRegister").classList.add("active");
       el("tabLogin").classList.remove("active");
-      el("loginSection").style.display = "none";
-      el("createAccountForm").style.display = "block";
-      el("formMessage").className = "msg";
+      el("loginBox").style.display = "none";
+      el("registerForm").style.display = "block";
+      el("authMsg").className = "msg";
     });
 
-    // CREATE ACCOUNT (NO OTP)
-    el("createAccountForm").addEventListener("submit", async (e) => {
+    // REGISTER
+    el("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const t = texts[currentLang];
-      const fullName = el("fullName").value.trim();
-      const phoneNumber = el("phoneNumber").value.trim();
-      const password = el("password").value;
-      const roleEl = document.querySelector('input[name="accountRole"]:checked');
+      const name = el("regName").value.trim();
+      const phone = normalizePhone(el("regPhone").value);
+      const password = el("regPass").value;
+      const role = el("regRole").value;
 
-      if (!fullName) return showMsg(t.errName, "error");
-      if (!/^\+[1-9]\d{7,14}$/.test(phoneNumber)) return showMsg(t.errPhone, "error");
-      if (password.length < 6) return showMsg(t.errPass, "error");
-      if (!roleEl) return showMsg(t.errRole, "error");
+      if (!name) return showAuthMsg("براہِ کرم پورا نام لکھیں۔", "error");
+      if (!isValidPhone(phone)) return showAuthMsg("درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
+      if (phone === BUILT_IN_ADMIN.phone) return showAuthMsg("یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
+      if (password.length < 6) return showAuthMsg("پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
+      if (!role) return showAuthMsg("براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
 
       el("registerBtn").disabled = true;
       try {
-        const userRef = doc(db, "users", phoneNumber);
-        const existing = await getDoc(userRef);
-        if (existing.exists()) {
-          showMsg(t.alreadyExists, "error");
-          return;
-        }
+        const ref = doc(db, "users", phone);
+        const snap = await getDoc(ref);
+        if (snap.exists()) return showAuthMsg("اس نمبر پر پہلے سے اکاؤنٹ موجود ہے۔", "error");
 
-        const isMgmt = roleEl.value === "management";
-        await setDoc(userRef, {
-          fullName,
-          phoneNumber,
+        const needsApproval = role === "management" || role === "abroad";
+        await setDoc(ref, {
+          name,
+          phone,
           password,
-          role: roleEl.value,
-          status: isMgmt ? "pending_approval" : "active",
+          role,
+          status: needsApproval ? "pending_approval" : "active",
           createdAt: serverTimestamp()
         });
 
-        el("createAccountForm").reset();
-        switchToLogin();
-        el("loginPhone").value = phoneNumber;
-        showMsg(isMgmt ? t.okManagement : t.okPublic, "success");
+        el("registerForm").reset();
+        el("tabLogin").click();
+        el("loginPhone").value = phone;
+        showAuthMsg(
+          needsApproval
+            ? "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔"
+            : "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔",
+          "success"
+        );
       } catch (err) {
-        showMsg(err.message, "error");
+        showAuthMsg(err.message, "error");
       } finally {
         el("registerBtn").disabled = false;
       }
     });
 
-    // LOGIN
+    // LOGIN (BUILTIN ADMIN + PUBLIC + MANAGEMENT + ABROAD)
     el("loginBtn").addEventListener("click", async () => {
-      const t = texts[currentLang];
-      const phone = el("loginPhone").value.trim();
-      const pass = el("loginPassword").value;
-      if (!/^\+[1-9]\d{7,14}$/.test(phone)) return showMsg(t.errPhone, "error");
-      if (!pass) return showMsg(t.wrongPass, "error");
+      const phone = normalizePhone(el("loginPhone").value);
+      const password = el("loginPass").value;
+
+      if (!isValidPhone(phone)) return showAuthMsg("درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
+      if (!password) return showAuthMsg("پاس ورڈ درج کریں۔", "error");
 
       el("loginBtn").disabled = true;
       try {
+        if (phone === BUILT_IN_ADMIN.phone) {
+          if (password !== BUILT_IN_ADMIN.password) {
+            return showAuthMsg("ایڈمن پاس ورڈ غلط ہے۔", "error");
+          }
+          currentUser = {
+            phone: BUILT_IN_ADMIN.phone,
+            name: BUILT_IN_ADMIN.name,
+            role: "admin",
+            status: "active"
+          };
+          openPortal();
+          return;
+        }
+
         const snap = await getDoc(doc(db, "users", phone));
-        if (!snap.exists()) return showMsg(t.notFound, "error");
+        if (!snap.exists()) return showAuthMsg("اکاؤنٹ نہیں ملا۔", "error");
 
         const user = snap.data();
-        if (user.password !== pass) return showMsg(t.wrongPass, "error");
-        if (user.role === "management" && user.status === "pending_approval") return showMsg(t.pendingMsg, "error");
-        if (user.role === "management" && user.status === "rejected") return showMsg(t.rejectedMsg, "error");
+        if (user.password !== password) return showAuthMsg("پاس ورڈ غلط ہے۔", "error");
+        if ((user.role === "management" || user.role === "abroad") && user.status === "pending_approval") {
+          return showAuthMsg("آپ کا اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔", "error");
+        }
+        if (user.status === "rejected") {
+          return showAuthMsg("آپ کی اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔", "error");
+        }
 
-        el("formMessage").className = "msg";
-        el("authArea").style.display = "none";
-        el("userDashboard").style.display = "block";
-        el("welcomeText").textContent = t.loginOk + (user.fullName || phone);
-        el("roleInfoText").textContent = (user.role === "management" ? t.txtManagement : t.txtPublic) + " (" + phone + ")";
+        currentUser = user;
+        openPortal();
       } catch (err) {
-        showMsg(err.message, "error");
+        showAuthMsg(err.message, "error");
       } finally {
         el("loginBtn").disabled = false;
       }
     });
 
     el("logoutBtn").addEventListener("click", () => {
-      el("userDashboard").style.display = "none";
-      el("authArea").style.display = "block";
-      el("loginPassword").value = "";
-      switchToLogin();
+      currentUser = null;
+      activeSection = null;
+      el("portalCard").style.display = "none";
+      el("adminControls").style.display = "none";
+      el("authCard").style.display = "block";
+      el("loginPass").value = "";
+      el("authMsg").className = "msg";
     });
 
-    // ADMIN APPROVAL
-    el("toggleAdminBtn").addEventListener("click", () => {
-      const t = texts[currentLang];
-      const panel = el("adminPanel");
-      const open = panel.style.display === "none";
-      panel.style.display = open ? "block" : "none";
-      el("toggleAdminBtn").textContent = open ? t.closeBtn : t.openBtn;
-    });
+    function openPortal() {
+      el("authCard").style.display = "none";
+      el("portalCard").style.display = "block";
+      el("portalUserName").textContent = currentUser.name;
+      const roleLabels = {
+        admin: "ایڈمن (Admin)",
+        public: "عام عوام (Public)",
+        management: "انتظامیہ (Management)",
+        abroad: " بیرونِ ملک (Abroad)"
+      };
+      el("portalUserRole").textContent = `${roleLabels[currentUser.role] || currentUser.role} | ${currentUser.phone}`;
 
-    async function loadPendingUsers() {
-      const t = texts[currentLang];
-      if (el("adminPin").value.trim() !== ADMIN_PIN) {
-        el("pendingList").innerHTML = `<div class="msg error">${t.wrongPin}</div>`;
-        return;
+      const isAdmin = currentUser.role === "admin";
+      el("adminControls").style.display = isAdmin ? "block" : "none";
+
+      renderRoleMenu();
+      if (isAdmin) {
+        loadPendingRequests();
+        loadMembersForFunds();
       }
-      const q = query(collection(db, "users"), where("role", "==", "management"), where("status", "==", "pending_approval"));
+    }
+
+    function getSectionsForRole(role) {
+      if (role === "public") {
+        return [
+          { key: "photos", label: "تصاویر" },
+          { key: "videos", label: "ویڈیوز" }
+        ];
+      }
+      if (role === "management") {
+        return [
+          { key: "funds", label: "فنڈز کی تفصیل" },
+          { key: "expenses", label: "اخراجات" },
+          { key: "photos", label: "تصاویر" },
+          { key: "videos", label: "ویڈیوز" }
+        ];
+      }
+      if (role === "abroad") {
+        return [
+          { key: "photos", label: "تصاویر" },
+          { key: "videos", label: "ویڈیوز" },
+          { key: "lungar Detail", label: "لنگر کی تفصیل" }
+        ];
+      }
+      return [
+        { key: "photos", label: "تصاویر" },
+        { key: "videos", label: "ویڈیوز" },
+        { key: "expenses", label: "اخراجات" },
+        { key: "lungar Detail", label: "لنگر کی تفصیل" }
+      ];
+    }
+
+    function renderRoleMenu() {
+      const sections = getSectionsForRole(currentUser.role);
+      const menu = el("roleMenu");
+      menu.innerHTML = "";
+
+      sections.forEach((sec, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "menu-btn" + (activeSection === sec.key || (!activeSection && idx === 0) ? " active" : "");
+        btn.textContent = sec.label;
+        btn.addEventListener("click", () => selectSection(sec.key));
+        menu.appendChild(btn);
+      });
+
+      selectSection(activeSection || sections[0].key);
+    }
+
+    async function selectSection(sectionKey) {
+      activeSection = sectionKey;
+      const sections = getSectionsForRole(currentUser.role);
+      const btns = el("roleMenu").querySelectorAll(".menu-btn");
+      btns.forEach((b, i) => {
+        b.classList.toggle("active", sections[i] && sections[i].key === sectionKey);
+      });
+
+      const area = el("contentArea");
+      area.innerHTML = "<div class='item-box'>لوڈ ہو رہا ہے...</div>";
+
+      if (sectionKey === "funds") {
+        await renderFunds(area);
+      } else if (sectionKey === "expenses") {
+        await renderImageList(area, "expenses", "اخراجات کی تفصیل (تصاویر)");
+      } else if (sectionKey === "lungar") {
+        await renderImageList(area, "lungar", "لنگر کی تفصیل (تصاویر)");
+      } else if (sectionKey === "photos") {
+        await renderFolderMedia(area, "photos", "تصاویر کے فولڈرز");
+      } else if (sectionKey === "videos") {
+        await renderFolderMedia(area, "videos", "ویڈیوز کے فولڈرز");
+      }
+    }
+
+    async function renderFunds(area) {
+      const q = query(collection(db, "funds"), where("memberPhone", "==", currentUser.phone));
       const snap = await getDocs(q);
-      const list = el("pendingList");
-      list.innerHTML = "";
-
       if (snap.empty) {
-        list.innerHTML = `<div class="msg success">${t.noPending}</div>`;
+        area.innerHTML = "<div class='item-box'>آپ کے جمع کروائے گئے فنڈز کی کوئی تفصیل ابھی درج نہیں ہے۔</div>";
+        return;
+      }
+      let total = 0;
+      let rows = "";
+      snap.forEach((d) => {
+        const f = d.data();
+        const amt = Number(f.amount || 0);
+        total += amt;
+        rows += `<tr><td>${f.note || "-"}</td><td>${amt}</td></tr>`;
+      });
+      area.innerHTML = `
+        <h4>آپ کے جمع کروائے گئے فنڈز (کل: ${total})</h4>
+        <table>
+          <thead><tr><th>تاریخ / تفصیل</th><th>رقم</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    async function renderImageList(area, colName, title) {
+      const snap = await getDocs(collection(db, colName));
+      if (snap.empty) {
+        area.innerHTML = `<div class='item-box'>${title} میں ابھی کوئی تصویر موجود نہیں ہے۔</div>`;
+        return;
+      }
+      let html = `<h4>${title}</h4>`;
+      snap.forEach((d) => {
+        const item = d.data();
+        html += `<div class="item-box">
+          <strong>${item.title || ""}</strong>
+          ${item.src ? `<img src="${item.src}" alt="${item.title || ""}" />` : ""}
+        </div>`;
+      });
+      area.innerHTML = html;
+    }
+
+    async function renderFolderMedia(area, category, title) {
+      const q = query(collection(db, "media"), where("category", "==", category));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        area.innerHTML = `<div class='item-box'>${title} میں ابھی کوئی فولڈر موجود نہیں ہے۔</div>`;
         return;
       }
 
+      const folders = {};
+      snap.forEach((d) => {
+        const m = d.data();
+        const folder = m.folder || "General";
+        if (!folders[folder]) folders[folder] = [];
+        folders[folder].push(m);
+      });
+
+      const folderNames = Object.keys(folders).sort().reverse();
+      area.innerHTML = `
+        <h4>${title}</h4>
+        <div class="field">
+          <label>فولڈر (سال / تاریخ) منتخب کریں</label>
+          <select id="folderSelector">
+            ${folderNames.map((fn) => `<option value="${fn}">${fn} (${folders[fn].length})</option>`).join("")}
+          </select>
+        </div>
+        <div id="folderItems"></div>`;
+
+      const renderItems = (fn) => {
+        const list = folders[fn] || [];
+        el("folderItems").innerHTML = list.map((m) => `
+          <div class="item-box">
+            <span class="folder-tag">${fn}</span>
+            <div><strong>${m.title || ""}</strong></div>
+            ${category === "videos"
+              ? (m.src ? `<div style="margin-top:6px;"><a href="${m.src}" target="_blank" rel="noopener">ویڈیو کھولیں / دیکھیں</a></div>` : "")
+              : (m.src ? `<img src="${m.src}" alt="${m.title || ""}" />` : "")
+            }
+          </div>
+        `).join("");
+      };
+
+      renderItems(folderNames[0]);
+      el("folderSelector").addEventListener("change", (e) => renderItems(e.target.value));
+    }
+
+    // ADMIN FUNCTIONS
+    async function loadPendingRequests() {
+      const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending_approval")));
+      const box = el("pendingRequestsList");
+      if (snap.empty) {
+        box.innerHTML = "<div class='item-box'>کوئی زیرِ التوا درخواست نہیں ہے۔</div>";
+        return;
+      }
+      box.innerHTML = "";
       snap.forEach((d) => {
         const u = d.data();
-        const item = document.createElement("div");
-        item.className = "req-item";
-        item.innerHTML = `<div><strong>${u.fullName || ""}</strong><br/>${u.phoneNumber || ""}</div>
+        const div = document.createElement("div");
+        div.className = "item-box";
+        div.innerHTML = `
+          <div><strong>${u.name}</strong> (${u.phone})</div>
+          <div style="font-size:12px;">قسم: ${u.role === "abroad" ? "ایبراڈ (Abroad)" : "انتظامیہ (Management)"}</div>
           <div class="req-actions">
-            <button type="button" class="btn-approve" data-id="${d.id}">${t.approveBtn}</button>
-            <button type="button" class="btn-reject" data-id="${d.id}">${t.rejectBtn}</button>
+            <button type="button" class="btn btn-approve" data-id="${d.id}">منظور کریں</button>
+            <button type="button" class="btn btn-reject" data-id="${d.id}">مسترد کریں</button>
           </div>`;
-        list.appendChild(item);
+        box.appendChild(div);
       });
 
-      list.querySelectorAll(".btn-approve").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          await updateDoc(doc(db, "users", btn.dataset.id), { status: "active" });
-          loadPendingUsers();
+      box.querySelectorAll(".btn-approve").forEach((b) => {
+        b.addEventListener("click", async () => {
+          await updateDoc(doc(db, "users", b.dataset.id), { status: "active" });
+          loadPendingRequests();
+          loadMembersForFunds();
         });
       });
-      list.querySelectorAll(".btn-reject").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          await updateDoc(doc(db, "users", btn.dataset.id), { status: "rejected" });
-          loadPendingUsers();
+
+      box.querySelectorAll(".btn-reject").forEach((b) => {
+        b.addEventListener("click", async () => {
+          await updateDoc(doc(db, "users", b.dataset.id), { status: "rejected" });
+          loadPendingRequests();
         });
       });
     }
 
-    el("loadPendingBtn").addEventListener("click", loadPendingUsers);
+    async function loadMembersForFunds() {
+      const snap = await getDocs(collection(db, "users"));
+      const sel = el("fundMemberSelect");
+      sel.innerHTML = "";
+      snap.forEach((d) => {
+        const u = d.data();
+        if (u.role === "management" && u.status === "active") {
+          const opt = document.createElement("option");
+          opt.value = u.phone;
+          opt.textContent = `${u.name} (${u.phone})`;
+          sel.appendChild(opt);
+        }
+      });
+    }
+
+    el("addFundBtn").addEventListener("click", async () => {
+      const memberPhone = el("fundMemberSelect").value;
+      const amount = Number(el("fundAmount").value);
+      const note = el("fundNote").value.trim();
+      if (!memberPhone || !amount) return showAdminMsg("ممبر اور رقم درج کریں۔", "error");
+
+      await addDoc(collection(db, "funds"), {
+        memberPhone,
+        amount,
+        note,
+        createdAt: serverTimestamp()
+      });
+      el("fundAmount").value = "";
+      el("fundNote").value = "";
+      showAdminMsg("فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
+    });
+
+    el("addExpenseBtn").addEventListener("click", async () => {
+      const title = el("expenseTitle").value.trim();
+      let src = el("expenseUrl").value.trim();
+      const file = el("expenseFile").files[0];
+      if (file) src = await fileToDataUrl(file);
+      if (!title || !src) return showAdminMsg("عنوان اور تصویر (یا لنک) درج کریں۔", "error");
+
+      await addDoc(collection(db, "expenses"), { title, src, createdAt: serverTimestamp() });
+      el("expenseTitle").value = "";
+      el("expenseUrl").value = "";
+      el("expenseFile").value = "";
+      showAdminMsg("اخراجات کی تصویر محفوظ ہو گئی۔", "success");
+      if (activeSection === "expenses") selectSection("expenses");
+    });
+
+    el("addMediaBtn").addEventListener("click", async () => {
+      const category = el("mediaCategory").value;
+      const folder = el("mediaFolder").value.trim();
+      const title = el("mediaTitle").value.trim();
+      let src = el("mediaUrl").value.trim();
+      const file = el("mediaFile").files[0];
+      if (file && category !== "videos") src = await fileToDataUrl(file);
+      if (!folder || !title || !src) return showAdminMsg("فولڈر، عنوان اور لنک/تصویر درج کریں۔", "error");
+
+      await addDoc(collection(db, "media"), { category, folder, title, src, createdAt: serverTimestamp() });
+      el("mediaTitle").value = "";
+      el("mediaUrl").value = "";
+      el("mediaFile").value = "";
+      showAdminMsg(`فولڈر (${folder}) میں محفوظ ہو گیا۔`, "success");
+      if (activeSection === category) selectSection(category);
+    });
   </script>
 </body>
 </html>

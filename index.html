@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DM Milad Organization</title>
+  <title>میلاد کمیٹی ڈھوک میکن | Milad Organization Dhoke Maken</title>
   <style>
     * { box-sizing: border-box; font-family: "Noto Nastaliq Urdu", Arial, sans-serif; }
     body { margin: 0; padding: 12px; background: #f1f5f9; color: #0f172a; line-height: 1.6; }
@@ -48,7 +48,7 @@
     <!-- AUTH CARD (NO ADMIN OR APPROVAL OPTION ON START) -->
     <div id="authCard" class="card">
       <div class="top-bar">
-        <h2 id="appTitle">DM Milad Organization</h2>
+        <h2 id="appTitle">میلاد کمیٹی ڈھوک میکن</h2>
         <button type="button" id="langBtn" class="btn btn-secondary">English</button>
       </div>
 
@@ -85,10 +85,10 @@
         <div class="field">
           <label id="lblRegRole" for="regRole">اکاؤنٹ کی قسم</label>
           <select id="regRole">
-            <option value="">منتخب کریں</option>
-            <option value="public">عام عوام (Public)</option>
-            <option value="management">انتظامیہ (Management - ایڈمن منظوری درکار)</option>
-            <option value="abroad">ایبراڈ / بیرونِ ملک (Abroad - ایڈمن منظوری درکار)</option>
+            <option id="optRoleSelect" value="">منتخب کریں</option>
+            <option id="optRolePublic" value="public">عام عوام (Public)</option>
+            <option id="optRoleMgmt" value="management">انتظامیہ (Management - ایڈمن منظوری درکار)</option>
+            <option id="optRoleAbroad" value="abroad">ایبراڈ / بیرونِ ملک (Abroad - ایڈمن منظوری درکار)</option>
           </select>
         </div>
         <button type="submit" id="registerBtn" class="btn btn-primary">اکاؤنٹ بنائیں</button>
@@ -119,62 +119,62 @@
       <!-- ADMIN CONTROL PANEL (ONLY FOR BUILT-IN ADMIN) -->
       <div id="adminControls" style="display:none;">
         <div class="admin-section">
-          <h4>1. زیرِ التوا درخواستیں (انتظامیہ / ایبراڈ)</h4>
+          <h4 id="admH1">1. زیرِ التوا درخواستیں (انتظامیہ / ایبراڈ)</h4>
           <div id="pendingRequestsList"></div>
         </div>
 
         <div class="admin-section">
-          <h4>2. ممبر کے جمع کروائے گئے فنڈز درج کریں</h4>
+          <h4 id="admH2">2. ممبر کے جمع کروائے گئے فنڈز درج کریں</h4>
           <div class="field">
-            <label>ممبر منتخب کریں</label>
+            <label id="lblFundMember">ممبر منتخب کریں</label>
             <select id="fundMemberSelect"></select>
           </div>
           <div class="field">
-            <label>رقم (مثلاً 5000)</label>
-            <input id="fundAmount" type="number" placeholder="رقم" />
+            <label id="lblFundAmount">رقم (مثلاً 5000)</label>
+            <input id="fundAmount" type="number" placeholder="5000" />
           </div>
           <div class="field">
-            <label>تاریخ / تفصیل</label>
-            <input id="fundNote" type="text" placeholder="مثلاً 2026-11-25 ماہانہ چندہ" />
+            <label id="lblFundNote">تاریخ / تفصیل</label>
+            <input id="fundNote" type="text" placeholder="2026-11-25" />
           </div>
           <button type="button" id="addFundBtn" class="btn btn-primary">فنڈ محفوظ کریں</button>
         </div>
 
         <div class="admin-section">
-          <h4>3. اخراجات کی تصویر شامل کریں</h4>
+          <h4 id="admH3">3. اخراجات کی تصویر شامل کریں</h4>
           <div class="field">
-            <label>عنوان / تاریخ</label>
-            <input id="expenseTitle" type="text" placeholder="مثلاً 2026-11-25 محفل انتظام" />
+            <label id="lblExpTitle">عنوان / تاریخ</label>
+            <input id="expenseTitle" type="text" placeholder="2026-11-25" />
           </div>
           <div class="field">
-            <label>تصویر کا لنک یا تصویر فائل منتخب کریں</label>
-            <input id="expenseUrl" type="text" placeholder="https://... تصویر کا لنک" />
+            <label id="lblExpMedia">تصویر کا لنک یا تصویر فائل منتخب کریں</label>
+            <input id="expenseUrl" type="text" placeholder="https://..." />
             <input id="expenseFile" type="file" accept="image/*" style="margin-top:6px;" />
           </div>
           <button type="button" id="addExpenseBtn" class="btn btn-primary">اخراجات کی تصویر محفوظ کریں</button>
         </div>
 
         <div class="admin-section">
-          <h4>4. تصاویر اور ویڈیوز کے فولڈرز (سال / تاریخ کے حساب سے)</h4>
+          <h4 id="admH4">4. تصاویر اور ویڈیوز کے فولڈرز (سال / تاریخ کے حساب سے)</h4>
           <div class="field">
-            <label>سیکشن منتخب کریں</label>
+            <label id="lblMediaCat">سیکشن منتخب کریں</label>
             <select id="mediaCategory">
-              <option value="photos">تصاویر (Photos)</option>
-              <option value="videos">ویڈیوز (Videos)</option>
-              <option value="langar">لنگر کی تفصیل (Langar Photos)</option>
+              <option id="optCatPhotos" value="photos">تصاویر (Photos)</option>
+              <option id="optCatVideos" value="videos">ویڈیوز (Videos)</option>
+              <option id="optCatLangar" value="langar's Detail">لنگر کی تفصیل (Langar Photos)</option>
             </select>
           </div>
           <div class="field">
-            <label>فولڈر کا نام (سال / تاریخ، مثلاً 2026 / 2026-11-25)</label>
-            <input id="mediaFolder" type="text" placeholder="مثلاً 2026-11-25" />
+            <label id="lblMediaFolder">فولڈر کا نام (سال / تاریخ، مثلاً 2026 / 2026-11-25)</label>
+            <input id="mediaFolder" type="text" placeholder="2026-11-25" />
           </div>
           <div class="field">
-            <label>عنوان</label>
-            <input id="mediaTitle" type="text" placeholder="تصویر یا ویڈیو کا عنوان" />
+            <label id="lblMediaTitle">عنوان</label>
+            <input id="mediaTitle" type="text" placeholder="Title" />
           </div>
           <div class="field">
-            <label>تصویر / ویڈیو کا لنک (یا تصویر فائل)</label>
-            <input id="mediaUrl" type="text" placeholder="https://... تصویر یا ویڈیو لنک" />
+            <label id="lblMediaUrl">تصویر / ویڈیو کا لنک (یا تصویر فائل)</label>
+            <input id="mediaUrl" type="text" placeholder="https://..." />
             <input id="mediaFile" type="file" accept="image/*" style="margin-top:6px;" />
           </div>
           <button type="button" id="addMediaBtn" class="btn btn-primary">فولڈر میں محفوظ کریں</button>
@@ -202,470 +202,16 @@
       measurementId: "G-BLPHEGFDVL"
     };
 
-    // BUILT-IN ADMIN CREDENTIALS
     const BUILT_IN_ADMIN = {
       phone: "03345049441",
       password: "Qn@104876",
-      name: "Admin (DM Milad)"
+      name: "Admin"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    let currentUser = null;
-    let activeSection = null;
-    let lang = "ur";
-
-    const el = (id) => document.getElementById(id);
-
-    function normalizePhone(raw) {
-      let clean = (raw || "").replace(/[^\d+]/g, "");
-      if (clean.startsWith("+92")) clean = "0" + clean.slice(3);
-      else if (clean.startsWith("92")) clean = "0" + clean.slice(2);
-      return clean;
-    }
-
-    function isValidPhone(phone) {
-      return /^\d{7,15}$/.test(phone);
-    }
-
-    function setLanguage(nextLang) {
-      lang = nextLang;
-      const isUr = lang === "ur";
-      document.documentElement.lang = lang;
-      document.documentElement.dir = isUr ? "rtl" : "ltr";
-      document.body.dir = isUr ? "rtl" : "ltr";
-      el("langBtn").textContent = isUr ? "English" : "اردو";
-      el("portalLangBtn").textContent = isUr ? "English" : "اردو";
-      el("tabLogin").textContent = isUr ? "لاگ ان" : "Login";
-      el("tabRegister").textContent = isUr ? "نیا اکاؤنٹ" : "Create Account";
-      el("loginBtn").textContent = isUr ? "لاگ ان کریں" : "Login";
-      el("registerBtn").textContent = isUr ? "اکاؤنٹ بنائیں" : "Create Account";
-      el("logoutBtn").textContent = isUr ? "لاگ آؤٹ" : "Logout";
-      if (currentUser) renderRoleMenu();
-    }
-
-    function showAuthMsg(text, type) {
-      const box = el("authMsg");
-      box.textContent = text;
-      box.className = "msg " + type;
-    }
-
-    function showAdminMsg(text, type) {
-      const box = el("adminMsg");
-      box.textContent = text;
-      box.className = "msg " + type;
-    }
-
-    function fileToDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    el("langBtn").addEventListener("click", () => setLanguage(lang === "ur" ? "en" : "ur"));
-    el("portalLangBtn").addEventListener("click", () => setLanguage(lang === "ur" ? "en" : "ur"));
-
-    el("tabLogin").addEventListener("click", () => {
-      el("tabLogin").classList.add("active");
-      el("tabRegister").classList.remove("active");
-      el("loginBox").style.display = "block";
-      el("registerForm").style.display = "none";
-      el("authMsg").className = "msg";
-    });
-
-    el("tabRegister").addEventListener("click", () => {
-      el("tabRegister").classList.add("active");
-      el("tabLogin").classList.remove("active");
-      el("loginBox").style.display = "none";
-      el("registerForm").style.display = "block";
-      el("authMsg").className = "msg";
-    });
-
-    // REGISTER
-    el("registerForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = el("regName").value.trim();
-      const phone = normalizePhone(el("regPhone").value);
-      const password = el("regPass").value;
-      const role = el("regRole").value;
-
-      if (!name) return showAuthMsg("براہِ کرم پورا نام لکھیں۔", "error");
-      if (!isValidPhone(phone)) return showAuthMsg("درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
-      if (phone === BUILT_IN_ADMIN.phone) return showAuthMsg("یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
-      if (password.length < 6) return showAuthMsg("پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
-      if (!role) return showAuthMsg("براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
-
-      el("registerBtn").disabled = true;
-      try {
-        const ref = doc(db, "users", phone);
-        const snap = await getDoc(ref);
-        if (snap.exists()) return showAuthMsg("اس نمبر پر پہلے سے اکاؤنٹ موجود ہے۔", "error");
-
-        const needsApproval = role === "management" || role === "abroad";
-        await setDoc(ref, {
-          name,
-          phone,
-          password,
-          role,
-          status: needsApproval ? "pending_approval" : "active",
-          createdAt: serverTimestamp()
-        });
-
-        el("registerForm").reset();
-        el("tabLogin").click();
-        el("loginPhone").value = phone;
-        showAuthMsg(
-          needsApproval
-            ? "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔"
-            : "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔",
-          "success"
-        );
-      } catch (err) {
-        showAuthMsg(err.message, "error");
-      } finally {
-        el("registerBtn").disabled = false;
-      }
-    });
-
-    // LOGIN (BUILTIN ADMIN + PUBLIC + MANAGEMENT + ABROAD)
-    el("loginBtn").addEventListener("click", async () => {
-      const phone = normalizePhone(el("loginPhone").value);
-      const password = el("loginPass").value;
-
-      if (!isValidPhone(phone)) return showAuthMsg("درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
-      if (!password) return showAuthMsg("پاس ورڈ درج کریں۔", "error");
-
-      el("loginBtn").disabled = true;
-      try {
-        if (phone === BUILT_IN_ADMIN.phone) {
-          if (password !== BUILT_IN_ADMIN.password) {
-            return showAuthMsg("ایڈمن پاس ورڈ غلط ہے۔", "error");
-          }
-          currentUser = {
-            phone: BUILT_IN_ADMIN.phone,
-            name: BUILT_IN_ADMIN.name,
-            role: "admin",
-            status: "active"
-          };
-          openPortal();
-          return;
-        }
-
-        const snap = await getDoc(doc(db, "users", phone));
-        if (!snap.exists()) return showAuthMsg("اکاؤنٹ نہیں ملا۔", "error");
-
-        const user = snap.data();
-        if (user.password !== password) return showAuthMsg("پاس ورڈ غلط ہے۔", "error");
-        if ((user.role === "management" || user.role === "abroad") && user.status === "pending_approval") {
-          return showAuthMsg("آپ کا اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔", "error");
-        }
-        if (user.status === "rejected") {
-          return showAuthMsg("آپ کی اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔", "error");
-        }
-
-        currentUser = user;
-        openPortal();
-      } catch (err) {
-        showAuthMsg(err.message, "error");
-      } finally {
-        el("loginBtn").disabled = false;
-      }
-    });
-
-    el("logoutBtn").addEventListener("click", () => {
-      currentUser = null;
-      activeSection = null;
-      el("portalCard").style.display = "none";
-      el("adminControls").style.display = "none";
-      el("authCard").style.display = "block";
-      el("loginPass").value = "";
-      el("authMsg").className = "msg";
-    });
-
-    function openPortal() {
-      el("authCard").style.display = "none";
-      el("portalCard").style.display = "block";
-      el("portalUserName").textContent = currentUser.name;
-      const roleLabels = {
-        admin: "ایڈمن (Admin)",
-        public: "عام عوام (Public)",
-        management: "انتظامیہ (Management)",
-        abroad: " بیرونِ ملک (Abroad)"
-      };
-      el("portalUserRole").textContent = `${roleLabels[currentUser.role] || currentUser.role} | ${currentUser.phone}`;
-
-      const isAdmin = currentUser.role === "admin";
-      el("adminControls").style.display = isAdmin ? "block" : "none";
-
-      renderRoleMenu();
-      if (isAdmin) {
-        loadPendingRequests();
-        loadMembersForFunds();
-      }
-    }
-
-    function getSectionsForRole(role) {
-      if (role === "public") {
-        return [
-          { key: "photos", label: "تصاویر" },
-          { key: "videos", label: "ویڈیوز" }
-        ];
-      }
-      if (role === "management") {
-        return [
-          { key: "funds", label: "فنڈز کی تفصیل" },
-          { key: "expenses", label: "اخراجات" },
-          { key: "photos", label: "تصاویر" },
-          { key: "videos", label: "ویڈیوز" }
-        ];
-      }
-      if (role === "abroad") {
-        return [
-          { key: "photos", label: "تصاویر" },
-          { key: "videos", label: "ویڈیوز" },
-          { key: "lungar Detail", label: "لنگر کی تفصیل" }
-        ];
-      }
-      return [
-        { key: "photos", label: "تصاویر" },
-        { key: "videos", label: "ویڈیوز" },
-        { key: "expenses", label: "اخراجات" },
-        { key: "lungar Detail", label: "لنگر کی تفصیل" }
-      ];
-    }
-
-    function renderRoleMenu() {
-      const sections = getSectionsForRole(currentUser.role);
-      const menu = el("roleMenu");
-      menu.innerHTML = "";
-
-      sections.forEach((sec, idx) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "menu-btn" + (activeSection === sec.key || (!activeSection && idx === 0) ? " active" : "");
-        btn.textContent = sec.label;
-        btn.addEventListener("click", () => selectSection(sec.key));
-        menu.appendChild(btn);
-      });
-
-      selectSection(activeSection || sections[0].key);
-    }
-
-    async function selectSection(sectionKey) {
-      activeSection = sectionKey;
-      const sections = getSectionsForRole(currentUser.role);
-      const btns = el("roleMenu").querySelectorAll(".menu-btn");
-      btns.forEach((b, i) => {
-        b.classList.toggle("active", sections[i] && sections[i].key === sectionKey);
-      });
-
-      const area = el("contentArea");
-      area.innerHTML = "<div class='item-box'>لوڈ ہو رہا ہے...</div>";
-
-      if (sectionKey === "funds") {
-        await renderFunds(area);
-      } else if (sectionKey === "expenses") {
-        await renderImageList(area, "expenses", "اخراجات کی تفصیل (تصاویر)");
-      } else if (sectionKey === "lungar") {
-        await renderImageList(area, "lungar", "لنگر کی تفصیل (تصاویر)");
-      } else if (sectionKey === "photos") {
-        await renderFolderMedia(area, "photos", "تصاویر کے فولڈرز");
-      } else if (sectionKey === "videos") {
-        await renderFolderMedia(area, "videos", "ویڈیوز کے فولڈرز");
-      }
-    }
-
-    async function renderFunds(area) {
-      const q = query(collection(db, "funds"), where("memberPhone", "==", currentUser.phone));
-      const snap = await getDocs(q);
-      if (snap.empty) {
-        area.innerHTML = "<div class='item-box'>آپ کے جمع کروائے گئے فنڈز کی کوئی تفصیل ابھی درج نہیں ہے۔</div>";
-        return;
-      }
-      let total = 0;
-      let rows = "";
-      snap.forEach((d) => {
-        const f = d.data();
-        const amt = Number(f.amount || 0);
-        total += amt;
-        rows += `<tr><td>${f.note || "-"}</td><td>${amt}</td></tr>`;
-      });
-      area.innerHTML = `
-        <h4>آپ کے جمع کروائے گئے فنڈز (کل: ${total})</h4>
-        <table>
-          <thead><tr><th>تاریخ / تفصیل</th><th>رقم</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>`;
-    }
-
-    async function renderImageList(area, colName, title) {
-      const snap = await getDocs(collection(db, colName));
-      if (snap.empty) {
-        area.innerHTML = `<div class='item-box'>${title} میں ابھی کوئی تصویر موجود نہیں ہے۔</div>`;
-        return;
-      }
-      let html = `<h4>${title}</h4>`;
-      snap.forEach((d) => {
-        const item = d.data();
-        html += `<div class="item-box">
-          <strong>${item.title || ""}</strong>
-          ${item.src ? `<img src="${item.src}" alt="${item.title || ""}" />` : ""}
-        </div>`;
-      });
-      area.innerHTML = html;
-    }
-
-    async function renderFolderMedia(area, category, title) {
-      const q = query(collection(db, "media"), where("category", "==", category));
-      const snap = await getDocs(q);
-      if (snap.empty) {
-        area.innerHTML = `<div class='item-box'>${title} میں ابھی کوئی فولڈر موجود نہیں ہے۔</div>`;
-        return;
-      }
-
-      const folders = {};
-      snap.forEach((d) => {
-        const m = d.data();
-        const folder = m.folder || "General";
-        if (!folders[folder]) folders[folder] = [];
-        folders[folder].push(m);
-      });
-
-      const folderNames = Object.keys(folders).sort().reverse();
-      area.innerHTML = `
-        <h4>${title}</h4>
-        <div class="field">
-          <label>فولڈر (سال / تاریخ) منتخب کریں</label>
-          <select id="folderSelector">
-            ${folderNames.map((fn) => `<option value="${fn}">${fn} (${folders[fn].length})</option>`).join("")}
-          </select>
-        </div>
-        <div id="folderItems"></div>`;
-
-      const renderItems = (fn) => {
-        const list = folders[fn] || [];
-        el("folderItems").innerHTML = list.map((m) => `
-          <div class="item-box">
-            <span class="folder-tag">${fn}</span>
-            <div><strong>${m.title || ""}</strong></div>
-            ${category === "videos"
-              ? (m.src ? `<div style="margin-top:6px;"><a href="${m.src}" target="_blank" rel="noopener">ویڈیو کھولیں / دیکھیں</a></div>` : "")
-              : (m.src ? `<img src="${m.src}" alt="${m.title || ""}" />` : "")
-            }
-          </div>
-        `).join("");
-      };
-
-      renderItems(folderNames[0]);
-      el("folderSelector").addEventListener("change", (e) => renderItems(e.target.value));
-    }
-
-    // ADMIN FUNCTIONS
-    async function loadPendingRequests() {
-      const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending_approval")));
-      const box = el("pendingRequestsList");
-      if (snap.empty) {
-        box.innerHTML = "<div class='item-box'>کوئی زیرِ التوا درخواست نہیں ہے۔</div>";
-        return;
-      }
-      box.innerHTML = "";
-      snap.forEach((d) => {
-        const u = d.data();
-        const div = document.createElement("div");
-        div.className = "item-box";
-        div.innerHTML = `
-          <div><strong>${u.name}</strong> (${u.phone})</div>
-          <div style="font-size:12px;">قسم: ${u.role === "abroad" ? "ایبراڈ (Abroad)" : "انتظامیہ (Management)"}</div>
-          <div class="req-actions">
-            <button type="button" class="btn btn-approve" data-id="${d.id}">منظور کریں</button>
-            <button type="button" class="btn btn-reject" data-id="${d.id}">مسترد کریں</button>
-          </div>`;
-        box.appendChild(div);
-      });
-
-      box.querySelectorAll(".btn-approve").forEach((b) => {
-        b.addEventListener("click", async () => {
-          await updateDoc(doc(db, "users", b.dataset.id), { status: "active" });
-          loadPendingRequests();
-          loadMembersForFunds();
-        });
-      });
-
-      box.querySelectorAll(".btn-reject").forEach((b) => {
-        b.addEventListener("click", async () => {
-          await updateDoc(doc(db, "users", b.dataset.id), { status: "rejected" });
-          loadPendingRequests();
-        });
-      });
-    }
-
-    async function loadMembersForFunds() {
-      const snap = await getDocs(collection(db, "users"));
-      const sel = el("fundMemberSelect");
-      sel.innerHTML = "";
-      snap.forEach((d) => {
-        const u = d.data();
-        if (u.role === "management" && u.status === "active") {
-          const opt = document.createElement("option");
-          opt.value = u.phone;
-          opt.textContent = `${u.name} (${u.phone})`;
-          sel.appendChild(opt);
-        }
-      });
-    }
-
-    el("addFundBtn").addEventListener("click", async () => {
-      const memberPhone = el("fundMemberSelect").value;
-      const amount = Number(el("fundAmount").value);
-      const note = el("fundNote").value.trim();
-      if (!memberPhone || !amount) return showAdminMsg("ممبر اور رقم درج کریں۔", "error");
-
-      await addDoc(collection(db, "funds"), {
-        memberPhone,
-        amount,
-        note,
-        createdAt: serverTimestamp()
-      });
-      el("fundAmount").value = "";
-      el("fundNote").value = "";
-      showAdminMsg("فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
-    });
-
-    el("addExpenseBtn").addEventListener("click", async () => {
-      const title = el("expenseTitle").value.trim();
-      let src = el("expenseUrl").value.trim();
-      const file = el("expenseFile").files[0];
-      if (file) src = await fileToDataUrl(file);
-      if (!title || !src) return showAdminMsg("عنوان اور تصویر (یا لنک) درج کریں۔", "error");
-
-      await addDoc(collection(db, "expenses"), { title, src, createdAt: serverTimestamp() });
-      el("expenseTitle").value = "";
-      el("expenseUrl").value = "";
-      el("expenseFile").value = "";
-      showAdminMsg("اخراجات کی تصویر محفوظ ہو گئی۔", "success");
-      if (activeSection === "expenses") selectSection("expenses");
-    });
-
-    el("addMediaBtn").addEventListener("click", async () => {
-      const category = el("mediaCategory").value;
-      const folder = el("mediaFolder").value.trim();
-      const title = el("mediaTitle").value.trim();
-      let src = el("mediaUrl").value.trim();
-      const file = el("mediaFile").files[0];
-      if (file && category !== "videos") src = await fileToDataUrl(file);
-      if (!folder || !title || !src) return showAdminMsg("فولڈر، عنوان اور لنک/تصویر درج کریں۔", "error");
-
-      await addDoc(collection(db, "media"), { category, folder, title, src, createdAt: serverTimestamp() });
-      el("mediaTitle").value = "";
-      el("mediaUrl").value = "";
-      el("mediaFile").value = "";
-      showAdminMsg(`فولڈر (${folder}) میں محفوظ ہو گیا۔`, "success");
-      if (activeSection === category) selectSection(category);
-    });
-  </script>
-</body>
-</html>
+    const I18N = {
+      ur: {
+        appHeading: "میلاد کمیٹی ڈھوک میکن",
+        toggleBtn: "English",
+        tabLogin: "لاگ ان",
+        tabRegister: "نیا اکاؤنٹ",
+        loginPhone

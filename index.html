@@ -30,6 +30,7 @@
     label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; }
     input, select, textarea { width: 100%; padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 14px; background: #fff; }
     .date-ltr { direction: ltr; text-align: left; }
+    .date-preview { margin-top: 4px; font-size: 12px; color: #166534; font-weight: bold; direction: rtl; }
     .msg { margin-top: 10px; padding: 10px; border-radius: 7px; font-size: 13px; display: none; }
     .msg.error { display: block; background: #fee2e2; color: #991b1b; }
     .msg.success { display: block; background: #dcfce7; color: #166534; }
@@ -130,8 +131,9 @@
             <select id="fundMemberSelect"></select>
           </div>
           <div class="field">
-            <label id="lblFundDate">تاریخ (دن / مہینہ / سال)</label>
+            <label id="lblFundDate">تاریخ منتخب کریں (دن / مہینہ / سال)</label>
             <input id="fundDate" type="date" class="date-ltr" />
+            <div id="fundDatePreview" class="date-preview"></div>
           </div>
           <div class="field">
             <label id="lblFundAmount">رقم (مثلاً 5000)</label>
@@ -152,8 +154,9 @@
         <div class="admin-section">
           <h4 id="admH3">3. اخراجات کی تصویر شامل کریں</h4>
           <div class="field">
-            <label id="lblExpDate">تاریخ (دن / مہینہ / سال)</label>
+            <label id="lblExpDate">تاریخ منتخب کریں (دن / مہینہ / سال)</label>
             <input id="expenseDate" type="date" class="date-ltr" />
+            <div id="expenseDatePreview" class="date-preview"></div>
           </div>
           <div class="field">
             <label id="lblExpTitle">عنوان</label>
@@ -178,8 +181,9 @@
             </select>
           </div>
           <div class="field">
-            <label id="lblMediaDate">تاریخ (دن / مہینہ / سال)</label>
+            <label id="lblMediaDate">تاریخ منتخب کریں (دن / مہینہ / سال)</label>
             <input id="mediaDate" type="date" class="date-ltr" />
+            <div id="mediaDatePreview" class="date-preview"></div>
           </div>
           <div class="field">
             <label id="lblMediaTitle">عنوان</label>
@@ -237,13 +241,13 @@
         admH1: "1. زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)",
         admH2: "2. ممبر کے جمع کروائے گئے فنڈز درج کریں",
         lblFundMember: "ممبر منتخب کریں",
-        lblFundDate: "تاریخ (دن / مہینہ / سال)",
+        lblFundDate: "تاریخ منتخب کریں (دن / مہینہ / سال)",
         lblFundAmount: "رقم (مثلاً 5000)",
         lblFundPurpose: "مقصد / دینے والے نے کیوں دی؟",
         addFundBtn: "فنڈ محفوظ کریں",
         admFundsTableTitle: "درج شدہ فنڈز کی فہرست (تازہ تاریخ سب سے اوپر)",
         admH3: "3. اخراجات کی تصویر شامل کریں",
-        lblExpDate: "تاریخ (دن / مہینہ / سال)",
+        lblExpDate: "تاریخ منتخب کریں (دن / مہینہ / سال)",
         lblExpTitle: "عنوان",
         lblExpMedia: "تصویر کا لنک یا تصویر فائل منتخب کریں",
         addExpenseBtn: "اخراجات کی تصویر محفوظ کریں",
@@ -252,10 +256,11 @@
         catPhotos: "تصاویر (Photos)",
         catVideos: "ویڈیوز (Videos)",
         catLangar: "لنگر کی تفصیل (Langar Photos)",
-        lblMediaDate: "تاریخ (دن / مہینہ / سال)",
+        lblMediaDate: "تاریخ منتخب کریں (دن / مہینہ / سال)",
         lblMediaTitle: "عنوان",
         lblMediaUrl: "تصویر / ویڈیو کا لنک (یا تصویر فائل)",
         addMediaBtn: "محفوظ کریں",
+        selectedDatePrefix: "منتخب تاریخ (دن/مہینہ/سال): ",
         approveBtn: "منظور کریں",
         rejectBtn: "مسترد کریں",
         noPending: "کوئی زیرِ التوا درخواست نہیں ہے۔",
@@ -310,13 +315,13 @@
         admH1: "1. Pending Approvals (Management / Abroad)",
         admH2: "2. Add Member Funds",
         lblFundMember: "Select Member",
-        lblFundDate: "Date (Day / Month / Year)",
+        lblFundDate: "Select Date (Day / Month / Year)",
         lblFundAmount: "Amount (e.g. 5000)",
         lblFundPurpose: "Purpose / Why Given?",
         addFundBtn: "Save Fund",
         admFundsTableTitle: "Recorded Funds (Latest Date First)",
         admH3: "3. Add Expense Photo",
-        lblExpDate: "Date (Day / Month / Year)",
+        lblExpDate: "Select Date (Day / Month / Year)",
         lblExpTitle: "Title",
         lblExpMedia: "Photo URL or Image File",
         addExpenseBtn: "Save Expense Photo",
@@ -325,10 +330,11 @@
         catPhotos: "Photos",
         catVideos: "Videos",
         catLangar: "Langar Details (Photos)",
-        lblMediaDate: "Date (Day / Month / Year)",
+        lblMediaDate: "Select Date (Day / Month / Year)",
         lblMediaTitle: "Title",
         lblMediaUrl: "Photo / Video URL (or Image File)",
         addMediaBtn: "Save",
+        selectedDatePrefix: "Selected Date (DD/MM/YYYY): ",
         approveBtn: "Approve",
         rejectBtn: "Reject",
         noPending: "No pending requests.",
@@ -364,34 +370,100 @@
       return `${yyyy}-${mm}-${dd}`;
     }
 
-    // Converts YYYY-MM-DD (or fallback) to DD/MM/YYYY displayed left-to-right (day, month, year)
-    window.formatDDMMYYYY = (isoDate) => {
-      if (!isoDate) return `<span dir="ltr">-</span>`;
-      const parts = String(isoDate).split("-");
-      if (parts.length === 3 && parts[0].length === 4) {
-        return `<span dir="ltr">${parts[2]}/${parts[1]}/${parts[0]}</span>`;
+    function parseDateParts(raw) {
+      if (!raw) return null;
+      const str = String(raw).trim();
+
+      let m = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+      if (m) {
+        const yyyy = m[1];
+        const mm = m[2].padStart(2, "0");
+        const dd = m[3].padStart(2, "0");
+        const ts = new Date(Number(yyyy), Number(mm) - 1, Number(dd)).getTime();
+        return { dd, mm, yyyy, ts, iso: `${yyyy}-${mm}-${dd}` };
       }
-      return `<span dir="ltr">${isoDate}</span>`;
+
+      m = str.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+      if (m) {
+        const dd = m[1].padStart(2, "0");
+        const mm = m[2].padStart(2, "0");
+        const yyyy = m[3];
+        const ts = new Date(Number(yyyy), Number(mm) - 1, Number(dd)).getTime();
+        return { dd, mm, yyyy, ts, iso: `${yyyy}-${mm}-${dd}` };
+      }
+
+      return null;
+    }
+
+    window.normalizeFundRecord = (f) => {
+      let rawDate = f.date || "";
+      let purpose = f.purpose || "";
+
+      if (!rawDate && f.note) {
+        const parsedNoteDate = parseDateParts(f.note);
+        if (parsedNoteDate) {
+          rawDate = f.note;
+        } else if (!purpose) {
+          purpose = f.note;
+        }
+      }
+
+      const parsed = parseDateParts(rawDate);
+      return {
+        ...f,
+        date: parsed ? parsed.iso : rawDate,
+        purpose,
+        _ts: parsed ? parsed.ts : 0
+      };
     };
 
-    // Comparable timestamp/number so latest date sorts first
-    window.dateSortValue = (item) => {
-      if (item && item.date) {
-        const tVal = Date.parse(item.date);
-        if (!Number.isNaN(tVal)) return tVal;
+    window.formatDDMMYYYY = (rawDate) => {
+      const p = parseDateParts(rawDate);
+      if (p) {
+        return `<span dir="ltr">${p.dd}/${p.mm}/${p.yyyy}</span>`;
       }
+      return rawDate ? `<span dir="ltr">${rawDate}</span>` : `<span dir="ltr">-</span>`;
+    };
+
+    window.dateSortValue = (item) => {
+      if (typeof item._ts === "number" && item._ts > 0) return item._ts;
+      const p = parseDateParts(item && (item.date || item.folder));
+      if (p && !Number.isNaN(p.ts)) return p.ts;
       if (item && item.createdAt && typeof item.createdAt.toMillis === "function") {
         return item.createdAt.toMillis();
       }
       return 0;
     };
 
+    function updateDatePreviews() {
+      const pairs = [
+        ["fundDate", "fundDatePreview"],
+        ["expenseDate", "expenseDatePreview"],
+        ["mediaDate", "mediaDatePreview"]
+      ];
+      pairs.forEach(([inpId, prevId]) => {
+        const inp = el(inpId);
+        const prev = el(prevId);
+        if (inp && prev) {
+          prev.innerHTML = `${window.t("selectedDatePrefix")}${window.formatDDMMYYYY(inp.value)}`;
+        }
+      });
+    }
+
     function setDefaultDates() {
       const today = todayISO();
       if (el("fundDate") && !el("fundDate").value) el("fundDate").value = today;
       if (el("expenseDate") && !el("expenseDate").value) el("expenseDate").value = today;
       if (el("mediaDate") && !el("mediaDate").value) el("mediaDate").value = today;
+      updateDatePreviews();
     }
+
+    ["fundDate", "expenseDate", "mediaDate"].forEach((id) => {
+      if (el(id)) {
+        el(id).addEventListener("change", updateDatePreviews);
+        el(id).addEventListener("input", updateDatePreviews);
+      }
+    });
 
     window.appState = {
       currentUser: null,
@@ -577,6 +649,8 @@
       el("lblMediaUrl").textContent = window.t("lblMediaUrl");
       el("addMediaBtn").textContent = window.t("addMediaBtn");
 
+      updateDatePreviews();
+
       if (window.appState.currentUser) {
         window.updatePortalHeader();
         window.renderRoleMenu();
@@ -705,10 +779,10 @@
       const items = [];
       let total = 0;
       snap.forEach((d) => {
-        const data = d.data();
-        const amt = Number(data.amount || 0);
+        const norm = window.normalizeFundRecord({ id: d.id, ...d.data() });
+        const amt = Number(norm.amount || 0);
         total += amt;
-        items.push({ id: d.id, ...data, amount: amt });
+        items.push({ ...norm, amount: amt });
       });
 
       items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
@@ -717,7 +791,7 @@
         <tr>
           <td>${window.formatDDMMYYYY(f.date)}</td>
           <td>${f.amount}</td>
-          <td>${f.purpose || f.note || "-"}</td>
+          <td>${f.purpose || "-"}</td>
         </tr>
       `).join("");
 
@@ -852,12 +926,12 @@
       }
 
       const items = [];
-      snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+      snap.forEach((d) => items.push(window.normalizeFundRecord({ id: d.id, ...d.data() })));
       items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
 
       const rows = items.map((f) => {
         const mName = memberNamesMap[f.memberPhone] || f.memberPhone || "-";
-        const purposeText = f.purpose || f.note || "-";
+        const purposeText = f.purpose || "-";
         return `
           <tr>
             <td>${window.formatDDMMYYYY(f.date)}</td>
@@ -890,228 +964,4 @@
         </div>
         <div id="fundEditPanel" class="edit-box" style="display:none;"></div>`;
 
-      wrap.querySelectorAll("[data-edit-id]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const item = items.find((x) => x.id === btn.dataset.editId);
-          if (!item) return;
-          const panel = el("fundEditPanel");
-          panel.style.display = "block";
-          panel.innerHTML = `
-            <div class="field">
-              <label>${window.t("lblFundDate")}</label>
-              <input id="editFundDate" type="date" class="date-ltr" value="${item.date || todayISO()}" />
-            </div>
-            <div class="field">
-              <label>${window.t("lblFundAmount")}</label>
-              <input id="editFundAmount" type="number" value="${Number(item.amount || 0)}" />
-            </div>
-            <div class="field">
-              <label>${window.t("lblFundPurpose")}</label>
-              <input id="editFundPurpose" type="text" value="${(item.purpose || item.note || "").replace(/"/g, "&quot;")}" />
-            </div>
-            <div class="row-actions">
-              <button type="button" id="saveFundEditBtn" class="btn btn-sm btn-approve">${window.t("saveEditBtn")}</button>
-              <button type="button" id="cancelFundEditBtn" class="btn btn-sm btn-secondary">${window.t("cancelEditBtn")}</button>
-            </div>`;
-
-          el("cancelFundEditBtn").addEventListener("click", () => {
-            panel.style.display = "none";
-          });
-
-          el("saveFundEditBtn").addEventListener("click", async () => {
-            const nextDate = el("editFundDate").value;
-            const nextAmount = Number(el("editFundAmount").value);
-            const nextPurpose = el("editFundPurpose").value.trim();
-            if (!nextDate || !nextAmount) return;
-            await updateDoc(doc(db, "funds", item.id), {
-              date: nextDate,
-              amount: nextAmount,
-              purpose: nextPurpose
-            });
-            panel.style.display = "none";
-            window.showAdminMsg(window.appState.lang === "en" ? "Fund updated." : "فنڈ کی انٹری اپ ڈیٹ ہو گئی۔", "success");
-            await loadAdminFundsTable();
-            if (window.appState.activeSection === "funds") {
-              window.appState.handlers.selectSection("funds");
-            }
-          });
-        });
-      });
-
-      wrap.querySelectorAll("[data-del-id]").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          if (!confirm(window.t("confirmDelete"))) return;
-          await deleteDoc(doc(db, "funds", btn.dataset.delId));
-          window.showAdminMsg(window.appState.lang === "en" ? "Fund deleted." : "فنڈ کی انٹری ڈیلیٹ ہو گئی۔", "success");
-          await loadAdminFundsTable();
-          if (window.appState.activeSection === "funds") {
-            window.appState.handlers.selectSection("funds");
-          }
-        });
-      });
-    }
-
-    window.appState.handlers.selectSection = async (sectionKey) => {
-      const area = el("contentArea");
-      area.innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
-      if (!db) {
-        area.innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Database offline." : "ڈیٹا بیس دستیاب نہیں۔"}</div>`;
-        return;
-      }
-      try {
-        if (sectionKey === "funds") await renderFunds(area);
-        else if (sectionKey === "expenses") await renderImageList(area, "expenses", window.t("expensesTitle"));
-        else if (sectionKey === "langar") await renderImageList(area, "langar", window.t("langarTitle"));
-        else if (sectionKey === "photos") await renderMediaSorted(area, "photos", window.t("photosTitle"));
-        else if (sectionKey === "videos") await renderMediaSorted(area, "videos", window.t("videosTitle"));
-      } catch (err) {
-        area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error"}</div>`;
-      }
-    };
-
-    window.appState.handlers.onAdminOpen = () => {
-      loadPendingRequests().catch(() => {});
-      loadMembersForFunds().then(() => loadAdminFundsTable()).catch(() => {});
-    };
-
-    window.appState.handlers.loginUser = async (phone, password) => {
-      const l = window.appState.lang;
-      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
-      el("loginBtn").disabled = true;
-      try {
-        const snap = await getDoc(doc(db, "users", phone));
-        if (!snap.exists()) return window.showAuthMsg(l === "en" ? "Account not found." : "اکاؤنٹ نہیں ملا۔", "error");
-        const user = snap.data();
-        if (user.password !== password) return window.showAuthMsg(l === "en" ? "Incorrect password." : "پاس ورڈ غلط ہے۔", "error");
-        if ((user.role === "management" || user.role === "abroad") && user.status === "pending_approval") {
-          return window.showAuthMsg(l === "en" ? "Your account is awaiting Admin approval." : "آپ کا اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔", "error");
-        }
-        if (user.status === "rejected") {
-          return window.showAuthMsg(l === "en" ? "Your account request was rejected." : "آپ کی اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔", "error");
-        }
-        window.appState.currentUser = user;
-        window.openPortal();
-      } catch (err) {
-        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
-      } finally {
-        el("loginBtn").disabled = false;
-      }
-    };
-
-    el("registerForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const l = window.appState.lang;
-      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
-
-      const name = el("regName").value.trim();
-      const phone = window.normalizePhone(el("regPhone").value);
-      const password = el("regPass").value;
-      const role = el("regRole").value;
-
-      if (!name) return window.showAuthMsg(l === "en" ? "Please enter your full name." : "براہِ کرم پورا نام لکھیں۔", "error");
-      if (!window.isValidPhone(phone)) return window.showAuthMsg(l === "en" ? "Enter a valid phone number (e.g. 03001234567)." : "درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
-      if (phone === BUILT_IN_ADMIN.phone) return window.showAuthMsg(l === "en" ? "This number is reserved for Admin." : "یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
-      if (password.length < 6) return window.showAuthMsg(l === "en" ? "Password must be at least 6 characters." : "پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
-      if (!role) return window.showAuthMsg(l === "en" ? "Please select an account type." : "براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
-
-      el("registerBtn").disabled = true;
-      try {
-        const ref = doc(db, "users", phone);
-        const snap = await getDoc(ref);
-        if (snap.exists()) return window.showAuthMsg(l === "en" ? "An account already exists for this number." : "اس نمبر پر پہلے سے اکاؤنٹ موجود ہے۔", "error");
-
-        const needsApproval = role === "management" || role === "abroad";
-        await setDoc(ref, {
-          name,
-          phone,
-          password,
-          role,
-          status: needsApproval ? "pending_approval" : "active",
-          createdAt: serverTimestamp()
-        });
-
-        el("registerForm").reset();
-        el("tabLogin").click();
-        el("loginPhone").value = phone;
-        window.showAuthMsg(
-          needsApproval
-            ? (l === "en" ? "Account created! You can log in after Admin approval." : "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔")
-            : (l === "en" ? "Public account created! You can log in now." : "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔"),
-          "success"
-        );
-      } catch (err) {
-        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
-      } finally {
-        el("registerBtn").disabled = false;
-      }
-    });
-
-    el("addFundBtn").addEventListener("click", async () => {
-      const l = window.appState.lang;
-      if (!db) return;
-      const memberPhone = el("fundMemberSelect").value;
-      const date = el("fundDate").value;
-      const amount = Number(el("fundAmount").value);
-      const purpose = el("fundPurpose").value.trim();
-
-      if (!memberPhone || !date || !amount) {
-        return window.showAdminMsg(l === "en" ? "Select member, date, and amount." : "ممبر، تاریخ اور رقم درج کریں۔", "error");
-      }
-
-      await addDoc(collection(db, "funds"), {
-        memberPhone,
-        date,
-        amount,
-        purpose,
-        createdAt: serverTimestamp()
-      });
-      el("fundAmount").value = "";
-      el("fundPurpose").value = "";
-      window.showAdminMsg(l === "en" ? "Fund record saved." : "فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
-      await loadAdminFundsTable();
-      if (window.appState.activeSection === "funds") window.appState.handlers.selectSection("funds");
-    });
-
-    el("addExpenseBtn").addEventListener("click", async () => {
-      const l = window.appState.lang;
-      if (!db) return;
-      const date = el("expenseDate").value;
-      const title = el("expenseTitle").value.trim();
-      let src = el("expenseUrl").value.trim();
-      const file = el("expenseFile").files[0];
-      if (file) src = await fileToDataUrl(file);
-      if (!date || !title || !src) {
-        return window.showAdminMsg(l === "en" ? "Select date and enter title and photo URL or file." : "تاریخ منتخب کریں اور عنوان و تصویر درج کریں۔", "error");
-      }
-
-      await addDoc(collection(db, "expenses"), { date, title, src, createdAt: serverTimestamp() });
-      el("expenseTitle").value = "";
-      el("expenseUrl").value = "";
-      el("expenseFile").value = "";
-      window.showAdminMsg(l === "en" ? "Expense photo saved." : "اخراجات کی تصویر محفوظ ہو گئی۔", "success");
-      if (window.appState.activeSection === "expenses") window.appState.handlers.selectSection("expenses");
-    });
-
-    el("addMediaBtn").addEventListener("click", async () => {
-      const l = window.appState.lang;
-      if (!db) return;
-      const category = el("mediaCategory").value;
-      const date = el("mediaDate").value;
-      const title = el("mediaTitle").value.trim();
-      let src = el("mediaUrl").value.trim();
-      const file = el("mediaFile").files[0];
-      if (file && category !== "videos") src = await fileToDataUrl(file);
-      if (!date || !title || !src) {
-        return window.showAdminMsg(l === "en" ? "Select date and enter title and link/photo." : "تاریخ منتخب کریں اور عنوان و لنک/تصویر درج کریں۔", "error");
-      }
-
-      await addDoc(collection(db, "media"), { category, date, title, src, createdAt: serverTimestamp() });
-      el("mediaTitle").value = "";
-      el("mediaUrl").value = "";
-      el("mediaFile").value = "";
-      window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
-      if (window.appState.activeSection === category) window.appState.handlers.selectSection(category);
-    });
-  </script>
-</body>
-</html>
+      wrap.querySelectorAll("[data-edit-id]").forEach((btn

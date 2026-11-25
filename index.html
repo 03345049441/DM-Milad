@@ -7,17 +7,19 @@
   <style>
     * { box-sizing: border-box; font-family: "Noto Nastaliq Urdu", Arial, sans-serif; }
     body { margin: 0; padding: 12px; background: #f1f5f9; color: #0f172a; line-height: 1.6; }
-    .container { max-width: 640px; margin: 0 auto; }
+    .container { max-width: 720px; margin: 0 auto; }
     .card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); margin-bottom: 14px; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
     h2, h3, h4 { margin: 0; color: #14532d; }
     h2 { font-size: 19px; }
     h3 { font-size: 16px; }
     h4 { font-size: 14px; margin-bottom: 8px; }
-    .btn { padding: 8px 12px; border: none; border-radius: 7px; font-weight: bold; cursor: pointer; font-size: 13px; }
+    .btn { padding: 7px 11px; border: none; border-radius: 7px; font-weight: bold; cursor: pointer; font-size: 13px; }
+    .btn-sm { padding: 4px 8px; font-size: 12px; border-radius: 5px; }
     .btn-primary { background: #15803d; color: #fff; width: 100%; padding: 10px; font-size: 14px; }
     .btn-secondary { background: #334155; color: #fff; }
     .btn-danger { background: #b91c1c; color: #fff; }
+    .btn-edit { background: #0369a1; color: #fff; }
     .btn-approve { background: #15803d; color: #fff; flex: 1; }
     .btn-reject { background: #b91c1c; color: #fff; flex: 1; }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -39,9 +41,12 @@
     .folder-tag { display: inline-block; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-bottom: 6px; }
     .admin-section { border-top: 2px dashed #cbd5e1; padding-top: 12px; margin-top: 14px; }
     .req-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
-    th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: start; }
+    th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: start; vertical-align: middle; }
     th { background: #f1f5f9; }
+    .row-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+    .edit-box { background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px; padding: 10px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -121,36 +126,41 @@
         <div class="admin-section">
           <h4 id="admH2">2. ممبر کے جمع کروائے گئے فنڈز درج کریں</h4>
           <div class="field">
-            <label id="lblFundMember" for="fundMemberSelect">ممبر منتخب کریں</label>
+            <label id="lblFundMember">ممبر منتخب کریں</label>
             <select id="fundMemberSelect"></select>
           </div>
           <div class="field">
-            <label id="lblFundDate" for="fundDate">1. تاریخ (DD/MM/YYYY)</label>
+            <label id="lblFundDate">تاریخ (دن / مہینہ / سال)</label>
             <input id="fundDate" type="date" class="date-ltr" />
           </div>
           <div class="field">
-            <label id="lblFundAmount" for="fundAmount">2. رقم (مثلاً 5000)</label>
+            <label id="lblFundAmount">رقم (مثلاً 5000)</label>
             <input id="fundAmount" type="number" placeholder="5000" />
           </div>
           <div class="field">
-            <label id="lblFundPurpose" for="fundPurpose">3. مقصد / دینے والے نے کیوں دی؟</label>
-            <input id="fundPurpose" type="text" placeholder="یہ رقم کس مقصد کے لیے ہے / دینے والے نے کیوں دی؟" />
+            <label id="lblFundPurpose">مقصد / دینے والے نے کیوں دی؟</label>
+            <input id="fundPurpose" type="text" placeholder="مثلاً ماہانہ چندہ / محفلِ میلاد / لنگر" />
           </div>
           <button type="button" id="addFundBtn" class="btn btn-primary">فنڈ محفوظ کریں</button>
+
+          <div style="margin-top:14px;">
+            <h4 id="admFundsTableTitle">درج شدہ فنڈز کی فہرست (تازہ تاریخ سب سے اوپر)</h4>
+            <div id="adminFundsTableWrap"></div>
+          </div>
         </div>
 
         <div class="admin-section">
           <h4 id="admH3">3. اخراجات کی تصویر شامل کریں</h4>
           <div class="field">
-            <label id="lblExpDate" for="expenseDate">تاریخ (DD/MM/YYYY)</label>
+            <label id="lblExpDate">تاریخ (دن / مہینہ / سال)</label>
             <input id="expenseDate" type="date" class="date-ltr" />
           </div>
           <div class="field">
-            <label id="lblExpTitle" for="expenseTitle">عنوان / تفصیل</label>
+            <label id="lblExpTitle">عنوان</label>
             <input id="expenseTitle" type="text" placeholder="عنوان" />
           </div>
           <div class="field">
-            <label id="lblExpMedia" for="expenseUrl">تصویر کا لنک یا تصویر فائل منتخب کریں</label>
+            <label id="lblExpMedia">تصویر کا لنک یا تصویر فائل منتخب کریں</label>
             <input id="expenseUrl" type="text" placeholder="https://..." />
             <input id="expenseFile" type="file" accept="image/*" style="margin-top:6px;" />
           </div>
@@ -158,9 +168,9 @@
         </div>
 
         <div class="admin-section">
-          <h4 id="admH4">4. تصاویر اور ویڈیوز کے فولڈرز (تاریخ کے حساب سے)</h4>
+          <h4 id="admH4">4. تصاویر اور ویڈیوز کی انٹری (تاریخ کے حساب سے)</h4>
           <div class="field">
-            <label id="lblMediaCat" for="mediaCategory">سیکشن منتخب کریں</label>
+            <label id="lblMediaCat">سیکشن منتخب کریں</label>
             <select id="mediaCategory">
               <option id="optCatPhotos" value="photos">تصاویر (Photos)</option>
               <option id="optCatVideos" value="videos">ویڈیوز (Videos)</option>
@@ -168,19 +178,19 @@
             </select>
           </div>
           <div class="field">
-            <label id="lblMediaDate" for="mediaDate">فولڈر کی تاریخ (DD/MM/YYYY)</label>
+            <label id="lblMediaDate">تاریخ (دن / مہینہ / سال)</label>
             <input id="mediaDate" type="date" class="date-ltr" />
           </div>
           <div class="field">
-            <label id="lblMediaTitle" for="mediaTitle">عنوان</label>
+            <label id="lblMediaTitle">عنوان</label>
             <input id="mediaTitle" type="text" placeholder="Title" />
           </div>
           <div class="field">
-            <label id="lblMediaUrl" for="mediaUrl">تصویر / ویڈیو کا لنک (یا تصویر فائل)</label>
+            <label id="lblMediaUrl">تصویر / ویڈیو کا لنک (یا تصویر فائل)</label>
             <input id="mediaUrl" type="text" placeholder="https://..." />
             <input id="mediaFile" type="file" accept="image/*" style="margin-top:6px;" />
           </div>
-          <button type="button" id="addMediaBtn" class="btn btn-primary">فولڈر میں محفوظ کریں</button>
+          <button type="button" id="addMediaBtn" class="btn btn-primary">محفوظ کریں</button>
         </div>
 
         <div id="adminMsg" class="msg"></div>
@@ -227,41 +237,47 @@
         admH1: "1. زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)",
         admH2: "2. ممبر کے جمع کروائے گئے فنڈز درج کریں",
         lblFundMember: "ممبر منتخب کریں",
-        lblFundDate: "1. تاریخ (دن / مہینہ / سال)",
-        lblFundAmount: "2. رقم (مثلاً 5000)",
-        lblFundPurpose: "3. مقصد / دینے والے نے کیوں دی؟",
-        fundPurposePh: "یہ رقم کس مقصد کے لیے ہے / دینے والے نے کیوں دی؟",
+        lblFundDate: "تاریخ (دن / مہینہ / سال)",
+        lblFundAmount: "رقم (مثلاً 5000)",
+        lblFundPurpose: "مقصد / دینے والے نے کیوں دی؟",
         addFundBtn: "فنڈ محفوظ کریں",
+        admFundsTableTitle: "درج شدہ فنڈز کی فہرست (تازہ تاریخ سب سے اوپر)",
         admH3: "3. اخراجات کی تصویر شامل کریں",
         lblExpDate: "تاریخ (دن / مہینہ / سال)",
-        lblExpTitle: "عنوان / تفصیل",
+        lblExpTitle: "عنوان",
         lblExpMedia: "تصویر کا لنک یا تصویر فائل منتخب کریں",
         addExpenseBtn: "اخراجات کی تصویر محفوظ کریں",
-        admH4: "4. تصاویر اور ویڈیوز کے فولڈرز (تاریخ کے حساب سے)",
+        admH4: "4. تصاویر اور ویڈیوز کی انٹری (تاریخ کے حساب سے)",
         lblMediaCat: "سیکشن منتخب کریں",
         catPhotos: "تصاویر (Photos)",
         catVideos: "ویڈیوز (Videos)",
         catLangar: "لنگر کی تفصیل (Langar Photos)",
-        lblMediaDate: "فولڈر کی تاریخ (دن / مہینہ / سال)",
+        lblMediaDate: "تاریخ (دن / مہینہ / سال)",
         lblMediaTitle: "عنوان",
         lblMediaUrl: "تصویر / ویڈیو کا لنک (یا تصویر فائل)",
-        addMediaBtn: "فولڈر میں محفوظ کریں",
+        addMediaBtn: "محفوظ کریں",
         approveBtn: "منظور کریں",
         rejectBtn: "مسترد کریں",
         noPending: "کوئی زیرِ التوا درخواست نہیں ہے۔",
         noFunds: "آپ کے جمع کروائے گئے فنڈز کی کوئی تفصیل ابھی درج نہیں ہے۔",
         fundsTitle: "آپ کے جمع کروائے گئے فنڈز (کل: {total})",
-        colDate: "تاریخ",
+        colDate: "تاریخ (دن/مہینہ/سال)",
+        colMember: "ممبر",
         colAmount: "رقم",
         colPurpose: "مقصد / وجہ",
+        colActions: "ترمیم / حذف",
+        editBtn: "ایڈٹ",
+        deleteBtn: "ڈیلیٹ",
+        saveEditBtn: "تبدیلی محفوظ کریں",
+        cancelEditBtn: "منسوخ",
+        confirmDelete: "کیا آپ واقعی یہ ریکارڈ ڈیلیٹ کرنا چاہتے ہیں؟",
         noImages: "{title} میں ابھی کوئی تصویر موجود نہیں ہے۔",
-        noFolders: "{title} میں ابھی کوئی فولڈر موجود نہیں ہے۔",
-        selectFolder: "تاریخ کا فولڈر منتخب کریں (دن / مہینہ / سال)",
+        noFolders: "{title} میں ابھی کوئی انٹری موجود نہیں ہے۔",
         openVideo: "ویڈیو کھولیں / دیکھیں",
-        expensesTitle: "اخراجات کی تفصیل (تصاویر)",
-        langarTitle: "لنگر کی تفصیل (تصاویر)",
-        photosTitle: "تصاویر کے فولڈرز",
-        videosTitle: "ویڈیوز کے فولڈرز"
+        expensesTitle: "اخراجات کی تفصیل (تازہ تاریخ سب سے اوپر)",
+        langarTitle: "لنگر کی تفصیل (تازہ تاریخ سب سے اوپر)",
+        photosTitle: "تصاویر (تازہ تاریخ سب سے اوپر)",
+        videosTitle: "ویڈیوز (تازہ تاریخ سب سے اوپر)"
       },
       en: {
         appHeading: "Milad Organization Dhoke Maken",
@@ -294,95 +310,87 @@
         admH1: "1. Pending Approvals (Management / Abroad)",
         admH2: "2. Add Member Funds",
         lblFundMember: "Select Member",
-        lblFundDate: "1. Date (DD/MM/YYYY)",
-        lblFundAmount: "2. Amount (e.g. 5000)",
-        lblFundPurpose: "3. Purpose / Why Given?",
-        fundPurposePh: "Purpose of this amount / why did the giver give it?",
+        lblFundDate: "Date (Day / Month / Year)",
+        lblFundAmount: "Amount (e.g. 5000)",
+        lblFundPurpose: "Purpose / Why Given?",
         addFundBtn: "Save Fund",
+        admFundsTableTitle: "Recorded Funds (Latest Date First)",
         admH3: "3. Add Expense Photo",
-        lblExpDate: "Date (DD/MM/YYYY)",
-        lblExpTitle: "Title / Details",
+        lblExpDate: "Date (Day / Month / Year)",
+        lblExpTitle: "Title",
         lblExpMedia: "Photo URL or Image File",
         addExpenseBtn: "Save Expense Photo",
-        admH4: "4. Photo & Video Folders (By Date)",
+        admH4: "4. Photo & Video Entry (Sorted by Date)",
         lblMediaCat: "Select Section",
         catPhotos: "Photos",
         catVideos: "Videos",
         catLangar: "Langar Details (Photos)",
-        lblMediaDate: "Folder Date (DD/MM/YYYY)",
+        lblMediaDate: "Date (Day / Month / Year)",
         lblMediaTitle: "Title",
         lblMediaUrl: "Photo / Video URL (or Image File)",
-        addMediaBtn: "Save to Folder",
+        addMediaBtn: "Save",
         approveBtn: "Approve",
         rejectBtn: "Reject",
         noPending: "No pending requests.",
         noFunds: "No fund records found for your account yet.",
         fundsTitle: "Your Submitted Funds (Total: {total})",
-        colDate: "Date",
+        colDate: "Date (DD/MM/YYYY)",
+        colMember: "Member",
         colAmount: "Amount",
         colPurpose: "Purpose / Reason",
+        colActions: "Edit / Delete",
+        editBtn: "Edit",
+        deleteBtn: "Delete",
+        saveEditBtn: "Save Changes",
+        cancelEditBtn: "Cancel",
+        confirmDelete: "Are you sure you want to delete this record?",
         noImages: "No photos added in {title} yet.",
-        noFolders: "No folders available in {title} yet.",
-        selectFolder: "Select Date Folder (DD/MM/YYYY)",
+        noFolders: "No entries available in {title} yet.",
         openVideo: "Open / Watch Video",
-        expensesTitle: "Expenses Details (Photos)",
-        langarTitle: "Langar Details (Photos)",
-        photosTitle: "Photo Folders",
-        videosTitle: "Video Folders"
+        expensesTitle: "Expenses Details (Latest Date First)",
+        langarTitle: "Langar Details (Latest Date First)",
+        photosTitle: "Photos (Latest Date First)",
+        videosTitle: "Videos (Latest Date First)"
       }
     };
 
     const el = (id) => document.getElementById(id);
 
-    function getTodayISO() {
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, "0");
-      const d = String(now.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
+    function todayISO() {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
     }
 
-    // Converts YYYY-MM-DD or DD/MM/YYYY into DD/MM/YYYY (Day / Month / Year from left to right)
-    window.formatDDMMYYYY = (val) => {
-      if (!val) return "-";
-      const str = String(val).trim();
-      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
-        const [y, m, d] = str.split("-");
-        return `${d}/${m}/${y}`;
+    // Converts YYYY-MM-DD (or fallback) to DD/MM/YYYY displayed left-to-right (day, month, year)
+    window.formatDDMMYYYY = (isoDate) => {
+      if (!isoDate) return `<span dir="ltr">-</span>`;
+      const parts = String(isoDate).split("-");
+      if (parts.length === 3 && parts[0].length === 4) {
+        return `<span dir="ltr">${parts[2]}/${parts[1]}/${parts[0]}</span>`;
       }
-      if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) {
-        return str;
-      }
-      return str;
+      return `<span dir="ltr">${isoDate}</span>`;
     };
 
-    // Converts any stored date value into a comparable YYYYMMDD number for newest-first sorting
-    window.dateSortKey = (item) => {
-      const raw = (item && (item.dateISO || item.date || item.folder)) || "";
-      const str = String(raw).trim();
-      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
-        return Number(str.replace(/-/g, ""));
+    // Comparable timestamp/number so latest date sorts first
+    window.dateSortValue = (item) => {
+      if (item && item.date) {
+        const tVal = Date.parse(item.date);
+        if (!Number.isNaN(tVal)) return tVal;
       }
-      if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) {
-        const [d, m, y] = str.split("/");
-        return Number(`${y}${m}${d}`);
-      }
-      if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
-        return Number(str.slice(0, 10).replace(/-/g, ""));
-      }
-      if (item && item.createdAt && typeof item.createdAt.seconds === "number") {
-        return item.createdAt.seconds;
+      if (item && item.createdAt && typeof item.createdAt.toMillis === "function") {
+        return item.createdAt.toMillis();
       }
       return 0;
     };
 
-    function initDefaultDates() {
-      const today = getTodayISO();
-      ["fundDate", "expenseDate", "mediaDate"].forEach((id) => {
-        if (el(id) && !el(id).value) {
-          el(id).value = today;
-        }
-      });
+    function setDefaultDates() {
+      const today = todayISO();
+      if (el("fundDate") && !el("fundDate").value) el("fundDate").value = today;
+      if (el("expenseDate") && !el("expenseDate").value) el("expenseDate").value = today;
+      if (el("mediaDate") && !el("mediaDate").value) el("mediaDate").value = today;
     }
 
     window.appState = {
@@ -503,9 +511,9 @@
     window.openPortal = () => {
       const u = window.appState.currentUser;
       if (!u) return;
+      setDefaultDates();
       el("authCard").style.display = "none";
       el("portalCard").style.display = "block";
-      initDefaultDates();
       window.updatePortalHeader();
 
       const isAdmin = u.role === "admin";
@@ -550,13 +558,15 @@
       el("lblFundDate").textContent = window.t("lblFundDate");
       el("lblFundAmount").textContent = window.t("lblFundAmount");
       el("lblFundPurpose").textContent = window.t("lblFundPurpose");
-      el("fundPurpose").placeholder = window.t("fundPurposePh");
       el("addFundBtn").textContent = window.t("addFundBtn");
+      el("admFundsTableTitle").textContent = window.t("admFundsTableTitle");
+
       el("admH3").textContent = window.t("admH3");
       el("lblExpDate").textContent = window.t("lblExpDate");
       el("lblExpTitle").textContent = window.t("lblExpTitle");
       el("lblExpMedia").textContent = window.t("lblExpMedia");
       el("addExpenseBtn").textContent = window.t("addExpenseBtn");
+
       el("admH4").textContent = window.t("admH4");
       el("lblMediaCat").textContent = window.t("lblMediaCat");
       el("optCatPhotos").textContent = window.t("catPhotos");
@@ -570,8 +580,8 @@
       if (window.appState.currentUser) {
         window.updatePortalHeader();
         window.renderRoleMenu();
-        if (window.appState.currentUser.role === "admin" && window.appState.handlers.loadPendingRequests) {
-          window.appState.handlers.loadPendingRequests();
+        if (window.appState.currentUser.role === "admin" && window.appState.handlers.onAdminOpen) {
+          window.appState.handlers.onAdminOpen();
         }
       }
     };
@@ -643,13 +653,13 @@
       el("authMsg").className = "msg";
     });
 
-    initDefaultDates();
+    setDefaultDates();
   </script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getFirestore, doc, setDoc, getDoc, updateDoc, addDoc,
+      getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, addDoc,
       collection, query, where, getDocs, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -664,6 +674,7 @@
     };
 
     const el = (id) => document.getElementById(id);
+    let memberNamesMap = {};
 
     function fileToDataUrl(file) {
       return new Promise((resolve, reject) => {
@@ -694,38 +705,36 @@
       const items = [];
       let total = 0;
       snap.forEach((d) => {
-        const f = d.data();
-        const amt = Number(f.amount || 0);
+        const data = d.data();
+        const amt = Number(data.amount || 0);
         total += amt;
-        items.push(f);
+        items.push({ id: d.id, ...data, amount: amt });
       });
 
-      // Latest date first
-      items.sort((a, b) => window.dateSortKey(b) - window.dateSortKey(a));
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
 
-      const rows = items.map((f) => {
-        const amt = Number(f.amount || 0);
-        const dateDisp = window.formatDDMMYYYY(f.dateISO || f.date || f.note || "");
-        const purposeDisp = f.purpose || f.note || "-";
-        return `<tr>
-          <td class="date-ltr">${dateDisp}</td>
-          <td>${amt}</td>
-          <td>${purposeDisp}</td>
-        </tr>`;
-      }).join("");
+      const rows = items.map((f) => `
+        <tr>
+          <td>${window.formatDDMMYYYY(f.date)}</td>
+          <td>${f.amount}</td>
+          <td>${f.purpose || f.note || "-"}</td>
+        </tr>
+      `).join("");
 
       area.innerHTML = `
         <h4>${window.t("fundsTitle", { total })}</h4>
-        <table>
-          <thead>
-            <tr>
-              <th>${window.t("colDate")}</th>
-              <th>${window.t("colAmount")}</th>
-              <th>${window.t("colPurpose")}</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>`;
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>${window.t("colDate")}</th>
+                <th>${window.t("colAmount")}</th>
+                <th>${window.t("colPurpose")}</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
     }
 
     async function renderImageList(area, colName, title) {
@@ -736,14 +745,13 @@
       }
 
       const items = [];
-      snap.forEach((d) => items.push(d.data()));
-      items.sort((a, b) => window.dateSortKey(b) - window.dateSortKey(a));
+      snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
 
       let html = `<h4>${title}</h4>`;
       items.forEach((item) => {
-        const dateDisp = window.formatDDMMYYYY(item.dateISO || item.date || "");
         html += `<div class="item-box">
-          <div class="folder-tag date-ltr">${dateDisp}</div>
+          <span class="folder-tag">${window.formatDDMMYYYY(item.date)}</span>
           <div><strong>${item.title || ""}</strong></div>
           ${item.src ? `<img src="${item.src}" alt="${item.title || ""}" />` : ""}
         </div>`;
@@ -751,7 +759,7 @@
       area.innerHTML = html;
     }
 
-    async function renderFolderMedia(area, category, title) {
+    async function renderMediaSorted(area, category, title) {
       const q = query(collection(db, "media"), where("category", "==", category));
       const snap = await getDocs(q);
       if (snap.empty) {
@@ -759,52 +767,22 @@
         return;
       }
 
-      const folders = {};
-      snap.forEach((d) => {
-        const m = d.data();
-        const folderKey = window.formatDDMMYYYY(m.dateISO || m.folder || "01/01/1970");
-        if (!folders[folderKey]) {
-          folders[folderKey] = {
-            label: folderKey,
-            sortKey: window.dateSortKey(m),
-            list: []
-          };
-        }
-        folders[folderKey].list.push(m);
+      const items = [];
+      snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+
+      let html = `<h4>${title}</h4>`;
+      items.forEach((m) => {
+        html += `<div class="item-box">
+          <span class="folder-tag">${window.formatDDMMYYYY(m.date || m.folder)}</span>
+          <div><strong>${m.title || ""}</strong></div>
+          ${category === "videos"
+            ? (m.src ? `<div style="margin-top:6px;"><a href="${m.src}" target="_blank" rel="noopener">${window.t("openVideo")}</a></div>` : "")
+            : (m.src ? `<img src="${m.src}" alt="${m.title || ""}" />` : "")
+          }
+        </div>`;
       });
-
-      const sortedKeys = Object.keys(folders).sort((a, b) => folders[b].sortKey - folders[a].sortKey);
-      sortedKeys.forEach((k) => {
-        folders[k].list.sort((a, b) => window.dateSortKey(b) - window.dateSortKey(a));
-      });
-
-      area.innerHTML = `
-        <h4>${title}</h4>
-        <div class="field">
-          <label>${window.t("selectFolder")}</label>
-          <select id="folderSelector" class="date-ltr">
-            ${sortedKeys.map((k) => `<option value="${k}">${folders[k].label} (${folders[k].list.length})</option>`).join("")}
-          </select>
-        </div>
-        <div id="folderItems"></div>`;
-
-      const renderItems = (k) => {
-        const group = folders[k];
-        const list = group ? group.list : [];
-        el("folderItems").innerHTML = list.map((m) => `
-          <div class="item-box">
-            <span class="folder-tag date-ltr">${group.label}</span>
-            <div><strong>${m.title || ""}</strong></div>
-            ${category === "videos"
-              ? (m.src ? `<div style="margin-top:6px;"><a href="${m.src}" target="_blank" rel="noopener">${window.t("openVideo")}</a></div>` : "")
-              : (m.src ? `<img src="${m.src}" alt="${m.title || ""}" />` : "")
-            }
-          </div>
-        `).join("");
-      };
-
-      renderItems(sortedKeys[0]);
-      el("folderSelector").addEventListener("change", (e) => renderItems(e.target.value));
+      area.innerHTML = html;
     }
 
     async function loadPendingRequests() {
@@ -851,14 +829,125 @@
       const snap = await getDocs(collection(db, "users"));
       const sel = el("fundMemberSelect");
       sel.innerHTML = "";
+      memberNamesMap = {};
       snap.forEach((d) => {
         const u = d.data();
+        memberNamesMap[u.phone] = u.name;
         if (u.role === "management" && u.status === "active") {
           const opt = document.createElement("option");
           opt.value = u.phone;
           opt.textContent = `${u.name} (${u.phone})`;
           sel.appendChild(opt);
         }
+      });
+    }
+
+    async function loadAdminFundsTable() {
+      if (!db || !window.appState.currentUser || window.appState.currentUser.role !== "admin") return;
+      const wrap = el("adminFundsTableWrap");
+      const snap = await getDocs(collection(db, "funds"));
+      if (snap.empty) {
+        wrap.innerHTML = `<div class='item-box'>${window.t("noFunds")}</div>`;
+        return;
+      }
+
+      const items = [];
+      snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+
+      const rows = items.map((f) => {
+        const mName = memberNamesMap[f.memberPhone] || f.memberPhone || "-";
+        const purposeText = f.purpose || f.note || "-";
+        return `
+          <tr>
+            <td>${window.formatDDMMYYYY(f.date)}</td>
+            <td>${mName}</td>
+            <td>${Number(f.amount || 0)}</td>
+            <td>${purposeText}</td>
+            <td>
+              <div class="row-actions">
+                <button type="button" class="btn btn-sm btn-edit" data-edit-id="${f.id}">${window.t("editBtn")}</button>
+                <button type="button" class="btn btn-sm btn-danger" data-del-id="${f.id}">${window.t("deleteBtn")}</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join("");
+
+      wrap.innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>${window.t("colDate")}</th>
+                <th>${window.t("colMember")}</th>
+                <th>${window.t("colAmount")}</th>
+                <th>${window.t("colPurpose")}</th>
+                <th>${window.t("colActions")}</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div id="fundEditPanel" class="edit-box" style="display:none;"></div>`;
+
+      wrap.querySelectorAll("[data-edit-id]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = items.find((x) => x.id === btn.dataset.editId);
+          if (!item) return;
+          const panel = el("fundEditPanel");
+          panel.style.display = "block";
+          panel.innerHTML = `
+            <div class="field">
+              <label>${window.t("lblFundDate")}</label>
+              <input id="editFundDate" type="date" class="date-ltr" value="${item.date || todayISO()}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundAmount")}</label>
+              <input id="editFundAmount" type="number" value="${Number(item.amount || 0)}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundPurpose")}</label>
+              <input id="editFundPurpose" type="text" value="${(item.purpose || item.note || "").replace(/"/g, "&quot;")}" />
+            </div>
+            <div class="row-actions">
+              <button type="button" id="saveFundEditBtn" class="btn btn-sm btn-approve">${window.t("saveEditBtn")}</button>
+              <button type="button" id="cancelFundEditBtn" class="btn btn-sm btn-secondary">${window.t("cancelEditBtn")}</button>
+            </div>`;
+
+          el("cancelFundEditBtn").addEventListener("click", () => {
+            panel.style.display = "none";
+          });
+
+          el("saveFundEditBtn").addEventListener("click", async () => {
+            const nextDate = el("editFundDate").value;
+            const nextAmount = Number(el("editFundAmount").value);
+            const nextPurpose = el("editFundPurpose").value.trim();
+            if (!nextDate || !nextAmount) return;
+            await updateDoc(doc(db, "funds", item.id), {
+              date: nextDate,
+              amount: nextAmount,
+              purpose: nextPurpose
+            });
+            panel.style.display = "none";
+            window.showAdminMsg(window.appState.lang === "en" ? "Fund updated." : "فنڈ کی انٹری اپ ڈیٹ ہو گئی۔", "success");
+            await loadAdminFundsTable();
+            if (window.appState.activeSection === "funds") {
+              window.appState.handlers.selectSection("funds");
+            }
+          });
+        });
+      });
+
+      wrap.querySelectorAll("[data-del-id]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm(window.t("confirmDelete"))) return;
+          await deleteDoc(doc(db, "funds", btn.dataset.delId));
+          window.showAdminMsg(window.appState.lang === "en" ? "Fund deleted." : "فنڈ کی انٹری ڈیلیٹ ہو گئی۔", "success");
+          await loadAdminFundsTable();
+          if (window.appState.activeSection === "funds") {
+            window.appState.handlers.selectSection("funds");
+          }
+        });
       });
     }
 
@@ -873,17 +962,16 @@
         if (sectionKey === "funds") await renderFunds(area);
         else if (sectionKey === "expenses") await renderImageList(area, "expenses", window.t("expensesTitle"));
         else if (sectionKey === "langar") await renderImageList(area, "langar", window.t("langarTitle"));
-        else if (sectionKey === "photos") await renderFolderMedia(area, "photos", window.t("photosTitle"));
-        else if (sectionKey === "videos") await renderFolderMedia(area, "videos", window.t("videosTitle"));
+        else if (sectionKey === "photos") await renderMediaSorted(area, "photos", window.t("photosTitle"));
+        else if (sectionKey === "videos") await renderMediaSorted(area, "videos", window.t("videosTitle"));
       } catch (err) {
         area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error"}</div>`;
       }
     };
 
-    window.appState.handlers.loadPendingRequests = () => loadPendingRequests().catch(() => {});
     window.appState.handlers.onAdminOpen = () => {
       loadPendingRequests().catch(() => {});
-      loadMembersForFunds().catch(() => {});
+      loadMembersForFunds().then(() => loadAdminFundsTable()).catch(() => {});
     };
 
     window.appState.handlers.loginUser = async (phone, password) => {
@@ -962,58 +1050,41 @@
       const l = window.appState.lang;
       if (!db) return;
       const memberPhone = el("fundMemberSelect").value;
-      const dateISO = el("fundDate").value;
+      const date = el("fundDate").value;
       const amount = Number(el("fundAmount").value);
       const purpose = el("fundPurpose").value.trim();
 
-      if (!memberPhone || !dateISO || !amount) {
-        return window.showAdminMsg(
-          l === "en" ? "Select member, date, and amount." : "ممبر، تاریخ اور رقم درج کریں۔",
-          "error"
-        );
+      if (!memberPhone || !date || !amount) {
+        return window.showAdminMsg(l === "en" ? "Select member, date, and amount." : "ممبر، تاریخ اور رقم درج کریں۔", "error");
       }
 
-      const dateFormatted = window.formatDDMMYYYY(dateISO);
       await addDoc(collection(db, "funds"), {
         memberPhone,
-        dateISO,
-        date: dateFormatted,
+        date,
         amount,
         purpose,
-        note: `${dateFormatted} - ${purpose}`,
         createdAt: serverTimestamp()
       });
-
       el("fundAmount").value = "";
       el("fundPurpose").value = "";
       window.showAdminMsg(l === "en" ? "Fund record saved." : "فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
+      await loadAdminFundsTable();
       if (window.appState.activeSection === "funds") window.appState.handlers.selectSection("funds");
     });
 
     el("addExpenseBtn").addEventListener("click", async () => {
       const l = window.appState.lang;
       if (!db) return;
-      const dateISO = el("expenseDate").value;
+      const date = el("expenseDate").value;
       const title = el("expenseTitle").value.trim();
       let src = el("expenseUrl").value.trim();
       const file = el("expenseFile").files[0];
       if (file) src = await fileToDataUrl(file);
-
-      if (!dateISO || !title || !src) {
-        return window.showAdminMsg(
-          l === "en" ? "Select date, enter title, and photo URL or file." : "تاریخ منتخب کریں، عنوان اور تصویر (یا لنک) درج کریں۔",
-          "error"
-        );
+      if (!date || !title || !src) {
+        return window.showAdminMsg(l === "en" ? "Select date and enter title and photo URL or file." : "تاریخ منتخب کریں اور عنوان و تصویر درج کریں۔", "error");
       }
 
-      await addDoc(collection(db, "expenses"), {
-        dateISO,
-        date: window.formatDDMMYYYY(dateISO),
-        title,
-        src,
-        createdAt: serverTimestamp()
-      });
-
+      await addDoc(collection(db, "expenses"), { date, title, src, createdAt: serverTimestamp() });
       el("expenseTitle").value = "";
       el("expenseUrl").value = "";
       el("expenseFile").value = "";
@@ -1025,36 +1096,20 @@
       const l = window.appState.lang;
       if (!db) return;
       const category = el("mediaCategory").value;
-      const dateISO = el("mediaDate").value;
-      const folder = window.formatDDMMYYYY(dateISO);
+      const date = el("mediaDate").value;
       const title = el("mediaTitle").value.trim();
       let src = el("mediaUrl").value.trim();
       const file = el("mediaFile").files[0];
       if (file && category !== "videos") src = await fileToDataUrl(file);
-
-      if (!dateISO || !title || !src) {
-        return window.showAdminMsg(
-          l === "en" ? "Select date, enter title, and link/photo." : "تاریخ منتخب کریں، عنوان اور لنک/تصویر درج کریں۔",
-          "error"
-        );
+      if (!date || !title || !src) {
+        return window.showAdminMsg(l === "en" ? "Select date and enter title and link/photo." : "تاریخ منتخب کریں اور عنوان و لنک/تصویر درج کریں۔", "error");
       }
 
-      await addDoc(collection(db, "media"), {
-        category,
-        dateISO,
-        folder,
-        title,
-        src,
-        createdAt: serverTimestamp()
-      });
-
+      await addDoc(collection(db, "media"), { category, date, title, src, createdAt: serverTimestamp() });
       el("mediaTitle").value = "";
       el("mediaUrl").value = "";
       el("mediaFile").value = "";
-      window.showAdminMsg(
-        l === "en" ? `Saved to folder (${folder}).` : `فولڈر (${folder}) میں محفوظ ہو گیا۔`,
-        "success"
-      );
+      window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
       if (window.appState.activeSection === category) window.appState.handlers.selectSection(category);
     });
   </script>

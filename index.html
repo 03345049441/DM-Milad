@@ -469,6 +469,7 @@
       currentUser: null,
       activeSection: null,
       lang: "ur",
+      dbReady: false,
       handlers: {}
     };
 
@@ -684,6 +685,14 @@
       el("authMsg").className = "msg";
     });
 
+    async function waitForLoginHandler(maxMs = 2500) {
+      const start = Date.now();
+      while (!window.appState.handlers.loginUser && Date.now() - start < maxMs) {
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      return window.appState.handlers.loginUser;
+    }
+
     el("loginBtn").addEventListener("click", async () => {
       const l = window.appState.lang;
       const phone = window.normalizePhone(el("loginPhone").value);
@@ -710,10 +719,14 @@
         return;
       }
 
-      if (window.appState.handlers.loginUser) {
-        await window.appState.handlers.loginUser(phone, password);
+      const handler = await waitForLoginHandler();
+      if (handler) {
+        await handler(phone, password);
       } else {
-        window.showAuthMsg(l === "en" ? "Database connecting, please wait a second and try again." : "ڈیٹا بیس لوڈ ہو رہا ہے، ایک لمحہ بعد دوبارہ کوشش کریں۔", "error");
+        window.showAuthMsg(
+          l === "en" ? "Please check your internet connection and refresh the page." : "براہِ کرم انٹرنیٹ چیک کریں اور صفحہ ریفریش کریں۔",
+          "error"
+        );
       }
     });
 
@@ -763,6 +776,7 @@
     try {
       const app = initializeApp(firebaseConfig);
       db = getFirestore(app);
+      window.appState.dbReady = true;
     } catch (e) {
       db = null;
     }
@@ -964,4 +978,228 @@
         </div>
         <div id="fundEditPanel" class="edit-box" style="display:none;"></div>`;
 
-      wrap.querySelectorAll("[data-edit-id]").forEach((btn
+      wrap.querySelectorAll("[data-edit-id]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = items.find((x) => x.id === btn.dataset.editId);
+          if (!item) return;
+          const panel = el("fundEditPanel");
+          panel.style.display = "block";
+          panel.innerHTML = `
+            <div class="field">
+              <label>${window.t("lblFundDate")}</label>
+              <input id="editFundDate" type="date" class="date-ltr" value="${item.date || todayISO()}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundAmount")}</label>
+              <input id="editFundAmount" type="number" value="${Number(item.amount || 0)}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundPurpose")}</label>
+              <input id="editFundPurpose" type="text" value="${(item.purpose || "").replace(/"/g, "&quot;")}" />
+            </div>
+            <div class="row-actions">
+              <button type="button" id="saveFundEditBtn" class="btn btn-sm btn-approve">${window.t("saveEditBtn")}</button>
+              <button type="button" id="cancelFundEditBtn" class="btn btn-sm btn-secondary">${window.t("cancelEditBtn")}</button>
+            </div>`;
+
+          el("cancelFundEditBtn").addEventListener("click", () => {
+            panel.style.display = "none";
+          });
+
+          el("saveFundEditBtn").addEventListener("click", async () => {
+            const nextDate = el("editFundDate").value;
+            const nextAmount = Number(el("editFundAmount").value);
+            const nextPurpose = el("editFundPurpose").value.trim();
+            if (!nextDate || !nextAmount) return;
+            await updateDoc(doc(db, "funds", item.id), {
+              date: nextDate,
+              amount: nextAmount,
+              purpose: nextPurpose
+            });
+            panel.style.display = "none";
+            window.showAdminMsg(window.appState.lang === "en" ? "Fund updated." : "فنڈ کی انٹری اپ ڈیٹ ہو گئی۔", "success");
+            await loadAdminFundsTable();
+            if (window.appState.activeSection === "funds") {
+              window.appState.handlers.selectSection("funds");
+            }
+          });
+        });
+      });
+
+      wrap.querySelectorAll("[data-del-id]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm(window.t("confirmDelete"))) return;
+          await deleteDoc(doc(db, "funds", btn.dataset.delId));
+          window.showAdminMsg(window.appState.lang === "en" ? "Fund deleted." : "فنڈ کی انٹری ڈیلیٹ ہو گئی۔", "success");
+          await loadAdminFundsTable();
+          if (window.appState.activeSection === "funds") {
+            window.appState.handlers.selectSection("funds");
+          }
+        });
+      });
+    }
+
+    window.appState.handlers.selectSection = async (sectionKey) => {
+      const area = el("contentArea");
+      area.innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+      if (!db) {
+        area.innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Database offline." : "ڈیٹا بیس دستیاب نہیں۔"}</div>`;
+        return;
+      }
+      try {
+        if (sectionKey === "funds") await renderFunds(area);
+        else if (sectionKey === "expenses") await renderImageList(area, "expenses", window.t("expensesTitle"));
+        else if (sectionKey === "langar") await renderImageList(area, "langar", window.t("langarTitle"));
+        else if (sectionKey === "photos") await renderMediaSorted(area, "photos", window.t("photosTitle"));
+        else if (sectionKey === "videos") await renderMediaSorted(area, "videos", window.t("videosTitle"));
+      } catch (err) {
+        area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error"}</div>`;
+      }
+    };
+
+    window.appState.handlers.onAdminOpen = () => {
+      loadPendingRequests().catch(() => {});
+      loadMembersForFunds().then(() => loadAdminFundsTable()).catch(() => {});
+    };
+
+    window.appState.handlers.loginUser = async (phone, password) => {
+      const l = window.appState.lang;
+      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+      el("loginBtn").disabled = true;
+      try {
+        const snap = await getDoc(doc(db, "users", phone));
+        if (!snap.exists()) return window.showAuthMsg(l === "en" ? "Account not found." : "اکاؤنٹ نہیں ملا۔", "error");
+        const user = snap.data();
+        if (user.password !== password) return window.showAuthMsg(l === "en" ? "Incorrect password." : "پاس ورڈ غلط ہے۔", "error");
+        if ((user.role === "management" || user.role === "abroad") && user.status === "pending_approval") {
+          return window.showAuthMsg(l === "en" ? "Your account is awaiting Admin approval." : "آپ کا اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔", "error");
+        }
+        if (user.status === "rejected") {
+          return window.showAuthMsg(l === "en" ? "Your account request was rejected." : "آپ کی اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔", "error");
+        }
+        window.appState.currentUser = user;
+        window.openPortal();
+      } catch (err) {
+        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("loginBtn").disabled = false;
+      }
+    };
+
+    el("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const l = window.appState.lang;
+      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+
+      const name = el("regName").value.trim();
+      const phone = window.normalizePhone(el("regPhone").value);
+      const password = el("regPass").value;
+      const role = el("regRole").value;
+
+      if (!name) return window.showAuthMsg(l === "en" ? "Please enter your full name." : "براہِ کرم پورا نام لکھیں۔", "error");
+      if (!window.isValidPhone(phone)) return window.showAuthMsg(l === "en" ? "Enter a valid phone number (e.g. 03001234567)." : "درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
+      if (phone === BUILT_IN_ADMIN.phone) return window.showAuthMsg(l === "en" ? "This number is reserved for Admin." : "یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
+      if (password.length < 6) return window.showAuthMsg(l === "en" ? "Password must be at least 6 characters." : "پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
+      if (!role) return window.showAuthMsg(l === "en" ? "Please select an account type." : "براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
+
+      el("registerBtn").disabled = true;
+      try {
+        const ref = doc(db, "users", phone);
+        const snap = await getDoc(ref);
+        if (snap.exists()) return window.showAuthMsg(l === "en" ? "An account already exists for this number." : "اس نمبر پر پہلے سے اکاؤنٹ موجود ہے۔", "error");
+
+        const needsApproval = role === "management" || role === "abroad";
+        await setDoc(ref, {
+          name,
+          phone,
+          password,
+          role,
+          status: needsApproval ? "pending_approval" : "active",
+          createdAt: serverTimestamp()
+        });
+
+        el("registerForm").reset();
+        el("tabLogin").click();
+        el("loginPhone").value = phone;
+        window.showAuthMsg(
+          needsApproval
+            ? (l === "en" ? "Account created! You can log in after Admin approval." : "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔")
+            : (l === "en" ? "Public account created! You can log in now." : "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔"),
+          "success"
+        );
+      } catch (err) {
+        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("registerBtn").disabled = false;
+      }
+    });
+
+    el("addFundBtn").addEventListener("click", async () => {
+      const l = window.appState.lang;
+      if (!db) return;
+      const memberPhone = el("fundMemberSelect").value;
+      const date = el("fundDate").value;
+      const amount = Number(el("fundAmount").value);
+      const purpose = el("fundPurpose").value.trim();
+
+      if (!memberPhone || !date || !amount) {
+        return window.showAdminMsg(l === "en" ? "Select member, date, and amount." : "ممبر، تاریخ اور رقم درج کریں۔", "error");
+      }
+
+      await addDoc(collection(db, "funds"), {
+        memberPhone,
+        date,
+        amount,
+        purpose,
+        createdAt: serverTimestamp()
+      });
+      el("fundAmount").value = "";
+      el("fundPurpose").value = "";
+      window.showAdminMsg(l === "en" ? "Fund record saved." : "فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
+      await loadAdminFundsTable();
+      if (window.appState.activeSection === "funds") window.appState.handlers.selectSection("funds");
+    });
+
+    el("addExpenseBtn").addEventListener("click", async () => {
+      const l = window.appState.lang;
+      if (!db) return;
+      const date = el("expenseDate").value;
+      const title = el("expenseTitle").value.trim();
+      let src = el("expenseUrl").value.trim();
+      const file = el("expenseFile").files[0];
+      if (file) src = await fileToDataUrl(file);
+      if (!date || !title || !src) {
+        return window.showAdminMsg(l === "en" ? "Select date and enter title and photo URL or file." : "تاریخ منتخب کریں اور عنوان و تصویر درج کریں۔", "error");
+      }
+
+      await addDoc(collection(db, "expenses"), { date, title, src, createdAt: serverTimestamp() });
+      el("expenseTitle").value = "";
+      el("expenseUrl").value = "";
+      el("expenseFile").value = "";
+      window.showAdminMsg(l === "en" ? "Expense photo saved." : "اخراجات کی تصویر محفوظ ہو گئی۔", "success");
+      if (window.appState.activeSection === "expenses") window.appState.handlers.selectSection("expenses");
+    });
+
+    el("addMediaBtn").addEventListener("click", async () => {
+      const l = window.appState.lang;
+      if (!db) return;
+      const category = el("mediaCategory").value;
+      const date = el("mediaDate").value;
+      const title = el("mediaTitle").value.trim();
+      let src = el("mediaUrl").value.trim();
+      const file = el("mediaFile").files[0];
+      if (file && category !== "videos") src = await fileToDataUrl(file);
+      if (!date || !title || !src) {
+        return window.showAdminMsg(l === "en" ? "Select date and enter title and link/photo." : "تاریخ منتخب کریں اور عنوان و لنک/تصویر درج کریں۔", "error");
+      }
+
+      await addDoc(collection(db, "media"), { category, date, title, src, createdAt: serverTimestamp() });
+      el("mediaTitle").value = "";
+      el("mediaUrl").value = "";
+      el("mediaFile").value = "";
+      window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
+      if (window.appState.activeSection === category) window.appState.handlers.selectSection(category);
+    });
+  </script>
+</body>
+</html>

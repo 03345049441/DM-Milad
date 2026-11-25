@@ -179,7 +179,6 @@
     </div>
   </div>
 
-  <!-- CORE UI, LANGUAGE & LOGIN SCRIPT (NO MODULE DEPENDENCY) -->
   <script>
     const BUILT_IN_ADMIN = {
       phone: "03345049441",
@@ -322,7 +321,6 @@
       currentUser: null,
       activeSection: null,
       lang: "ur",
-      dbReady: false,
       handlers: {}
     };
 
@@ -574,7 +572,6 @@
     });
   </script>
 
-  <!-- FIREBASE DATA SCRIPT -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
@@ -607,7 +604,6 @@
     try {
       const app = initializeApp(firebaseConfig);
       db = getFirestore(app);
-      window.appState.dbReady = true;
     } catch (e) {
       db = null;
     }

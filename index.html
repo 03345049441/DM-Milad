@@ -7,6 +7,8 @@
   <style>
     * { box-sizing: border-box; font-family: "Noto Nastaliq Urdu", Arial, sans-serif; }
     body { margin: 0; padding: 12px; background: #f1f5f9; color: #0f172a; line-height: 1.6; }
+    body.no-select { -webkit-user-select: none; user-select: none; }
+    body.admin-select { -webkit-user-select: text; user-select: text; }
     .container { max-width: 720px; margin: 0 auto; }
     .card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); margin-bottom: 14px; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
@@ -50,9 +52,10 @@
     th { background: #f1f5f9; }
     .row-actions { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
     .edit-box { background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px; padding: 10px; margin-top: 10px; }
+    .note-hint { font-size: 12px; color: #475569; margin-top: 8px; }
   </style>
 </head>
-<body>
+<body class="no-select">
   <div class="container">
     <div id="authCard" class="card">
       <div class="top-bar">
@@ -73,6 +76,10 @@
         <div class="field">
           <label id="lblLoginPass" for="loginPass">پاس ورڈ</label>
           <input id="loginPass" type="password" placeholder="پاس ورڈ" />
+        </div>
+        <div id="multiAccountPicker" class="field" style="display:none;">
+          <label id="lblSelectAccountRole" for="loginAccountSelect">اکاؤنٹ منتخب کریں</label>
+          <select id="loginAccountSelect"></select>
         </div>
         <button type="button" id="loginBtn" class="btn btn-primary">لاگ ان کریں</button>
       </div>
@@ -103,6 +110,7 @@
       </form>
 
       <div id="authMsg" class="msg"></div>
+      <div id="screenNote" class="note-hint">مکمل اسکرین شاٹ بلاک کے لیے اینڈرائیڈ ایپ ریپر (WebIntoApp) کی اسکرین کیپچر سیٹنگ بھی آن رکھیں۔</div>
     </div>
 
     <div id="portalCard" class="card" style="display:none;">
@@ -219,6 +227,7 @@
         tabRegister: "نیا اکاؤنٹ",
         loginPhone: "فون نمبر",
         loginPass: "پاس ورڈ",
+        lblSelectAccountRole: "اکاؤنٹ منتخب کریں",
         loginBtn: "لاگ ان کریں",
         regName: "پورا نام",
         regPhone: "فون نمبر",
@@ -240,6 +249,10 @@
         rolePublicLabel: "عام عوام (Public)",
         roleMgmtLabel: "انتظامیہ (Management)",
         roleAbroadLabel: "بیرونِ ملک (Abroad)",
+        publicNotAllowedExisting: "اس فون نمبر پر پہلے سے اکاؤنٹ موجود ہے، اس لیے عام عوام (Public) میں اکاؤنٹ نہیں بن سکتا۔",
+        roleAlreadyExists: "اس نمبر پر اس کیٹیگری میں پہلے سے اکاؤنٹ موجود ہے۔",
+        chooseAccountToLogin: "اس نمبر پر ایک سے زیادہ اکاؤنٹس موجود ہیں، براہِ کرم اکاؤنٹ منتخب کر کے دوبارہ لاگ ان دبائیں۔",
+        screenNote: "مکمل اسکرین شاٹ بلاک کے لیے اینڈرائیڈ ایپ ریپر (WebIntoApp) کی اسکرین کیپچر سیٹنگ بھی آن رکھیں۔",
         admH1: "1. زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)",
         admH2: "2. ممبر کے جمع کروائے گئے فنڈز درج کریں",
         lblFundMember: "ممبر منتخب کریں",
@@ -296,6 +309,7 @@
         tabRegister: "Create Account",
         loginPhone: "Phone Number",
         loginPass: "Password",
+        lblSelectAccountRole: "Select Account",
         loginBtn: "Login",
         regName: "Full Name",
         regPhone: "Phone Number",
@@ -317,6 +331,10 @@
         rolePublicLabel: "Public",
         roleMgmtLabel: "Management",
         roleAbroadLabel: "Abroad",
+        publicNotAllowedExisting: "An account already exists for this phone number, so a Public account cannot be created.",
+        roleAlreadyExists: "An account already exists for this number under this role.",
+        chooseAccountToLogin: "Multiple accounts exist for this number. Please select an account and click Login again.",
+        screenNote: "For full screenshot blocking, also enable screen-capture blocking in your WebIntoApp wrapper settings.",
         admH1: "1. Pending Approvals (Management / Abroad)",
         admH2: "2. Add Member Funds",
         lblFundMember: "Select Member",
@@ -369,6 +387,24 @@
     };
 
     const el = (id) => document.getElementById(id);
+
+    window.applySelectionRestriction = () => {
+      const isAdmin = Boolean(window.appState.currentUser && window.appState.currentUser.role === "admin");
+      document.body.classList.toggle("admin-select", isAdmin);
+      document.body.classList.toggle("no-select", !isAdmin);
+    };
+
+    document.addEventListener("contextmenu", (e) => {
+      if (!window.appState.currentUser || window.appState.currentUser.role !== "admin") {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener("copy", (e) => {
+      if (!window.appState.currentUser || window.appState.currentUser.role !== "admin") {
+        e.preventDefault();
+      }
+    });
 
     function todayISO() {
       const d = new Date();
@@ -608,6 +644,7 @@
       const u = window.appState.currentUser;
       if (!u) return;
       setDefaultDates();
+      window.applySelectionRestriction();
       el("authCard").style.display = "none";
       el("portalCard").style.display = "block";
       window.updatePortalHeader();
@@ -635,7 +672,9 @@
       el("tabRegister").textContent = window.t("tabRegister");
       el("lblLoginPhone").textContent = window.t("loginPhone");
       el("lblLoginPass").textContent = window.t("loginPass");
+      el("lblSelectAccountRole").textContent = window.t("lblSelectAccountRole");
       el("loginBtn").textContent = window.t("loginBtn");
+      el("screenNote").textContent = window.t("screenNote");
 
       el("lblRegName").textContent = window.t("regName");
       el("lblRegPhone").textContent = window.t("regPhone");
@@ -708,6 +747,11 @@
       el("authMsg").className = "msg";
     });
 
+    el("loginPhone").addEventListener("input", () => {
+      el("multiAccountPicker").style.display = "none";
+      el("loginAccountSelect").innerHTML = "";
+    });
+
     async function waitForLoginHandler(maxMs = 2500) {
       const start = Date.now();
       while (!window.appState.handlers.loginUser && Date.now() - start < maxMs) {
@@ -720,6 +764,7 @@
       const l = window.appState.lang;
       const phone = window.normalizePhone(el("loginPhone").value);
       const password = el("loginPass").value;
+      const selectedDocId = el("multiAccountPicker").style.display !== "none" ? el("loginAccountSelect").value : "";
 
       if (!window.isValidPhone(phone)) {
         return window.showAuthMsg(l === "en" ? "Enter a valid phone number." : "درست فون نمبر لکھیں۔", "error");
@@ -744,7 +789,7 @@
 
       const handler = await waitForLoginHandler();
       if (handler) {
-        await handler(phone, password);
+        await handler(phone, password, selectedDocId);
       } else {
         window.showAuthMsg(
           l === "en" ? "Please check your internet connection and refresh the page." : "براہِ کرم انٹرنیٹ چیک کریں اور صفحہ ریفریش کریں۔",
@@ -756,14 +801,18 @@
     el("logoutBtn").addEventListener("click", () => {
       window.appState.currentUser = null;
       window.appState.activeSection = null;
+      window.applySelectionRestriction();
       el("portalCard").style.display = "none";
       el("adminControls").style.display = "none";
       el("authCard").style.display = "block";
       el("loginPass").value = "";
+      el("multiAccountPicker").style.display = "none";
+      el("loginAccountSelect").innerHTML = "";
       el("authMsg").className = "msg";
     });
 
     setDefaultDates();
+    window.applySelectionRestriction();
   </script>
 
   <script type="module">
@@ -806,6 +855,27 @@
 
     function isAdminUser() {
       return Boolean(window.appState.currentUser && window.appState.currentUser.role === "admin");
+    }
+
+    async function getAccountsForPhone(phone) {
+      const results = [];
+      const seenIds = new Set();
+
+      const qSnap = await getDocs(query(collection(db, "users"), where("phone", "==", phone)));
+      qSnap.forEach((d) => {
+        if (!seenIds.has(d.id)) {
+          seenIds.add(d.id);
+          results.push({ id: d.id, ...d.data() });
+        }
+      });
+
+      const legacySnap = await getDoc(doc(db, "users", phone));
+      if (legacySnap.exists() && !seenIds.has(legacySnap.id)) {
+        seenIds.add(legacySnap.id);
+        results.push({ id: legacySnap.id, ...legacySnap.data() });
+      }
+
+      return results;
     }
 
     function bindDeleteButtons(container, colName, refreshFn) {
@@ -1150,22 +1220,49 @@
       loadMembersForFunds().then(() => loadAdminFundsTable()).catch(() => {});
     };
 
-    window.appState.handlers.loginUser = async (phone, password) => {
+    window.appState.handlers.loginUser = async (phone, password, selectedDocId = "") => {
       const l = window.appState.lang;
       if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
       el("loginBtn").disabled = true;
       try {
-        const snap = await getDoc(doc(db, "users", phone));
-        if (!snap.exists()) return window.showAuthMsg(l === "en" ? "Account not found." : "اکاؤنٹ نہیں ملا۔", "error");
-        const user = snap.data();
-        if (user.password !== password) return window.showAuthMsg(l === "en" ? "Incorrect password." : "پاس ورڈ غلط ہے۔", "error");
-        if ((user.role === "management" || user.role === "abroad") && user.status === "pending_approval") {
+        const accounts = await getAccountsForPhone(phone);
+        if (!accounts.length) {
+          return window.showAuthMsg(l === "en" ? "Account not found." : "اکاؤنٹ نہیں ملا۔", "error");
+        }
+
+        const matched = accounts.filter((acc) => acc.password === password);
+        if (!matched.length) {
+          return window.showAuthMsg(l === "en" ? "Incorrect password." : "پاس ورڈ غلط ہے۔", "error");
+        }
+
+        let targetUser = matched[0];
+        if (matched.length > 1) {
+          const chosen = matched.find((acc) => acc.id === selectedDocId);
+          if (!chosen) {
+            const picker = el("multiAccountPicker");
+            const sel = el("loginAccountSelect");
+            sel.innerHTML = matched.map((acc) => {
+              const roleText = acc.role === "abroad"
+                ? window.t("roleAbroadLabel")
+                : acc.role === "management"
+                  ? window.t("roleMgmtLabel")
+                  : window.t("rolePublicLabel");
+              return `<option value="${acc.id}">${roleText} - ${acc.name}</option>`;
+            }).join("");
+            picker.style.display = "block";
+            return window.showAuthMsg(window.t("chooseAccountToLogin"), "error");
+          }
+          targetUser = chosen;
+        }
+
+        if ((targetUser.role === "management" || targetUser.role === "abroad") && targetUser.status === "pending_approval") {
           return window.showAuthMsg(l === "en" ? "Your account is awaiting Admin approval." : "آپ کا اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔", "error");
         }
-        if (user.status === "rejected") {
+        if (targetUser.status === "rejected") {
           return window.showAuthMsg(l === "en" ? "Your account request was rejected." : "آپ کی اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔", "error");
         }
-        window.appState.currentUser = user;
+
+        window.appState.currentUser = targetUser;
         window.openPortal();
       } catch (err) {
         window.showAuthMsg(err && err.message ? err.message : "Error", "error");
@@ -1192,11 +1289,22 @@
 
       el("registerBtn").disabled = true;
       try {
-        const ref = doc(db, "users", phone);
-        const snap = await getDoc(ref);
-        if (snap.exists()) return window.showAuthMsg(l === "en" ? "An account already exists for this number." : "اس نمبر پر پہلے سے اکاؤنٹ موجود ہے۔", "error");
+        const existingAccounts = await getAccountsForPhone(phone);
 
+        // Public account is blocked if any account already exists on this phone number
+        if (role === "public" && existingAccounts.length > 0) {
+          return window.showAuthMsg(window.t("publicNotAllowedExisting"), "error");
+        }
+
+        // Prevent duplicate account for the same phone + same role
+        if (existingAccounts.some((acc) => acc.role === role)) {
+          return window.showAuthMsg(window.t("roleAlreadyExists"), "error");
+        }
+
+        const docId = `${phone}_${role}`;
+        const ref = doc(db, "users", docId);
         const needsApproval = role === "management" || role === "abroad";
+
         await setDoc(ref, {
           name,
           phone,
@@ -1209,6 +1317,7 @@
         el("registerForm").reset();
         el("tabLogin").click();
         el("loginPhone").value = phone;
+        el("multiAccountPicker").style.display = "none";
         window.showAuthMsg(
           needsApproval
             ? (l === "en" ? "Account created! You can log in after Admin approval." : "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔")

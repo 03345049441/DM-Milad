@@ -45,7 +45,6 @@
 </head>
 <body>
   <div class="container">
-    <!-- AUTH CARD (NO ADMIN OR APPROVAL OPTION ON START) -->
     <div id="authCard" class="card">
       <div class="top-bar">
         <h2 id="appTitle">میلاد کمیٹی ڈھوک میکن</h2>
@@ -88,7 +87,7 @@
             <option id="optRoleSelect" value="">منتخب کریں</option>
             <option id="optRolePublic" value="public">عام عوام (Public)</option>
             <option id="optRoleMgmt" value="management">انتظامیہ (Management - ایڈمن منظوری درکار)</option>
-            <option id="optRoleAbroad" value="abroad">ایبراڈ / بیرونِ ملک (Abroad - ایڈمن منظوری درکار)</option>
+            <option id="optRoleAbroad" value="abroad"> بیرونِ ملک (Abroad - ایڈمن منظوری درکار)</option>
           </select>
         </div>
         <button type="submit" id="registerBtn" class="btn btn-primary">اکاؤنٹ بنائیں</button>
@@ -97,7 +96,6 @@
       <div id="authMsg" class="msg"></div>
     </div>
 
-    <!-- USER / ADMIN PORTAL -->
     <div id="portalCard" class="card" style="display:none;">
       <div class="top-bar">
         <div>
@@ -110,16 +108,12 @@
         </div>
       </div>
 
-      <!-- DYNAMIC ROLE MENU -->
       <div id="roleMenu" class="menu-grid"></div>
-
-      <!-- CONTENT VIEWER -->
       <div id="contentArea"></div>
 
-      <!-- ADMIN CONTROL PANEL (ONLY FOR BUILT-IN ADMIN) -->
       <div id="adminControls" style="display:none;">
         <div class="admin-section">
-          <h4 id="admH1">1. زیرِ التوا درخواستیں (انتظامیہ / ایبراڈ)</h4>
+          <h4 id="admH1">1. زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)</h4>
           <div id="pendingRequestsList"></div>
         </div>
 
@@ -161,7 +155,7 @@
             <select id="mediaCategory">
               <option id="optCatPhotos" value="photos">تصاویر (Photos)</option>
               <option id="optCatVideos" value="videos">ویڈیوز (Videos)</option>
-              <option id="optCatLangar" value="langar's Detail">لنگر کی تفصیل (Langar Photos)</option>
+              <option id="optCatLangar" value="langar">لنگر کی تفصیل (Langar Photos)</option>
             </select>
           </div>
           <div class="field">
@@ -214,4 +208,420 @@
         toggleBtn: "English",
         tabLogin: "لاگ ان",
         tabRegister: "نیا اکاؤنٹ",
-        loginPhone
+        loginPhone: "فون نمبر",
+        loginPass: "پاس ورڈ",
+        loginBtn: "لاگ ان کریں",
+        regName: "پورا نام",
+        regPhone: "فون نمبر",
+        regPass: "پاس ورڈ",
+        regRole: "اکاؤنٹ کی قسم",
+        roleSelect: "منتخب کریں",
+        rolePublic: "عام عوام (Public)",
+        roleMgmt: "انتظامیہ (Management - ایڈمن منظوری درکار)",
+        roleAbroad: " بیرونِ ملک (Abroad - ایڈمن منظوری درکار)",
+        registerBtn: "اکاؤنٹ بنائیں",
+        logoutBtn: "لاگ آؤٹ",
+        loading: "لوڈ ہو رہا ہے...",
+        secPhotos: "تصاویر",
+        secVideos: "ویڈیوز",
+        secFunds: "فنڈز کی تفصیل",
+        secExpenses: "اخراجات",
+        secLangar: "لنگر کی تفصیل",
+        roleAdminLabel: "ایڈمن (Admin)",
+        rolePublicLabel: "عام عوام (Public)",
+        roleMgmtLabel: "انتظامیہ (Management)",
+        roleAbroadLabel: "بیرونِ ملک (Abroad)",
+        admH1: "1. زیرِ التوا درخواستیں (انتظامیہ / ایبراڈ)",
+        admH2: "2. ممبر کے جمع کروائے گئے فنڈز درج کریں",
+        lblFundMember: "ممبر منتخب کریں",
+        lblFundAmount: "رقم (مثلاً 5000)",
+        lblFundNote: "تاریخ / تفصیل",
+        addFundBtn: "فنڈ محفوظ کریں",
+        admH3: "3. اخراجات کی تصویر شامل کریں",
+        lblExpTitle: "عنوان / تاریخ",
+        lblExpMedia: "تصویر کا لنک یا تصویر فائل منتخب کریں",
+        addExpenseBtn: "اخراجات کی تصویر محفوظ کریں",
+        admH4: "4. تصاویر اور ویڈیوز کے فولڈرز (سال / تاریخ کے حساب سے)",
+        lblMediaCat: "سیکشن منتخب کریں",
+        catPhotos: "تصاویر (Photos)",
+        catVideos: "ویڈیوز (Videos)",
+        catLangar: "لنگر کی تفصیل (Langar Photos)",
+        lblMediaFolder: "فولڈر کا نام (سال / تاریخ، مثلاً 2026 / 2026-11-25)",
+        lblMediaTitle: "عنوان",
+        lblMediaUrl: "تصویر / ویڈیو کا لنک (یا تصویر فائل)",
+        addMediaBtn: "فولڈر میں محفوظ کریں",
+        approveBtn: "منظور کریں",
+        rejectBtn: "مسترد کریں",
+        noPending: "کوئی زیرِ التوا درخواست نہیں ہے۔",
+        noFunds: "آپ کے جمع کروائے گئے فنڈز کی کوئی تفصیل ابھی درج نہیں ہے۔",
+        fundsTitle: "آپ کے جمع کروائے گئے فنڈز (کل: {total})",
+        colNote: "تاریخ / تفصیل",
+        colAmount: "رقم",
+        noImages: "{title} میں ابھی کوئی تصویر موجود نہیں ہے۔",
+        noFolders: "{title} میں ابھی کوئی فولڈر موجود نہیں ہے۔",
+        selectFolder: "فولڈر (سال / تاریخ) منتخب کریں",
+        openVideo: "ویڈیو کھولیں / دیکھیں",
+        expensesTitle: "اخراجات کی تفصیل (تصاویر)",
+        langarTitle: "لنگر کی تفصیل (تصاویر)",
+        photosTitle: "تصاویر کے فولڈرز",
+        videosTitle: "ویڈیوز کے فولڈرز"
+      },
+      en: {
+        appHeading: "Milad Organization Dhoke Maken",
+        toggleBtn: "اردو",
+        tabLogin: "Login",
+        tabRegister: "Create Account",
+        loginPhone: "Phone Number",
+        loginPass: "Password",
+        loginBtn: "Login",
+        regName: "Full Name",
+        regPhone: "Phone Number",
+        regPass: "Password",
+        regRole: "Account Type",
+        roleSelect: "Select Type",
+        rolePublic: "Public",
+        roleMgmt: "Management (Admin approval required)",
+        roleAbroad: "Abroad (Admin approval required)",
+        registerBtn: "Create Account",
+        logoutBtn: "Logout",
+        loading: "Loading...",
+        secPhotos: "Photos",
+        secVideos: "Videos",
+        secFunds: "Funds Details",
+        secExpenses: "Expenses",
+        secLangar: "Langar Details",
+        roleAdminLabel: "Admin",
+        rolePublicLabel: "Public",
+        roleMgmtLabel: "Management",
+        roleAbroadLabel: "Abroad",
+        admH1: "1. Pending Approvals (Management / Abroad)",
+        admH2: "2. Add Member Funds",
+        lblFundMember: "Select Member",
+        lblFundAmount: "Amount (e.g. 5000)",
+        lblFundNote: "Date / Details",
+        addFundBtn: "Save Fund",
+        admH3: "3. Add Expense Photo",
+        lblExpTitle: "Title / Date",
+        lblExpMedia: "Photo URL or Image File",
+        addExpenseBtn: "Save Expense Photo",
+        admH4: "4. Photo & Video Folders (By Year / Date)",
+        lblMediaCat: "Select Section",
+        catPhotos: "Photos",
+        catVideos: "Videos",
+        catLangar: "Langar Details (Photos)",
+        lblMediaFolder: "Folder Name (Year / Date, e.g. 2026 or 2026-11-25)",
+        lblMediaTitle: "Title",
+        lblMediaUrl: "Photo / Video URL (or Image File)",
+        addMediaBtn: "Save to Folder",
+        approveBtn: "Approve",
+        rejectBtn: "Reject",
+        noPending: "No pending requests.",
+        noFunds: "No fund records found for your account yet.",
+        fundsTitle: "Your Submitted Funds (Total: {total})",
+        colNote: "Date / Details",
+        colAmount: "Amount",
+        noImages: "No photos added in {title} yet.",
+        noFolders: "No folders available in {title} yet.",
+        selectFolder: "Select Folder (Year / Date)",
+        openVideo: "Open / Watch Video",
+        expensesTitle: "Expenses Details (Photos)",
+        langarTitle: "Langar Details (Photos)",
+        photosTitle: "Photo Folders",
+        videosTitle: "Video Folders"
+      }
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    let currentUser = null;
+    let activeSection = null;
+    let lang = "ur";
+
+    const t = (key, vars = {}) => {
+      let str = (I18N[lang] && I18N[lang][key]) || I18N.ur[key] || key;
+      Object.entries(vars).forEach(([k, v]) => {
+        str = str.replace(`{${k}}`, v);
+      });
+      return str;
+    };
+
+    function normalizePhone(raw) {
+      let clean = String(raw || "").replace(/[^\d+]/g, "");
+      if (clean.startsWith("+92")) clean = "0" + clean.slice(3);
+      else if (clean.startsWith("92")) clean = "0" + clean.slice(2);
+      return clean;
+    }
+
+    function isValidPhone(phone) {
+      return /^\d{7,15}$/.test(phone);
+    }
+
+    function showAuthMsg(text, type) {
+      const box = el("authMsg");
+      box.textContent = text;
+      box.className = "msg " + type;
+    }
+
+    function showAdminMsg(text, type) {
+      const box = el("adminMsg");
+      box.textContent = text;
+      box.className = "msg " + type;
+    }
+
+    function applyTranslations() {
+      const isUr = lang === "ur";
+      document.documentElement.lang = lang;
+      document.documentElement.dir = isUr ? "rtl" : "ltr";
+      document.body.dir = isUr ? "rtl" : "ltr";
+
+      el("appTitle").textContent = t("appHeading");
+      el("langBtn").textContent = t("toggleBtn");
+      el("portalLangBtn").textContent = t("toggleBtn");
+      el("tabLogin").textContent = t("tabLogin");
+      el("tabRegister").textContent = t("tabRegister");
+      el("lblLoginPhone").textContent = t("loginPhone");
+      el("lblLoginPass").textContent = t("loginPass");
+      el("loginBtn").textContent = t("loginBtn");
+
+      el("lblRegName").textContent = t("regName");
+      el("lblRegPhone").textContent = t("regPhone");
+      el("lblRegPass").textContent = t("regPass");
+      el("lblRegRole").textContent = t("regRole");
+      el("optRoleSelect").textContent = t("roleSelect");
+      el("optRolePublic").textContent = t("rolePublic");
+      el("optRoleMgmt").textContent = t("roleMgmt");
+      el("optRoleAbroad").textContent = t("roleAbroad");
+      el("registerBtn").textContent = t("registerBtn");
+      el("logoutBtn").textContent = t("logoutBtn");
+
+      el("admH1").textContent = t("admH1");
+      el("admH2").textContent = t("admH2");
+      el("lblFundMember").textContent = t("lblFundMember");
+      el("lblFundAmount").textContent = t("lblFundAmount");
+      el("lblFundNote").textContent = t("lblFundNote");
+      el("addFundBtn").textContent = t("addFundBtn");
+      el("admH3").textContent = t("admH3");
+      el("lblExpTitle").textContent = t("lblExpTitle");
+      el("lblExpMedia").textContent = t("lblExpMedia");
+      el("addExpenseBtn").textContent = t("addExpenseBtn");
+      el("admH4").textContent = t("admH4");
+      el("lblMediaCat").textContent = t("lblMediaCat");
+      el("optCatPhotos").textContent = t("catPhotos");
+      el("optCatVideos").textContent = t("catVideos");
+      el("optCatLangar").textContent = t("catLangar");
+      el("lblMediaFolder").textContent = t("lblMediaFolder");
+      el("lblMediaTitle").textContent = t("lblMediaTitle");
+      el("lblMediaUrl").textContent = t("lblMediaUrl");
+      el("addMediaBtn").textContent = t("addMediaBtn");
+
+      if (currentUser) {
+        updatePortalHeader();
+        renderRoleMenu();
+      }
+    }
+
+    function setLanguage(nextLang) {
+      lang = nextLang;
+      applyTranslations();
+      if (currentUser && currentUser.role === "admin") {
+        loadPendingRequests().catch(() => {});
+      }
+    }
+
+    el("langBtn").addEventListener("click", () => setLanguage(lang === "ur" ? "en" : "ur"));
+    el("portalLangBtn").addEventListener("click", () => setLanguage(lang === "ur" ? "en" : "ur"));
+
+    el("tabLogin").addEventListener("click", () => {
+      el("tabLogin").classList.add("active");
+      el("tabRegister").classList.remove("active");
+      el("loginBox").style.display = "block";
+      el("registerForm").style.display = "none";
+      el("authMsg").className = "msg";
+    });
+
+    el("tabRegister").addEventListener("click", () => {
+      el("tabRegister").classList.add("active");
+      el("tabLogin").classList.remove("active");
+      el("loginBox").style.display = "none";
+      el("registerForm").style.display = "block";
+      el("authMsg").className = "msg";
+    });
+
+    let db = null;
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+    } catch (e) {
+      db = null;
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    el("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!db) return showAuthMsg(lang === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+
+      const name = el("regName").value.trim();
+      const phone = normalizePhone(el("regPhone").value);
+      const password = el("regPass").value;
+      const role = el("regRole").value;
+
+      if (!name) return showAuthMsg(lang === "en" ? "Please enter your full name." : "براہِ کرم پورا نام لکھیں۔", "error");
+      if (!isValidPhone(phone)) return showAuthMsg(lang === "en" ? "Enter a valid phone number (e.g. 03001234567)." : "درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
+      if (phone === BUILT_IN_ADMIN.phone) return showAuthMsg(lang === "en" ? "This number is reserved for Admin." : "یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
+      if (password.length < 6) return showAuthMsg(lang === "en" ? "Password must be at least 6 characters." : "پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
+      if (!role) return showAuthMsg(lang === "en" ? "Please select an account type." : "براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
+
+      el("registerBtn").disabled = true;
+      try {
+        const ref = doc(db, "users", phone);
+        const snap = await getDoc(ref);
+        if (snap.exists()) return showAuthMsg(lang === "en" ? "An account already exists for this number." : "اس نمبر پر پہلے سے اکاؤنٹ موجود ہے۔", "error");
+
+        const needsApproval = role === "management" || role === "abroad";
+        await setDoc(ref, {
+          name,
+          phone,
+          password,
+          role,
+          status: needsApproval ? "pending_approval" : "active",
+          createdAt: serverTimestamp()
+        });
+
+        el("registerForm").reset();
+        el("tabLogin").click();
+        el("loginPhone").value = phone;
+        showAuthMsg(
+          needsApproval
+            ? (lang === "en" ? "Account created! You can log in after Admin approval." : "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔")
+            : (lang === "en" ? "Public account created! You can log in now." : "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔"),
+          "success"
+        );
+      } catch (err) {
+        showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("registerBtn").disabled = false;
+      }
+    });
+
+    el("loginBtn").addEventListener("click", async () => {
+      const phone = normalizePhone(el("loginPhone").value);
+      const password = el("loginPass").value;
+
+      if (!isValidPhone(phone)) return showAuthMsg(lang === "en" ? "Enter a valid phone number." : "درست فون نمبر لکھیں۔", "error");
+      if (!password) return showAuthMsg(lang === "en" ? "Enter your password." : "پاس ورڈ درج کریں۔", "error");
+
+      if (phone === BUILT_IN_ADMIN.phone) {
+        if (password !== BUILT_IN_ADMIN.password) {
+          return showAuthMsg(lang === "en" ? "Invalid admin password." : "ایڈمن پاس ورڈ غلط ہے۔", "error");
+        }
+        currentUser = {
+          phone: BUILT_IN_ADMIN.phone,
+          name: BUILT_IN_ADMIN.name,
+          role: "admin",
+          status: "active"
+        };
+        openPortal();
+        return;
+      }
+
+      if (!db) return showAuthMsg(lang === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+
+      el("loginBtn").disabled = true;
+      try {
+        const snap = await getDoc(doc(db, "users", phone));
+        if (!snap.exists()) return showAuthMsg(lang === "en" ? "Account not found." : "اکاؤنٹ نہیں ملا۔", "error");
+
+        const user = snap.data();
+        if (user.password !== password) return showAuthMsg(lang === "en" ? "Incorrect password." : "پاس ورڈ غلط ہے۔", "error");
+        if ((user.role === "management" || user.role === "abroad") && user.status === "pending_approval") {
+          return showAuthMsg(lang === "en" ? "Your account is awaiting Admin approval." : "آپ کا اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔", "error");
+        }
+        if (user.status === "rejected") {
+          return showAuthMsg(lang === "en" ? "Your account request was rejected." : "آپ کی اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔", "error");
+        }
+
+        currentUser = user;
+        openPortal();
+      } catch (err) {
+        showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("loginBtn").disabled = false;
+      }
+    });
+
+    el("logoutBtn").addEventListener("click", () => {
+      currentUser = null;
+      activeSection = null;
+      el("portalCard").style.display = "none";
+      el("adminControls").style.display = "none";
+      el("authCard").style.display = "block";
+      el("loginPass").value = "";
+      el("authMsg").className = "msg";
+    });
+
+    function updatePortalHeader() {
+      el("portalUserName").textContent = currentUser.name;
+      const roleMap = {
+        admin: t("roleAdminLabel"),
+        public: t("rolePublicLabel"),
+        management: t("roleMgmtLabel"),
+        abroad: t("roleAbroadLabel")
+      };
+      el("portalUserRole").textContent = `${roleMap[currentUser.role] || currentUser.role} | ${currentUser.phone}`;
+    }
+
+    function openPortal() {
+      el("authCard").style.display = "none";
+      el("portalCard").style.display = "block";
+      updatePortalHeader();
+
+      const isAdmin = currentUser.role === "admin";
+      el("adminControls").style.display = isAdmin ? "block" : "none";
+
+      renderRoleMenu();
+      if (isAdmin) {
+        loadPendingRequests().catch(() => {});
+        loadMembersForFunds().catch(() => {});
+      }
+    }
+
+    function getSectionsForRole(role) {
+      if (role === "public") {
+        return [
+          { key: "photos", label: t("secPhotos") },
+          { key: "videos", label: t("secVideos") }
+        ];
+      }
+      if (role === "management") {
+        return [
+          { key: "funds", label: t("secFunds") },
+          { key: "expenses", label: t("secExpenses") },
+          { key: "photos", label: t("secPhotos") },
+          { key: "videos", label: t("secVideos") }
+        ];
+      }
+      if (role === "abroad") {
+        return [
+          { key: "photos", label: t("secPhotos") },
+          { key: "videos", label: t("secVideos") },
+          { key: "langar", label: t("secLangar") }
+        ];
+      }
+      return [
+        { key: "photos", label: t("secPhotos") },
+        { key: "videos", label: t("secVideos") },
+        { key: "expenses", label: t("secExpenses") },
+        { key: "langar", label: t("secLangar") }
+      ];
+    }
+
+    function renderRoleMenu() {
+      const sections = getSectionsForRole

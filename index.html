@@ -14,7 +14,7 @@
     h2 { font-size: 19px; }
     h3 { font-size: 16px; }
     h4 { font-size: 14px; margin-bottom: 8px; }
-    .btn { padding: 7px 11px; border: none; border-radius: 7px; font-weight: bold; cursor: pointer; font-size: 13px; }
+    .btn { padding: 7px 11px; border: none; border-radius: 7px; font-weight: bold; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
     .btn-sm { padding: 4px 8px; font-size: 12px; border-radius: 5px; }
     .btn-primary { background: #15803d; color: #fff; width: 100%; padding: 10px; font-size: 14px; }
     .btn-secondary { background: #334155; color: #fff; }
@@ -38,15 +38,17 @@
     .menu-btn { padding: 11px 8px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; text-align: center; }
     .menu-btn.active { background: #15803d; color: #fff; border-color: #15803d; }
     .item-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 8px; background: #f8fafc; }
-    .item-box img { max-width: 100%; max-height: 240px; border-radius: 6px; display: block; margin-top: 6px; }
-    .folder-tag { display: inline-block; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-bottom: 6px; }
+    .item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .item-box img { max-width: 100%; max-height: 260px; border-radius: 6px; display: block; margin-top: 8px; }
+    .img-fallback { margin-top: 6px; padding: 8px; background: #fef3c7; color: #92400e; border-radius: 6px; font-size: 12px; }
+    .folder-tag { display: inline-block; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
     .admin-section { border-top: 2px dashed #cbd5e1; padding-top: 12px; margin-top: 14px; }
     .req-actions { display: flex; gap: 8px; margin-top: 8px; }
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
     th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: start; vertical-align: middle; }
     th { background: #f1f5f9; }
-    .row-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+    .row-actions { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
     .edit-box { background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px; padding: 10px; margin-top: 10px; }
   </style>
 </head>
@@ -163,7 +165,7 @@
             <input id="expenseTitle" type="text" placeholder="عنوان" />
           </div>
           <div class="field">
-            <label id="lblExpMedia">تصویر کا لنک یا تصویر فائل منتخب کریں</label>
+            <label id="lblExpMedia">تصویر کا ڈائریکٹ لنک یا تصویر فائل منتخب کریں</label>
             <input id="expenseUrl" type="text" placeholder="https://..." />
             <input id="expenseFile" type="file" accept="image/*" style="margin-top:6px;" />
           </div>
@@ -249,7 +251,7 @@
         admH3: "3. اخراجات کی تصویر شامل کریں",
         lblExpDate: "تاریخ منتخب کریں (دن / مہینہ / سال)",
         lblExpTitle: "عنوان",
-        lblExpMedia: "تصویر کا لنک یا تصویر فائل منتخب کریں",
+        lblExpMedia: "تصویر کا ڈائریکٹ لنک یا تصویر فائل منتخب کریں",
         addExpenseBtn: "اخراجات کی تصویر محفوظ کریں",
         admH4: "4. تصاویر اور ویڈیوز کی انٹری (تاریخ کے حساب سے)",
         lblMediaCat: "سیکشن منتخب کریں",
@@ -276,9 +278,12 @@
         saveEditBtn: "تبدیلی محفوظ کریں",
         cancelEditBtn: "منسوخ",
         confirmDelete: "کیا آپ واقعی یہ ریکارڈ ڈیلیٹ کرنا چاہتے ہیں؟",
+        deletedMsg: "ریکارڈ ڈیلیٹ ہو گیا۔",
         noImages: "{title} میں ابھی کوئی تصویر موجود نہیں ہے۔",
         noFolders: "{title} میں ابھی کوئی انٹری موجود نہیں ہے۔",
+        openLink: "لنک کھولیں",
         openVideo: "ویڈیو کھولیں / دیکھیں",
+        imgNotDirect: "یہ لنک براہِ راست تصویر کے طور پر لوڈ نہیں ہو سکا۔ نیچے 'لنک کھولیں' دبا کر دیکھیں یا تصویر فائل اپلوڈ کریں۔",
         expensesTitle: "اخراجات کی تفصیل (تازہ تاریخ سب سے اوپر)",
         langarTitle: "لنگر کی تفصیل (تازہ تاریخ سب سے اوپر)",
         photosTitle: "تصاویر (تازہ تاریخ سب سے اوپر)",
@@ -323,7 +328,7 @@
         admH3: "3. Add Expense Photo",
         lblExpDate: "Select Date (Day / Month / Year)",
         lblExpTitle: "Title",
-        lblExpMedia: "Photo URL or Image File",
+        lblExpMedia: "Direct Photo URL or Image File",
         addExpenseBtn: "Save Expense Photo",
         admH4: "4. Photo & Video Entry (Sorted by Date)",
         lblMediaCat: "Select Section",
@@ -350,9 +355,12 @@
         saveEditBtn: "Save Changes",
         cancelEditBtn: "Cancel",
         confirmDelete: "Are you sure you want to delete this record?",
+        deletedMsg: "Record deleted.",
         noImages: "No photos added in {title} yet.",
         noFolders: "No entries available in {title} yet.",
+        openLink: "Open Link",
         openVideo: "Open / Watch Video",
+        imgNotDirect: "This link could not render directly as an image. Click 'Open Link' below or upload an image file.",
         expensesTitle: "Expenses Details (Latest Date First)",
         langarTitle: "Langar Details (Latest Date First)",
         photosTitle: "Photos (Latest Date First)",
@@ -433,6 +441,21 @@
         return item.createdAt.toMillis();
       }
       return 0;
+    };
+
+    window.toDirectImageUrl = (rawUrl) => {
+      const u = String(rawUrl || "").trim();
+      if (!u) return "";
+      const driveMatch = u.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+      if (driveMatch && driveMatch[1]) {
+        return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+      }
+      return u;
+    };
+
+    window.isSafeExternalUrl = (rawUrl) => {
+      const u = String(rawUrl || "").trim();
+      return /^https?:\/\//i.test(u);
     };
 
     function updateDatePreviews() {
@@ -781,6 +804,58 @@
       db = null;
     }
 
+    function isAdminUser() {
+      return Boolean(window.appState.currentUser && window.appState.currentUser.role === "admin");
+    }
+
+    function bindDeleteButtons(container, colName, refreshFn) {
+      if (!isAdminUser()) return;
+      container.querySelectorAll("[data-del-col]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm(window.t("confirmDelete"))) return;
+          await deleteDoc(doc(db, btn.dataset.delCol, btn.dataset.delId));
+          window.showAdminMsg(window.t("deletedMsg"), "success");
+          if (refreshFn) await refreshFn();
+        });
+      });
+    }
+
+    function bindImageFallbacks(container) {
+      container.querySelectorAll("img[data-img-item]").forEach((img) => {
+        img.addEventListener("error", () => {
+          const fallback = img.parentElement.querySelector(".img-fallback");
+          img.style.display = "none";
+          if (fallback) fallback.style.display = "block";
+        });
+      });
+    }
+
+    function renderMediaBlock(item, isVideo) {
+      const rawSrc = item.src || "";
+      if (!rawSrc) return "";
+
+      if (isVideo) {
+        if (window.isSafeExternalUrl(rawSrc)) {
+          return `<div class="row-actions"><a class="btn btn-sm btn-secondary" href="${rawSrc}" target="_blank" rel="noopener noreferrer">${window.t("openVideo")}</a></div>`;
+        }
+        return "";
+      }
+
+      const directImg = window.toDirectImageUrl(rawSrc);
+      const openBtn = window.isSafeExternalUrl(rawSrc)
+        ? `<a class="btn btn-sm btn-secondary" href="${rawSrc}" target="_blank" rel="noopener noreferrer">${window.t("openLink")}</a>`
+        : "";
+
+      return `
+        <img data-img-item src="${directImg}" alt="${(item.title || "").replace(/"/g, "&quot;")}" />
+        <div class="img-fallback" style="display:none;">
+          <div>${window.t("imgNotDirect")}</div>
+          ${openBtn ? `<div class="row-actions">${openBtn}</div>` : ""}
+        </div>
+        ${openBtn ? `<div class="row-actions">${openBtn}</div>` : ""}
+      `;
+    }
+
     async function renderFunds(area) {
       const u = window.appState.currentUser;
       const q = query(collection(db, "funds"), where("memberPhone", "==", u.phone));
@@ -838,13 +913,21 @@
 
       let html = `<h4>${title}</h4>`;
       items.forEach((item) => {
+        const delBtn = isAdminUser()
+          ? `<button type="button" class="btn btn-sm btn-danger" data-del-col="${colName}" data-del-id="${item.id}">${window.t("deleteBtn")}</button>`
+          : "";
         html += `<div class="item-box">
-          <span class="folder-tag">${window.formatDDMMYYYY(item.date)}</span>
+          <div class="item-top">
+            <span class="folder-tag">${window.formatDDMMYYYY(item.date)}</span>
+            ${delBtn}
+          </div>
           <div><strong>${item.title || ""}</strong></div>
-          ${item.src ? `<img src="${item.src}" alt="${item.title || ""}" />` : ""}
+          ${renderMediaBlock(item, false)}
         </div>`;
       });
       area.innerHTML = html;
+      bindImageFallbacks(area);
+      bindDeleteButtons(area, colName, () => renderImageList(area, colName, title));
     }
 
     async function renderMediaSorted(area, category, title) {
@@ -861,20 +944,25 @@
 
       let html = `<h4>${title}</h4>`;
       items.forEach((m) => {
+        const delBtn = isAdminUser()
+          ? `<button type="button" class="btn btn-sm btn-danger" data-del-col="media" data-del-id="${m.id}">${window.t("deleteBtn")}</button>`
+          : "";
         html += `<div class="item-box">
-          <span class="folder-tag">${window.formatDDMMYYYY(m.date || m.folder)}</span>
+          <div class="item-top">
+            <span class="folder-tag">${window.formatDDMMYYYY(m.date || m.folder)}</span>
+            ${delBtn}
+          </div>
           <div><strong>${m.title || ""}</strong></div>
-          ${category === "videos"
-            ? (m.src ? `<div style="margin-top:6px;"><a href="${m.src}" target="_blank" rel="noopener">${window.t("openVideo")}</a></div>` : "")
-            : (m.src ? `<img src="${m.src}" alt="${m.title || ""}" />` : "")
-          }
+          ${renderMediaBlock(m, category === "videos")}
         </div>`;
       });
       area.innerHTML = html;
+      bindImageFallbacks(area);
+      bindDeleteButtons(area, "media", () => renderMediaSorted(area, category, title));
     }
 
     async function loadPendingRequests() {
-      if (!db || !window.appState.currentUser || window.appState.currentUser.role !== "admin") return;
+      if (!db || !isAdminUser()) return;
       const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending_approval")));
       const box = el("pendingRequestsList");
       if (snap.empty) {
@@ -931,7 +1019,7 @@
     }
 
     async function loadAdminFundsTable() {
-      if (!db || !window.appState.currentUser || window.appState.currentUser.role !== "admin") return;
+      if (!db || !isAdminUser()) return;
       const wrap = el("adminFundsTableWrap");
       const snap = await getDocs(collection(db, "funds"));
       if (snap.empty) {
@@ -953,7 +1041,7 @@
             <td>${Number(f.amount || 0)}</td>
             <td>${purposeText}</td>
             <td>
-              <div class="row-actions">
+              <div class="row-actions" style="margin-top:0;">
                 <button type="button" class="btn btn-sm btn-edit" data-edit-id="${f.id}">${window.t("editBtn")}</button>
                 <button type="button" class="btn btn-sm btn-danger" data-del-id="${f.id}">${window.t("deleteBtn")}</button>
               </div>
@@ -1030,7 +1118,7 @@
         btn.addEventListener("click", async () => {
           if (!confirm(window.t("confirmDelete"))) return;
           await deleteDoc(doc(db, "funds", btn.dataset.delId));
-          window.showAdminMsg(window.appState.lang === "en" ? "Fund deleted." : "فنڈ کی انٹری ڈیلیٹ ہو گئی۔", "success");
+          window.showAdminMsg(window.t("deletedMsg"), "success");
           await loadAdminFundsTable();
           if (window.appState.activeSection === "funds") {
             window.appState.handlers.selectSection("funds");

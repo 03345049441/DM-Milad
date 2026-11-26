@@ -149,6 +149,8 @@
       { id: "urs_ghous", ur: "برائے عرس غوث الورٰی", en: "For Urs e Ghous ul Waraa" }
     ];
 
+    const PUBLIC_VIEW_CATEGORIES = ["photos", "videos", "mahafil", "information"];
+
     const I18N = {
       ur: {
         appHeading: "میلاد کمیٹی ڈھوک میکن",
@@ -164,9 +166,9 @@
         regPass: "پاس ورڈ",
         regRole: "اکاؤنٹ کی قسم",
         roleSelect: "منتخب کریں",
-        rolePublic: "عام عوام (Public)",
-        roleMgmt: "انتظامیہ (Management - ایڈمن منظوری درکار)",
-        roleAbroad: "بیرونِ ملک (Abroad - ایڈمن منظوری درکار)",
+        rolePublic: "عام عوام",
+        roleMgmt: "انتظامیہ (ایڈمن منظوری درکار)",
+        roleAbroad: "بیرونِ ملک (ایڈمن منظوری درکار)",
         registerBtn: "اکاؤنٹ بنائیں",
         logoutBtn: "لاگ آؤٹ",
         loading: "لوڈ ہو رہا ہے...",
@@ -177,6 +179,8 @@
         secLangar: "لنگر کی تفصیل",
         secFundsMembers: "ممبران کی تفصیل",
         secApprovals: "زیرِ التوا درخواستیں",
+        secMahafil: "محافل",
+        secInformation: "معلومات",
         roleAdminLabel: "ایڈمن",
         rolePublicLabel: "عام عوام",
         roleMgmtLabel: "انتظامیہ",
@@ -220,7 +224,7 @@
         statusRejected: "مسترد",
         noPending: "کوئی زیرِ التوا درخواست نہیں ہے۔",
         noFunds: "فنڈز کی کوئی تفصیل ابھی درج نہیں ہے۔",
-        fundsTitle: "آپ کے جمع کروائے گئے فنڈز (کل)",
+        fundsTitle: "آپ کے جمع کروائے گئے فنڈز (کل: {total})",
         colDate: "تاریخ (دن/مہینہ/سال)",
         colMember: "ممبر",
         colAmount: "رقم",
@@ -240,7 +244,10 @@
         expensesTitle: "اخراجات کی تفصیل",
         langarTitle: "لنگر کی تفصیل",
         photosTitle: "تصاویر",
-        videosTitle: "ویڈیوز"
+        videosTitle: "ویڈیوز",
+        mahafilTitle: "محافل",
+        informationTitle: "معلومات",
+        adminOnlyActionError: "یہ عمل صرف ایڈمن کر سکتا ہے۔"
       },
       en: {
         appHeading: "Milad Organization Dhoke Maken",
@@ -269,6 +276,8 @@
         secLangar: "Langar Details",
         secFundsMembers: "Members Details",
         secApprovals: "Pending Approvals",
+        secMahafil: "Mahafil",
+        secInformation: "Information",
         roleAdminLabel: "Admin",
         rolePublicLabel: "Public",
         roleMgmtLabel: "Management",
@@ -332,7 +341,10 @@
         expensesTitle: "Expenses Details",
         langarTitle: "Langar Details",
         photosTitle: "Photos",
-        videosTitle: "Videos"
+        videosTitle: "Videos",
+        mahafilTitle: "Mahafil",
+        informationTitle: "Information",
+        adminOnlyActionError: "Only Admin can perform this action."
       }
     };
 
@@ -555,7 +567,9 @@
       if (role === "public") {
         return [
           { key: "photos", label: window.t("secPhotos") },
-          { key: "videos", label: window.t("secVideos") }
+          { key: "videos", label: window.t("secVideos") },
+          { key: "mahafil", label: window.t("secMahafil") },
+          { key: "information", label: window.t("secInformation") }
         ];
       }
       if (role === "management") {
@@ -563,14 +577,18 @@
           { key: "funds", label: window.t("secFunds") },
           { key: "expenses", label: window.t("secExpenses") },
           { key: "photos", label: window.t("secPhotos") },
-          { key: "videos", label: window.t("secVideos") }
+          { key: "videos", label: window.t("secVideos") },
+          { key: "mahafil", label: window.t("secMahafil") },
+          { key: "information", label: window.t("secInformation") }
         ];
       }
       if (role === "abroad") {
         return [
           { key: "photos", label: window.t("secPhotos") },
           { key: "videos", label: window.t("secVideos") },
-          { key: "langar", label: window.t("secLangar") }
+          { key: "langar", label: window.t("secLangar") },
+          { key: "mahafil", label: window.t("secMahafil") },
+          { key: "information", label: window.t("secInformation") }
         ];
       }
       return [
@@ -579,7 +597,9 @@
         { key: "langar", label: window.t("secLangar") },
         { key: "approvals", label: window.t("secApprovals") },
         { key: "photos", label: window.t("secPhotos") },
-        { key: "videos", label: window.t("secVideos") }
+        { key: "videos", label: window.t("secVideos") },
+        { key: "mahafil", label: window.t("secMahafil") },
+        { key: "information", label: window.t("secInformation") }
       ];
     };
 
@@ -607,7 +627,7 @@
 
       entryArea.style.display = "block";
 
-      if (sectionKey === "photos" || sectionKey === "videos" || sectionKey === "langar") {
+      if (PUBLIC_VIEW_CATEGORIES.includes(sectionKey) || sectionKey === "langar") {
         const category = sectionKey;
         const isVideo = category === "videos";
         entryArea.innerHTML = `
@@ -932,6 +952,9 @@
       if (!isAdminUser()) return;
       container.querySelectorAll("[data-del-col]").forEach((btn) => {
         btn.addEventListener("click", async () => {
+          if (!isAdminUser()) {
+            return window.showAdminMsg(window.t("adminOnlyActionError"), "error");
+          }
           if (!confirm(window.t("confirmDelete"))) return;
           await deleteDoc(doc(db, btn.dataset.delCol, btn.dataset.delId));
           window.showAdminMsg(window.t("deletedMsg"), "success");
@@ -1346,6 +1369,9 @@
       const btn = el("secAddMediaBtn");
       if (!btn) return;
       btn.addEventListener("click", async () => {
+        if (!isAdminUser()) {
+          return window.showAdminMsg(window.t("adminOnlyActionError"), "error");
+        }
         const l = window.appState.lang;
         if (!db) return;
         const date = el("secMediaDate").value;
@@ -1371,6 +1397,9 @@
       const btn = el("secAddExpBtn");
       if (!btn) return;
       btn.addEventListener("click", async () => {
+        if (!isAdminUser()) {
+          return window.showAdminMsg(window.t("adminOnlyActionError"), "error");
+        }
         const l = window.appState.lang;
         if (!db) return;
         const date = el("secExpDate").value;
@@ -1396,6 +1425,9 @@
       const btn = el("addFundBtn");
       if (!btn) return;
       btn.addEventListener("click", async () => {
+        if (!isAdminUser()) {
+          return window.showAdminMsg(window.t("adminOnlyActionError"), "error");
+        }
         const l = window.appState.lang;
         if (!db) return;
         const memberPhone = el("fundMemberSelect").value;
@@ -1437,6 +1469,8 @@
         else if (sectionKey === "langar") await renderImageList(area, "langar", window.t("langarTitle"));
         else if (sectionKey === "photos") await renderMediaSorted(area, "photos", window.t("photosTitle"));
         else if (sectionKey === "videos") await renderMediaSorted(area, "videos", window.t("videosTitle"));
+        else if (sectionKey === "mahafil") await renderMediaSorted(area, "mahafil", window.t("mahafilTitle"));
+        else if (sectionKey === "information") await renderMediaSorted(area, "information", window.t("informationTitle"));
         else if (sectionKey === "funds_members") await renderFundsAndMembersDetails(area);
         else if (sectionKey === "approvals") await renderApprovalsSection(area);
       } catch (err) {

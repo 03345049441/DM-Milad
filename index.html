@@ -16,8 +16,8 @@
     .card { background: #fff; padding: 16px; border-radius: 14px; box-shadow: 0 2px 12px rgba(15,23,42,0.08); margin-bottom: 14px; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
     .user-header-wrap { display: flex; align-items: center; gap: 10px; }
-    .avatar-sm { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #15803d; background: #dcfce7; flex-shrink: 0; cursor: pointer; }
-    .avatar-md { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2px solid #15803d; background: #dcfce7; flex-shrink: 0; cursor: pointer; }
+    .avatar-sm { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; object-position: 50% 15%; border: 2px solid #15803d; background: #dcfce7; flex-shrink: 0; cursor: pointer; }
+    .avatar-md { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; object-position: 50% 15%; border: 2px solid #15803d; background: #dcfce7; flex-shrink: 0; cursor: pointer; }
     h2, h3, h4 { margin: 0; color: #14532d; }
     h2 { font-size: 19px; }
     h3 { font-size: 16px; }
@@ -49,6 +49,7 @@
     .field { margin-bottom: 10px; }
     label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; }
     input, select, textarea { width: 100%; padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; }
+    input[type="range"] { padding: 4px 0; border: none; background: transparent; }
     .date-ltr { direction: ltr; text-align: left; }
     .date-preview { margin-top: 4px; font-size: 12px; color: #166534; font-weight: bold; direction: rtl; }
     .msg { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; display: none; }
@@ -74,6 +75,47 @@
     th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: start; vertical-align: middle; }
     th { background: #f1f5f9; }
     .row-actions { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+    .crop-editor-box {
+      border: 1px solid #86efac;
+      background: #f0fdf4;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 10px;
+    }
+    .crop-stage-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .crop-circle-frame {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid #15803d;
+      background: #e2e8f0;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .crop-circle-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform-origin: center center;
+      pointer-events: none;
+    }
+    .slider-row {
+      margin-bottom: 6px;
+    }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: bold;
+      color: #14532d;
+    }
     .ptr-indicator {
       display: none;
       text-align: center;
@@ -187,6 +229,10 @@
           <input id="regPass" type="password" placeholder="At least 6 characters" />
         </div>
         <div class="field">
+          <label id="lblRegConfirmPass" for="regConfirmPass">Confirm Password</label>
+          <input id="regConfirmPass" type="password" placeholder="Re-enter password" />
+        </div>
+        <div class="field">
           <label id="lblRegRole" for="regRole">Account Type</label>
           <select id="regRole">
             <option id="optRoleSelect" value="">Select Type</option>
@@ -194,6 +240,11 @@
             <option id="optRoleMgmt" value="management">Management (Admin approval required)</option>
             <option id="optRoleAbroad" value="abroad">Abroad (Admin approval required)</option>
           </select>
+        </div>
+        <div class="field">
+          <label id="lblRegPhoto" for="regPhotoInput">Profile Photo &amp; Adjust (Optional)</label>
+          <input id="regPhotoInput" type="file" accept="image/*" />
+          <div id="regCropEditor"></div>
         </div>
         <button type="submit" id="registerBtn" class="btn btn-primary">Create Account</button>
       </form>
@@ -270,7 +321,9 @@
         regName: "پورا نام",
         regPhone: "فون نمبر",
         regPass: "پاس ورڈ",
+        regConfirmPass: "پاس ورڈ کی تصدیق (دوبارہ لکھیں)",
         regRole: "اکاؤنٹ کی قسم",
+        regPhoto: "پروفائل تصویر اور سیٹنگ (اختیاری)",
         roleSelect: "منتخب کریں",
         rolePublic: "عام عوام (Public)",
         roleMgmt: "انتظامیہ (Management - ایڈمن منظوری درکار)",
@@ -287,8 +340,8 @@
         secApprovals: "زیرِ التوا درخواستیں",
         secMahafil: "محافل",
         secInformation: "معلومات",
-        secProfile: "پروفائل",
         secComplaints: "کمپلینٹس",
+        secProfile: "پروفائل",
         roleAdminLabel: "ایڈمن",
         rolePublicLabel: "عام عوام",
         roleMgmtLabel: "انتظامیہ",
@@ -358,8 +411,12 @@
         adminOnlyActionError: "یہ عمل صرف ایڈمن کر سکتا ہے۔",
         closeBtn: "بند کریں",
         profileTitle: "پروفائل سیٹنگز",
-        profilePhotoTitle: "پروفائل تصویر",
+        profilePhotoTitle: "پروفائل تصویر اور سیٹنگ",
         lblProfilePhoto: "اپنی تصویر منتخب کریں",
+        cropZoomLabel: "زوم (Zoom)",
+        cropPosXLabel: "دائیں / بائیں سیٹ کریں",
+        cropPosYLabel: "اوپر / نیچے سیٹ کریں (سر و چہرہ)",
+        resetCropBtn: "ری سیٹ",
         savePhotoBtn: "تصویر محفوظ کریں",
         photoSavedMsg: "پروفائل تصویر کامیابی سے محفوظ ہو گئی۔",
         changePassTitle: "پاس ورڈ تبدیل کریں",
@@ -369,7 +426,7 @@
         changePassBtn: "پاس ورڈ اپ ڈیٹ کریں",
         passChangedMsg: "پاس ورڈ کامیابی سے تبدیل ہو گیا۔",
         wrongCurrentPass: "موجودہ پاس ورڈ غلط ہے۔",
-        passMismatch: "نیا پاس ورڈ اور کنفرم پاس ورڈ ایک جیسے نہیں ہیں۔",
+        passMismatch: "دونوں پاس ورڈ ایک جیسے نہیں ہیں۔",
         complaintSectionTitle: "کمپلینٹ درج کریں",
         lblComplaintSubject: "کمپلینٹ کا موضوع",
         lblComplaintMsg: "کمپلینٹ کی تفصیل",
@@ -397,7 +454,9 @@
         regName: "Full Name",
         regPhone: "Phone Number",
         regPass: "Password",
+        regConfirmPass: "Confirm Password",
         regRole: "Account Type",
+        regPhoto: "Profile Photo & Adjust (Optional)",
         roleSelect: "Select Type",
         rolePublic: "Public",
         roleMgmt: "Management (Admin approval required)",
@@ -414,8 +473,8 @@
         secApprovals: "Pending Approvals",
         secMahafil: "Mahafil",
         secInformation: "Information",
-        secProfile: "Profile",
         secComplaints: "Complaints",
+        secProfile: "Profile",
         roleAdminLabel: "Admin",
         rolePublicLabel: "Public",
         roleMgmtLabel: "Management",
@@ -485,8 +544,12 @@
         adminOnlyActionError: "Only Admin can perform this action.",
         closeBtn: "Close",
         profileTitle: "Profile Settings",
-        profilePhotoTitle: "Profile Photo",
+        profilePhotoTitle: "Profile Photo & Adjust",
         lblProfilePhoto: "Choose Profile Photo",
+        cropZoomLabel: "Zoom",
+        cropPosXLabel: "Horizontal Position (Left / Right)",
+        cropPosYLabel: "Vertical Position (Up / Down - Head)",
+        resetCropBtn: "Reset",
         savePhotoBtn: "Save Photo",
         photoSavedMsg: "Profile photo saved.",
         changePassTitle: "Change Password",
@@ -496,7 +559,7 @@
         changePassBtn: "Update Password",
         passChangedMsg: "Password updated successfully.",
         wrongCurrentPass: "Current password is incorrect.",
-        passMismatch: "New password and confirm password do not match.",
+        passMismatch: "Passwords do not match.",
         complaintSectionTitle: "Submit a Complaint",
         lblComplaintSubject: "Complaint Subject",
         lblComplaintMsg: "Complaint Details",
@@ -729,6 +792,167 @@
       inp.addEventListener("input", refreshPrev);
     }
 
+    function readRawFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function createAvatarCropController(containerId, fileInputId) {
+      const host = el(containerId);
+      const fileInp = el(fileInputId);
+      let sourceImg = null;
+      let state = { zoom: 1, x: 50, y: 18 };
+
+      function applyPreviewTransform() {
+        if (!host) return;
+        const imgEl = host.querySelector("[data-crop-img]");
+        const zVal = host.querySelector("[data-zoom-val]");
+        const xVal = host.querySelector("[data-x-val]");
+        const yVal = host.querySelector("[data-y-val]");
+        if (imgEl) {
+          imgEl.style.objectPosition = `${state.x}% ${state.y}%`;
+          imgEl.style.transform = `scale(${state.zoom})`;
+        }
+        if (zVal) zVal.textContent = `${Number(state.zoom).toFixed(1)}x`;
+        if (xVal) xVal.textContent = `${state.x}%`;
+        if (yVal) yVal.textContent = `${state.y}%`;
+      }
+
+      function renderEditor(srcUrl) {
+        if (!host) return;
+        if (!srcUrl) {
+          host.innerHTML = "";
+          return;
+        }
+        host.innerHTML = `
+          <div class="crop-editor-box">
+            <div class="crop-stage-wrap">
+              <div class="crop-circle-frame">
+                <img data-crop-img src="${srcUrl}" alt="Adjust Profile" />
+              </div>
+            </div>
+            <div class="slider-row">
+              <div class="slider-label">
+                <span>${window.t("cropZoomLabel")}</span>
+                <span data-zoom-val>${Number(state.zoom).toFixed(1)}x</span>
+              </div>
+              <input type="range" min="1" max="2.5" step="0.1" value="${state.zoom}" data-crop-zoom />
+            </div>
+            <div class="slider-row">
+              <div class="slider-label">
+                <span>${window.t("cropPosYLabel")}</span>
+                <span data-y-val>${state.y}%</span>
+              </div>
+              <input type="range" min="0" max="100" step="1" value="${state.y}" data-crop-y />
+            </div>
+            <div class="slider-row">
+              <div class="slider-label">
+                <span>${window.t("cropPosXLabel")}</span>
+                <span data-x-val>${state.x}%</span>
+              </div>
+              <input type="range" min="0" max="100" step="1" value="${state.x}" data-crop-x />
+            </div>
+            <button type="button" class="btn btn-sm btn-secondary" data-crop-reset>${window.t("resetCropBtn")}</button>
+          </div>`;
+
+        const zoomRange = host.querySelector("[data-crop-zoom]");
+        const yRange = host.querySelector("[data-crop-y]");
+        const xRange = host.querySelector("[data-crop-x]");
+        const resetBtn = host.querySelector("[data-crop-reset]");
+
+        if (zoomRange) {
+          zoomRange.addEventListener("input", () => {
+            state.zoom = Number(zoomRange.value);
+            applyPreviewTransform();
+          });
+        }
+        if (yRange) {
+          yRange.addEventListener("input", () => {
+            state.y = Number(yRange.value);
+            applyPreviewTransform();
+          });
+        }
+        if (xRange) {
+          xRange.addEventListener("input", () => {
+            state.x = Number(xRange.value);
+            applyPreviewTransform();
+          });
+        }
+        if (resetBtn) {
+          resetBtn.addEventListener("click", () => {
+            state = { zoom: 1, x: 50, y: 18 };
+            if (zoomRange) zoomRange.value = "1";
+            if (yRange) yRange.value = "18";
+            if (xRange) xRange.value = "50";
+            applyPreviewTransform();
+          });
+        }
+        applyPreviewTransform();
+      }
+
+      if (fileInp) {
+        fileInp.addEventListener("change", async () => {
+          const file = fileInp.files && fileInp.files[0];
+          if (!file) {
+            sourceImg = null;
+            renderEditor("");
+            return;
+          }
+          try {
+            const rawDataUrl = await readRawFileAsDataUrl(file);
+            const img = new Image();
+            img.onload = () => {
+              sourceImg = img;
+              state = { zoom: 1, x: 50, y: 18 };
+              renderEditor(rawDataUrl);
+            };
+            img.src = rawDataUrl;
+          } catch (e) {
+            sourceImg = null;
+            renderEditor("");
+          }
+        });
+      }
+
+      return {
+        hasImage: () => Boolean(sourceImg),
+        reset: () => {
+          sourceImg = null;
+          state = { zoom: 1, x: 50, y: 18 };
+          if (fileInp) fileInp.value = "";
+          renderEditor("");
+        },
+        exportCroppedDataUrl: (outputSize = 360, quality = 0.78) => {
+          if (!sourceImg) return "";
+          const canvas = document.createElement("canvas");
+          canvas.width = outputSize;
+          canvas.height = outputSize;
+          const ctx = canvas.getContext("2d");
+
+          const imgW = sourceImg.naturalWidth || sourceImg.width;
+          const imgH = sourceImg.naturalHeight || sourceImg.height;
+          const baseScale = Math.max(outputSize / imgW, outputSize / imgH) * state.zoom;
+          const drawW = imgW * baseScale;
+          const drawH = imgH * baseScale;
+
+          const maxShiftX = Math.max(0, drawW - outputSize);
+          const maxShiftY = Math.max(0, drawH - outputSize);
+          const drawX = -(maxShiftX * (state.x / 100));
+          const drawY = -(maxShiftY * (state.y / 100));
+
+          ctx.clearRect(0, 0, outputSize, outputSize);
+          ctx.drawImage(sourceImg, drawX, drawY, drawW, drawH);
+          return canvas.toDataURL("image/jpeg", quality);
+        }
+      };
+    }
+
+    let regCropCtrl = null;
+
     function readSavedLang() {
       try {
         const saved = localStorage.getItem(LANG_STORAGE_KEY);
@@ -836,11 +1060,11 @@
         { key: "expenses", label: window.t("secExpenses") },
         { key: "langar", label: window.t("secLangar") },
         { key: "approvals", label: window.t("secApprovals") },
-        { key: "complaints", label: window.t("secComplaints") },
         { key: "photos", label: window.t("secPhotos") },
         { key: "videos", label: window.t("secVideos") },
         { key: "mahafil", label: window.t("secMahafil") },
         { key: "information", label: window.t("secInformation") },
+        { key: "complaints", label: window.t("secComplaints") },
         { key: "profile", label: window.t("secProfile") }
       ];
     };
@@ -1055,7 +1279,9 @@
       el("lblRegName").textContent = window.t("regName");
       el("lblRegPhone").textContent = window.t("regPhone");
       el("lblRegPass").textContent = window.t("regPass");
+      el("lblRegConfirmPass").textContent = window.t("regConfirmPass");
       el("lblRegRole").textContent = window.t("regRole");
+      el("lblRegPhoto").textContent = window.t("regPhoto");
       el("optRoleSelect").textContent = window.t("roleSelect");
       el("optRolePublic").textContent = window.t("rolePublic");
       el("optRoleMgmt").textContent = window.t("roleMgmt");
@@ -1094,6 +1320,8 @@
       el("registerForm").style.display = "block";
       el("authMsg").className = "msg";
     });
+
+    regCropCtrl = createAvatarCropController("regCropEditor", "regPhotoInput");
 
     el("loginPhone").addEventListener("input", () => {
       el("multiAccountPicker").style.display = "none";
@@ -1395,7 +1623,7 @@
 
     document.addEventListener("click", (e) => {
       const clickedImg = e.target.closest("img");
-      if (!clickedImg || clickedImg.id === "imgPreviewTag" || !clickedImg.src) return;
+      if (!clickedImg || clickedImg.id === "imgPreviewTag" || clickedImg.hasAttribute("data-crop-img") || !clickedImg.src) return;
       if (imgModal && imgModalTag) {
         resetImageViewerState();
         imgModalTag.src = clickedImg.src;
@@ -1981,6 +2209,7 @@
           <div class="field">
             <label for="profilePhotoInput">${window.t("lblProfilePhoto")}</label>
             <input id="profilePhotoInput" type="file" accept="image/*" />
+            <div id="profileCropEditor"></div>
           </div>
           <button type="button" id="saveProfilePhotoBtn" class="btn btn-primary">${window.t("savePhotoBtn")}</button>
         </div>
@@ -2002,15 +2231,19 @@
           <button type="button" id="changePassBtn" class="btn btn-primary">${window.t("changePassBtn")}</button>
         </div>`;
 
+      const profileCropCtrl = createAvatarCropController("profileCropEditor", "profilePhotoInput");
+
       el("saveProfilePhotoBtn").addEventListener("click", async () => {
         const fileInp = el("profilePhotoInput");
         const file = fileInp && fileInp.files ? fileInp.files[0] : null;
-        if (!file) {
+        if (!file && !profileCropCtrl.hasImage()) {
           return window.showAdminMsg(l === "en" ? "Please choose a photo first." : "براہِ کرم پہلے تصویر منتخب کریں۔", "error");
         }
         el("saveProfilePhotoBtn").disabled = true;
         try {
-          const dataUrl = await fileToDataUrl(file, 480, 0.72);
+          const dataUrl = profileCropCtrl.hasImage()
+            ? profileCropCtrl.exportCroppedDataUrl(360, 0.78)
+            : await fileToDataUrl(file, 480, 0.72);
           if (u.role === "admin") {
             setCachedAdminPhoto(dataUrl);
             if (db) {
@@ -2031,7 +2264,7 @@
             el("profilePreviewImg").src = dataUrl;
             el("profilePreviewImg").style.display = "block";
           }
-          fileInp.value = "";
+          profileCropCtrl.reset();
           window.showAdminMsg(window.t("photoSavedMsg"), "success");
         } catch (err) {
           window.showAdminMsg(err && err.message ? err.message : "Photo save failed", "error");
@@ -2473,12 +2706,14 @@
       const name = el("regName").value.trim();
       const phone = window.normalizePhone(el("regPhone").value);
       const password = el("regPass").value;
+      const confirmPassword = el("regConfirmPass").value;
       const role = el("regRole").value;
 
       if (!name) return window.showAuthMsg(l === "en" ? "Please enter your full name." : "براہِ کرم پورا نام لکھیں۔", "error");
       if (!window.isValidPhone(phone)) return window.showAuthMsg(l === "en" ? "Enter a valid phone number (e.g. 03001234567)." : "درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
       if (phone === BUILT_IN_ADMIN.phone) return window.showAuthMsg(l === "en" ? "This number is reserved for Admin." : "یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
       if (password.length < 6) return window.showAuthMsg(l === "en" ? "Password must be at least 6 characters." : "پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
+      if (!confirmPassword || password !== confirmPassword) return window.showAuthMsg(window.t("passMismatch"), "error");
       if (!role) return window.showAuthMsg(l === "en" ? "Please select an account type." : "براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
 
       el("registerBtn").disabled = true;
@@ -2493,6 +2728,15 @@
           return window.showAuthMsg(window.t("roleAlreadyExists"), "error");
         }
 
+        let photoUrl = "";
+        if (regCropCtrl && regCropCtrl.hasImage()) {
+          photoUrl = regCropCtrl.exportCroppedDataUrl(360, 0.78);
+        } else {
+          const fileInp = el("regPhotoInput");
+          const file = fileInp && fileInp.files ? fileInp.files[0] : null;
+          if (file) photoUrl = await fileToDataUrl(file, 480, 0.72);
+        }
+
         const docId = `${phone}_${role}`;
         const ref = doc(db, "users", docId);
         const needsApproval = role === "management" || role === "abroad";
@@ -2502,12 +2746,13 @@
           phone,
           password,
           role,
-          photoUrl: "",
+          photoUrl,
           status: needsApproval ? "pending_approval" : "active",
           createdAt: serverTimestamp()
         });
 
         el("registerForm").reset();
+        if (regCropCtrl) regCropCtrl.reset();
         el("tabLogin").click();
         el("loginPhone").value = phone;
         el("multiAccountPicker").style.display = "none";

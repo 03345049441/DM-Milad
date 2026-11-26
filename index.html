@@ -7,11 +7,16 @@
   <style>
     * { box-sizing: border-box; font-family: "Noto Nastaliq Urdu", Arial, sans-serif; }
     html, body {
-      overscroll-behavior-y: none;
+      overscroll-behavior: none;
+      touch-action: pan-x pan-y;
     }
     body { margin: 0; padding: 12px; background: #f1f5f9; color: #0f172a; line-height: 1.6; }
     body.no-select { -webkit-user-select: none; user-select: none; }
     body.admin-select { -webkit-user-select: text; user-select: text; }
+    body.subwindow-open,
+    body.subwindow-open html {
+      overscroll-behavior-y: contain;
+    }
     .container { max-width: 720px; margin: 0 auto; }
     .card { background: #fff; padding: 16px; border-radius: 14px; box-shadow: 0 2px 12px rgba(15,23,42,0.08); margin-bottom: 14px; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
@@ -62,8 +67,21 @@
     .sub-tab-btn { flex: 1; min-width: 90px; padding: 7px 9px; border: 1px solid #15803d; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; text-align: center; }
     .sub-tab-btn.active { background: #15803d; color: #fff; }
     .entry-box { border: 1px solid #bbf7d0; background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
-    .summary-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-    .summary-pill { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: bold; }
+    .member-total-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #14532d;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
     .total-row td { background: #f0fdf4; font-weight: bold; color: #14532d; }
     .item-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px; margin-bottom: 8px; background: #f8fafc; }
     .item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
@@ -375,7 +393,6 @@
         selectPurposePlaceholder: "مقصد منتخب کریں",
         addFundBtn: "فنڈ محفوظ کریں",
         admFundsTableTitle: "درج شدہ فنڈز کی تفصیل",
-        overallTotalLabel: "مجموعی Total",
         memberTotalLabel: "{name} Total",
         admExpEntryTitle: "نئی اخراجات تصویر شامل کریں",
         admMediaEntryTitle: "نئی انٹری شامل کریں",
@@ -509,7 +526,6 @@
         selectPurposePlaceholder: "Select Purpose",
         addFundBtn: "Save Fund",
         admFundsTableTitle: "Recorded Funds Details",
-        overallTotalLabel: "Overall Total",
         memberTotalLabel: "{name} Total",
         admExpEntryTitle: "Add New Expense Photo",
         admMediaEntryTitle: "Add New Entry",
@@ -1093,10 +1109,17 @@
       currentUser: null,
       activeSection: null,
       activeMemberGroup: "management",
+      selectedFundMemberPhone: "",
       lang: readSavedLang(),
       dbReady: false,
       handlers: {}
     };
+
+    function syncBodySubwindowClass() {
+      const inSubWindow = Boolean(window.appState.currentUser && window.appState.activeSection);
+      document.body.classList.toggle("subwindow-open", inSubWindow);
+      document.documentElement.classList.toggle("subwindow-open", inSubWindow);
+    }
 
     window.saveUserSession = (user) => {
       try {
@@ -1334,6 +1357,7 @@
       if (!matched) return;
 
       window.appState.activeSection = matched.key;
+      syncBodySubwindowClass();
       el("roleMenu").style.display = "none";
       el("sectionWindow").style.display = "block";
       el("activeSectionTitle").textContent = matched.label;
@@ -1378,6 +1402,7 @@
         openSectionWindow(window.appState.activeSection);
       } else {
         window.appState.activeSection = null;
+        syncBodySubwindowClass();
         menu.style.display = "grid";
         el("sectionWindow").style.display = "none";
         el("adminEntryArea").style.display = "none";
@@ -1388,6 +1413,7 @@
 
     el("backToMenuBtn").addEventListener("click", () => {
       window.appState.activeSection = null;
+      syncBodySubwindowClass();
       el("sectionWindow").style.display = "none";
       el("adminEntryArea").style.display = "none";
       el("adminEntryArea").innerHTML = "";
@@ -1401,6 +1427,7 @@
       const u = window.appState.currentUser;
       if (!u) return;
       window.appState.activeSection = null;
+      syncBodySubwindowClass();
       window.applySelectionRestriction();
       el("authCard").style.display = "none";
       el("portalCard").style.display = "block";
@@ -1537,6 +1564,7 @@
       window.saveUserSession(null);
       window.appState.currentUser = null;
       window.appState.activeSection = null;
+      syncBodySubwindowClass();
       window.applySelectionRestriction();
       el("portalCard").style.display = "none";
       el("sectionWindow").style.display = "none";
@@ -1596,7 +1624,7 @@
       if (!ptrPulling && ptrBox) {
         ptrBox.style.display = "none";
       }
-    }, { passive: true });
+    }, { passive: true, capture: true });
 
     document.addEventListener("touchmove", (e) => {
       if (e.touches.length !== 1) {
@@ -1621,7 +1649,7 @@
       } else if (ptrBox) {
         ptrBox.style.display = "none";
       }
-    }, { passive: false });
+    }, { passive: false, capture: true });
 
     document.addEventListener("touchend", (e) => {
       if (!ptrPulling) {
@@ -1635,9 +1663,9 @@
       if (canRefresh && dy > 105) {
         location.reload();
       }
-    });
+    }, { capture: true });
 
-    document.addEventListener("touchcancel", resetPullToRefreshUi);
+    document.addEventListener("touchcancel", resetPullToRefreshUi, { capture: true });
 
     const imgModal = el("imgPreviewModal");
     const imgModalViewport = el("imgModalViewport");
@@ -2156,21 +2184,41 @@
     async function populateMemberDropdown() {
       const sel = el("fundMemberSelect");
       if (!db || !sel) return;
+      const prevSelected = sel.value || window.appState.selectedFundMemberPhone || "";
       const snap = await getDocs(collection(db, "users"));
       sel.innerHTML = "";
       memberNamesMap = {};
       memberPhotosMap = {};
+      let firstActivePhone = "";
+
       snap.forEach((d) => {
         const u = d.data();
         memberNamesMap[u.phone] = u.name;
         if (u.photoUrl) memberPhotosMap[u.phone] = u.photoUrl;
         if (u.role === "management" && u.status === "active") {
+          if (!firstActivePhone) firstActivePhone = u.phone;
           const opt = document.createElement("option");
           opt.value = u.phone;
           opt.textContent = `${u.name} (${u.phone})`;
           sel.appendChild(opt);
         }
       });
+
+      const targetPhone = prevSelected || firstActivePhone;
+      if (targetPhone && Array.from(sel.options).some((o) => o.value === targetPhone)) {
+        sel.value = targetPhone;
+      }
+      window.appState.selectedFundMemberPhone = sel.value || "";
+
+      if (!sel.dataset.boundFundMemberChange) {
+        sel.dataset.boundFundMemberChange = "1";
+        sel.addEventListener("change", async () => {
+          window.appState.selectedFundMemberPhone = sel.value || "";
+          if (window.appState.activeSection === "funds_members" && el("contentArea")) {
+            await renderFundsAndMembersDetails(el("contentArea"));
+          }
+        });
+      }
     }
 
     async function renderFundsAndMembersDetails(area) {
@@ -2204,37 +2252,67 @@
           : mgmtList;
 
       const fundsSnap = await getDocs(collection(db, "funds"));
-      const fundItems = [];
-      let overallTotal = 0;
-      const perMemberTotals = new Map();
+      const allFundItems = [];
+      const memberOptionsMap = new Map();
+
+      allMembers.forEach((m) => {
+        if (m.phone) {
+          memberOptionsMap.set(m.phone, m.name || m.phone);
+        }
+      });
 
       fundsSnap.forEach((d) => {
         const norm = window.normalizeFundRecord({ id: d.id, ...d.data() });
         const amt = Number(norm.amount || 0);
-        overallTotal += amt;
-        const mKey = norm.memberPhone || "-";
-        const mName = memberNamesMap[mKey] || mKey;
-        const prev = perMemberTotals.get(mKey) || { name: mName, total: 0 };
-        prev.name = mName;
-        prev.total += amt;
-        perMemberTotals.set(mKey, prev);
-        fundItems.push({ ...norm, amount: amt });
+        const mKey = norm.memberPhone || "";
+        const mName = memberNamesMap[mKey] || mKey || "-";
+        if (mKey && !memberOptionsMap.has(mKey)) {
+          memberOptionsMap.set(mKey, mName);
+        }
+        allFundItems.push({ ...norm, memberPhone: mKey, memberName: mName, amount: amt });
       });
 
-      fundItems.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+      allFundItems.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
 
-      const summaryPillsHtml = `
-        <div class="summary-strip">
-          <div class="summary-pill">${window.t("overallTotalLabel")}: ${overallTotal}</div>
-          ${Array.from(perMemberTotals.values()).map((entry) => `
-            <div class="summary-pill">${window.t("memberTotalLabel", { name: entry.name })}: ${entry.total}</div>
-          `).join("")}
-        </div>`;
+      const dropdownEl = el("fundMemberSelect");
+      let activeMemberPhone = window.appState.selectedFundMemberPhone || (dropdownEl ? dropdownEl.value : "");
+      if (!activeMemberPhone && allFundItems.length > 0) {
+        activeMemberPhone = allFundItems[0].memberPhone || "";
+      }
+      if (!activeMemberPhone && memberOptionsMap.size > 0) {
+        activeMemberPhone = Array.from(memberOptionsMap.keys())[0];
+      }
+      window.appState.selectedFundMemberPhone = activeMemberPhone || "";
+      if (dropdownEl && activeMemberPhone && Array.from(dropdownEl.options).some((o) => o.value === activeMemberPhone)) {
+        dropdownEl.value = activeMemberPhone;
+      }
 
-      const fundsHtml = !fundItems.length
-        ? `<div class='item-box'>${window.t("noFunds")}</div>`
+      const selectedMemberName = memberNamesMap[activeMemberPhone] || memberOptionsMap.get(activeMemberPhone) || activeMemberPhone || "-";
+      const filteredFundItems = activeMemberPhone
+        ? allFundItems.filter((f) => f.memberPhone === activeMemberPhone)
+        : allFundItems;
+
+      const selectedMemberTotal = filteredFundItems.reduce((sum, f) => sum + Number(f.amount || 0), 0);
+
+      const memberFilterOptionsHtml = Array.from(memberOptionsMap.entries()).map(([phoneKey, mName]) => {
+        const selAttr = phoneKey === activeMemberPhone ? " selected" : "";
+        return `<option value="${phoneKey}"${selAttr}>${mName} (${phoneKey})</option>`;
+      }).join("");
+
+      const memberTotalBannerHtml = memberOptionsMap.size
+        ? `
+          <div class="member-total-banner">
+            <div>${window.t("memberTotalLabel", { name: selectedMemberName })}: ${selectedMemberTotal}</div>
+            <div style="min-width:190px;">
+              <select id="fundsMemberFilterSelect">${memberFilterOptionsHtml}</select>
+            </div>
+          </div>`
+        : "";
+
+      const fundsHtml = !filteredFundItems.length
+        ? `${memberTotalBannerHtml}<div class='item-box'>${window.t("noFunds")}</div>`
         : `
-          ${summaryPillsHtml}
+          ${memberTotalBannerHtml}
           <div class="table-wrap">
             <table>
               <thead>
@@ -2247,26 +2325,24 @@
                 </tr>
               </thead>
               <tbody>
-                ${fundItems.map((f) => {
-                  const mName = memberNamesMap[f.memberPhone] || f.memberPhone || "-";
-                  return `
-                    <tr>
-                      <td>${window.formatDDMMYYYY(f.date)}</td>
-                      <td>${mName}</td>
-                      <td>${Number(f.amount || 0)}</td>
-                      <td>${window.formatPurposeLabel(f.purpose)}</td>
-                      <td>
-                        <div class="row-actions" style="margin-top:0;">
-                          <button type="button" class="btn btn-sm btn-edit" data-edit-id="${f.id}">${window.t("editBtn")}</button>
-                          <button type="button" class="btn btn-sm btn-danger" data-del-id="${f.id}">${window.t("deleteBtn")}</button>
-                        </div>
-                      </td>
-                    </tr>`;
-                }).join("")}
+                ${filteredFundItems.map((f) => `
+                  <tr>
+                    <td>${window.formatDDMMYYYY(f.date)}</td>
+                    <td>${f.memberName}</td>
+                    <td>${Number(f.amount || 0)}</td>
+                    <td>${window.formatPurposeLabel(f.purpose)}</td>
+                    <td>
+                      <div class="row-actions" style="margin-top:0;">
+                        <button type="button" class="btn btn-sm btn-edit" data-edit-id="${f.id}">${window.t("editBtn")}</button>
+                        <button type="button" class="btn btn-sm btn-danger" data-del-id="${f.id}">${window.t("deleteBtn")}</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join("")}
                 <tr class="total-row">
                   <td>Total</td>
-                  <td></td>
-                  <td>${overallTotal}</td>
+                  <td>${selectedMemberName}</td>
+                  <td>${selectedMemberTotal}</td>
                   <td></td>
                   <td></td>
                 </tr>
@@ -2341,6 +2417,17 @@
           ${membersTableHtml}
         </div>`;
 
+      const filterSelect = el("fundsMemberFilterSelect");
+      if (filterSelect) {
+        filterSelect.addEventListener("change", async () => {
+          window.appState.selectedFundMemberPhone = filterSelect.value || "";
+          if (el("fundMemberSelect") && Array.from(el("fundMemberSelect").options).some((o) => o.value === window.appState.selectedFundMemberPhone)) {
+            el("fundMemberSelect").value = window.appState.selectedFundMemberPhone;
+          }
+          await renderFundsAndMembersDetails(area);
+        });
+      }
+
       area.querySelectorAll("[data-member-group]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           window.appState.activeMemberGroup = btn.dataset.memberGroup;
@@ -2350,7 +2437,7 @@
 
       area.querySelectorAll("[data-edit-id]").forEach((btn) => {
         btn.addEventListener("click", () => {
-          const item = fundItems.find((x) => x.id === btn.dataset.editId);
+          const item = filteredFundItems.find((x) => x.id === btn.dataset.editId) || allFundItems.find((x) => x.id === btn.dataset.editId);
           if (!item) return;
           const panel = el("fundEditPanel");
           panel.style.display = "block";
@@ -2828,6 +2915,8 @@
               "error"
             );
           }
+
+          window.appState.selectedFundMemberPhone = memberPhone;
 
           await addDoc(collection(db, "funds"), {
             memberPhone,

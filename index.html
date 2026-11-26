@@ -15,6 +15,9 @@
     .container { max-width: 720px; margin: 0 auto; }
     .card { background: #fff; padding: 16px; border-radius: 14px; box-shadow: 0 2px 12px rgba(15,23,42,0.08); margin-bottom: 14px; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+    .user-header-wrap { display: flex; align-items: center; gap: 10px; }
+    .avatar-sm { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #15803d; background: #dcfce7; flex-shrink: 0; cursor: pointer; }
+    .avatar-md { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2px solid #15803d; background: #dcfce7; flex-shrink: 0; cursor: pointer; }
     h2, h3, h4 { margin: 0; color: #14532d; }
     h2 { font-size: 19px; }
     h3 { font-size: 16px; }
@@ -34,8 +37,6 @@
     .btn { padding: 7px 11px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
     .btn-sm { padding: 4px 8px; font-size: 12px; border-radius: 6px; }
     .btn-primary { background: #15803d; color: #fff; width: 100%; padding: 10px; font-size: 14px; }
-    .btn-bio { background: #0f766e; color: #fff; width: 100%; padding: 9px; font-size: 13px; margin-top: 8px; }
-    .btn-pin { background: #1d4ed8; color: #fff; width: 100%; padding: 9px; font-size: 13px; margin-top: 8px; }
     .btn-secondary { background: #334155; color: #fff; }
     .btn-danger { background: #b91c1c; color: #fff; }
     .btn-edit { background: #0369a1; color: #fff; }
@@ -60,12 +61,12 @@
     .sub-tab-btn { flex: 1; min-width: 90px; padding: 7px 9px; border: 1px solid #15803d; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; text-align: center; }
     .sub-tab-btn.active { background: #15803d; color: #fff; }
     .entry-box { border: 1px solid #bbf7d0; background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
-    .pin-setup-box { border: 1px solid #bfdbfe; background: #eff6ff; border-radius: 10px; padding: 11px; margin-bottom: 12px; }
     .item-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px; margin-bottom: 8px; background: #f8fafc; }
     .item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
-    .item-box img { max-width: 100%; max-height: 260px; border-radius: 8px; display: block; margin-top: 8px; cursor: pointer; }
+    .item-box img.content-img { max-width: 100%; max-height: 260px; border-radius: 8px; display: block; margin-top: 8px; cursor: pointer; }
     .img-fallback { margin-top: 6px; padding: 8px; background: #fef3c7; color: #92400e; border-radius: 6px; font-size: 12px; }
     .folder-tag { display: inline-block; background: #dcfce7; color: #166534; padding: 2px 9px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+    .reply-box { margin-top: 8px; padding: 9px 11px; border-radius: 8px; background: #eff6ff; border: 1px solid #bfdbfe; font-size: 13px; color: #1e3a8a; }
     .sub-section { border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 14px; }
     .req-actions { display: flex; gap: 8px; margin-top: 8px; }
     .table-wrap { overflow-x: auto; }
@@ -73,7 +74,6 @@
     th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: start; vertical-align: middle; }
     th { background: #f1f5f9; }
     .row-actions { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
-    .edit-box { background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px; padding: 10px; margin-top: 10px; }
     .ptr-indicator {
       display: none;
       text-align: center;
@@ -166,17 +166,11 @@
           <label id="lblLoginPass" for="loginPass">Password</label>
           <input id="loginPass" type="password" placeholder="Password" />
         </div>
-        <div id="pinLoginField" class="field" style="display:none;">
-          <label id="lblLoginPin" for="loginPin">PIN Code</label>
-          <input id="loginPin" type="password" inputmode="numeric" maxlength="8" placeholder="4-8 digits" />
-        </div>
         <div id="multiAccountPicker" class="field" style="display:none;">
           <label id="lblSelectAccountRole" for="loginAccountSelect">Select Account</label>
           <select id="loginAccountSelect"></select>
         </div>
         <button type="button" id="loginBtn" class="btn btn-primary">Login</button>
-        <button type="button" id="bioLoginBtn" class="btn btn-bio">Fingerprint Login</button>
-        <button type="button" id="pinLoginBtn" class="btn btn-pin">PIN Login</button>
       </div>
 
       <form id="registerForm" style="display:none;" novalidate>
@@ -209,21 +203,16 @@
 
     <div id="portalCard" class="card" style="display:none;">
       <div class="top-bar">
-        <div>
-          <h3 id="portalUserName">User</h3>
-          <div id="portalUserRole" style="font-size:12px; color:#475569;"></div>
+        <div class="user-header-wrap">
+          <img id="portalUserAvatar" class="avatar-sm" src="" alt="Profile" style="display:none;" />
+          <div>
+            <h3 id="portalUserName">User</h3>
+            <div id="portalUserRole" style="font-size:12px; color:#475569;"></div>
+          </div>
         </div>
         <div style="display:flex; gap:6px;">
           <button type="button" id="portalLangBtn" class="btn btn-secondary">اردو</button>
           <button type="button" id="logoutBtn" class="btn btn-danger">Logout</button>
-        </div>
-      </div>
-
-      <div id="quickPinSetupBox" class="pin-setup-box" style="display:none;">
-        <div style="font-size:13px; font-weight:bold; color:#1e3a8a; margin-bottom:6px;" id="lblQuickPinSetup">Quick PIN Setup (4-8 digits)</div>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <input id="quickPinInput" type="password" inputmode="numeric" maxlength="8" placeholder="1234" style="flex:1;" />
-          <button type="button" id="saveQuickPinBtn" class="btn btn-sm btn-edit">Save PIN</button>
         </div>
       </div>
 
@@ -253,8 +242,8 @@
 
     const SESSION_STORAGE_KEY = "dm_milad_session_v1";
     const LANG_STORAGE_KEY = "dm_milad_lang_v1";
-    const BIO_CRED_STORAGE_KEY = "dm_milad_bio_cred_v1";
-    const QUICK_PIN_STORAGE_KEY = "dm_milad_quick_pin_v1";
+    const ADMIN_PASS_OVERRIDE_KEY = "dm_milad_admin_pass_v1";
+    const ADMIN_PHOTO_CACHE_KEY = "dm_milad_admin_photo_v1";
 
     const FUND_PURPOSES = [
       { id: "monthly", ur: "ماہانہ فنڈ", en: "Monthly Fund" },
@@ -274,23 +263,8 @@
         tabRegister: "نیا اکاؤنٹ",
         loginPhone: "فون نمبر",
         loginPass: "پاس ورڈ",
-        lblLoginPin: "پن کوڈ (PIN)",
-        lblQuickPinSetup: "فوری لاگ ان کے لیے 4 سے 8 ہندسوں کا PIN سیٹ کریں",
-        saveQuickPinBtn: "PIN محفوظ کریں",
-        pinLoginBtn: "PIN سے لاگ ان",
-        pinNotSet: "اس فون نمبر کے لیے کوئی PIN محفوظ نہیں ہے۔ پہلے پاس ورڈ سے لاگ ان کر کے PIN سیٹ کریں۔",
-        pinInvalidFormat: "PIN کم از کم 4 اور زیادہ سے زیادہ 8 ہندسوں کا ہونا چاہیے۔",
-        pinWrong: "PIN کوڈ غلط ہے۔",
-        pinSaved: "PIN کامیابی سے محفوظ ہو گیا۔ اگلی بار PIN سے لاگ ان ہو سکے گا۔",
-        pinAdminBlocked: "ایڈمن اکاؤنٹ کے لیے PIN لاگ ان فعال نہیں ہے۔",
         lblSelectAccountRole: "اکاؤنٹ منتخب کریں",
         loginBtn: "لاگ ان کریں",
-        bioLoginBtn: "فنگر پرنٹ لاگ ان",
-        bioNotSupported: "اس براؤزر یا WebView میں فنگر پرنٹ / بائیو میٹرک سپورٹ دستیاب نہیں ہے۔",
-        bioNeedHttps: "فنگر پرنٹ لاگ ان کے لیے ایپ/سائٹ کا HTTPS پر ہونا ضروری ہے۔",
-        bioEnterCredsFirst: "پہلی بار فنگر پرنٹ فعال کرنے کے لیے فون نمبر اور پاس ورڈ لکھیں، پھر فنگر پرنٹ لاگ ان دبائیں۔",
-        bioEnrolledAndLoggedIn: "فنگر پرنٹ فعال ہو گیا اور لاگ ان مکمل ہو گیا۔",
-        bioFailed: "فنگر پرنٹ تصدیق مکمل نہیں ہو سکی۔",
         pullToRefreshMsg: "ریفریش کرنے کے لیے مزید نیچے کھینچیں...",
         releaseToRefreshMsg: "چھوڑ دیں، ایپ ریفریش ہو رہی ہے...",
         regName: "پورا نام",
@@ -313,6 +287,8 @@
         secApprovals: "زیرِ التوا درخواستیں",
         secMahafil: "محافل",
         secInformation: "معلومات",
+        secProfile: "پروفائل",
+        secComplaints: "کمپلینٹس",
         roleAdminLabel: "ایڈمن",
         rolePublicLabel: "عام عوام",
         roleMgmtLabel: "انتظامیہ",
@@ -380,7 +356,32 @@
         mahafilTitle: "محافل",
         informationTitle: "معلومات",
         adminOnlyActionError: "یہ عمل صرف ایڈمن کر سکتا ہے۔",
-        closeBtn: "بند کریں"
+        closeBtn: "بند کریں",
+        profileTitle: "پروفائل سیٹنگز",
+        profilePhotoTitle: "پروفائل تصویر",
+        lblProfilePhoto: "اپنی تصویر منتخب کریں",
+        savePhotoBtn: "تصویر محفوظ کریں",
+        photoSavedMsg: "پروفائل تصویر کامیابی سے محفوظ ہو گئی۔",
+        changePassTitle: "پاس ورڈ تبدیل کریں",
+        lblCurrentPass: "موجودہ پاس ورڈ",
+        lblNewPass: "نیا پاس ورڈ (کم از کم 6 حروف)",
+        lblConfirmPass: "نیا پاس ورڈ دوبارہ لکھیں",
+        changePassBtn: "پاس ورڈ اپ ڈیٹ کریں",
+        passChangedMsg: "پاس ورڈ کامیابی سے تبدیل ہو گیا۔",
+        wrongCurrentPass: "موجودہ پاس ورڈ غلط ہے۔",
+        passMismatch: "نیا پاس ورڈ اور کنفرم پاس ورڈ ایک جیسے نہیں ہیں۔",
+        complaintSectionTitle: "کمپلینٹ درج کریں",
+        lblComplaintSubject: "کمپلینٹ کا موضوع",
+        lblComplaintMsg: "کمپلینٹ کی تفصیل",
+        submitComplaintBtn: "کمپلینٹ بھیجیں",
+        complaintSubmittedMsg: "آپ کی کمپلینٹ ایڈمن کو بھیج دی گئی ہے۔",
+        myComplaintsTitle: "میری کمپلینٹس اور ایڈمن کا جواب",
+        allComplaintsTitle: "ممبران کی کمپلینٹس",
+        noComplaints: "ابھی کوئی کمپلینٹ موجود نہیں ہے۔",
+        lblAdminReply: "ایڈمن کا جواب",
+        saveReplyBtn: "جواب محفوظ کریں",
+        replySavedMsg: "جواب محفوظ ہو گیا۔",
+        awaitingReply: "ایڈمن کے جواب کا انتظار ہے..."
       },
       en: {
         appHeading: "Milad Organization Dhoke Maken",
@@ -389,23 +390,8 @@
         tabRegister: "Create Account",
         loginPhone: "Phone Number",
         loginPass: "Password",
-        lblLoginPin: "PIN Code",
-        lblQuickPinSetup: "Set 4-8 digit PIN for quick login",
-        saveQuickPinBtn: "Save PIN",
-        pinLoginBtn: "PIN Login",
-        pinNotSet: "No PIN saved for this phone number. Log in with password first and set a PIN.",
-        pinInvalidFormat: "PIN must be 4 to 8 digits.",
-        pinWrong: "Incorrect PIN code.",
-        pinSaved: "PIN saved. You can log in with PIN next time.",
-        pinAdminBlocked: "PIN login is disabled for Admin account.",
         lblSelectAccountRole: "Select Account",
         loginBtn: "Login",
-        bioLoginBtn: "Fingerprint Login",
-        bioNotSupported: "Fingerprint / biometric login is not supported in this browser or WebView.",
-        bioNeedHttps: "Fingerprint login requires HTTPS.",
-        bioEnterCredsFirst: "Enter your phone and password once to link fingerprint, then tap Fingerprint Login.",
-        bioEnrolledAndLoggedIn: "Fingerprint linked and logged in.",
-        bioFailed: "Fingerprint verification failed.",
         pullToRefreshMsg: "Pull down to refresh...",
         releaseToRefreshMsg: "Release to refresh app...",
         regName: "Full Name",
@@ -428,6 +414,8 @@
         secApprovals: "Pending Approvals",
         secMahafil: "Mahafil",
         secInformation: "Information",
+        secProfile: "Profile",
+        secComplaints: "Complaints",
         roleAdminLabel: "Admin",
         rolePublicLabel: "Public",
         roleMgmtLabel: "Management",
@@ -495,7 +483,32 @@
         mahafilTitle: "Mahafil",
         informationTitle: "Information",
         adminOnlyActionError: "Only Admin can perform this action.",
-        closeBtn: "Close"
+        closeBtn: "Close",
+        profileTitle: "Profile Settings",
+        profilePhotoTitle: "Profile Photo",
+        lblProfilePhoto: "Choose Profile Photo",
+        savePhotoBtn: "Save Photo",
+        photoSavedMsg: "Profile photo saved.",
+        changePassTitle: "Change Password",
+        lblCurrentPass: "Current Password",
+        lblNewPass: "New Password (at least 6 characters)",
+        lblConfirmPass: "Confirm New Password",
+        changePassBtn: "Update Password",
+        passChangedMsg: "Password updated successfully.",
+        wrongCurrentPass: "Current password is incorrect.",
+        passMismatch: "New password and confirm password do not match.",
+        complaintSectionTitle: "Submit a Complaint",
+        lblComplaintSubject: "Complaint Subject",
+        lblComplaintMsg: "Complaint Details",
+        submitComplaintBtn: "Submit Complaint",
+        complaintSubmittedMsg: "Your complaint has been sent to Admin.",
+        myComplaintsTitle: "My Complaints & Admin Replies",
+        allComplaintsTitle: "Member Complaints",
+        noComplaints: "No complaints found.",
+        lblAdminReply: "Admin Reply",
+        saveReplyBtn: "Save Reply",
+        replySavedMsg: "Reply saved.",
+        awaitingReply: "Awaiting admin reply..."
       }
     };
 
@@ -548,6 +561,35 @@
         e.preventDefault();
       }
     });
+
+    function getAdminPassword() {
+      try {
+        const saved = localStorage.getItem(ADMIN_PASS_OVERRIDE_KEY);
+        return saved && saved.length >= 6 ? saved : BUILT_IN_ADMIN.password;
+      } catch (e) {
+        return BUILT_IN_ADMIN.password;
+      }
+    }
+
+    function setAdminPasswordOverride(newPass) {
+      try {
+        localStorage.setItem(ADMIN_PASS_OVERRIDE_KEY, newPass);
+      } catch (e) {}
+    }
+
+    function getCachedAdminPhoto() {
+      try {
+        return localStorage.getItem(ADMIN_PHOTO_CACHE_KEY) || "";
+      } catch (e) {
+        return "";
+      }
+    }
+
+    function setCachedAdminPhoto(dataUrl) {
+      try {
+        if (dataUrl) localStorage.setItem(ADMIN_PHOTO_CACHE_KEY, dataUrl);
+      } catch (e) {}
+    }
 
     function todayISO() {
       const d = new Date();
@@ -701,28 +743,6 @@
       } catch (e) {}
     }
 
-    function loadPinsMap() {
-      try {
-        const raw = localStorage.getItem(QUICK_PIN_STORAGE_KEY);
-        return raw ? JSON.parse(raw) : {};
-      } catch (e) {
-        return {};
-      }
-    }
-
-    function savePinForPhone(phone, pin) {
-      try {
-        const map = loadPinsMap();
-        map[phone] = pin;
-        localStorage.setItem(QUICK_PIN_STORAGE_KEY, JSON.stringify(map));
-      } catch (e) {}
-    }
-
-    function getPinForPhone(phone) {
-      const map = loadPinsMap();
-      return map && map[phone] ? String(map[phone]) : "";
-    }
-
     window.appState = {
       currentUser: null,
       activeSection: null,
@@ -736,10 +756,12 @@
       try {
         if (user) {
           localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({
+            id: user.id || "",
             phone: user.phone || "",
             name: user.name || "",
             role: user.role || "",
-            status: user.status || ""
+            status: user.status || "",
+            photoUrl: user.photoUrl || ""
           }));
         } else {
           localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -781,7 +803,9 @@
           { key: "photos", label: window.t("secPhotos") },
           { key: "videos", label: window.t("secVideos") },
           { key: "mahafil", label: window.t("secMahafil") },
-          { key: "information", label: window.t("secInformation") }
+          { key: "information", label: window.t("secInformation") },
+          { key: "complaints", label: window.t("secComplaints") },
+          { key: "profile", label: window.t("secProfile") }
         ];
       }
       if (role === "management") {
@@ -791,7 +815,9 @@
           { key: "photos", label: window.t("secPhotos") },
           { key: "videos", label: window.t("secVideos") },
           { key: "mahafil", label: window.t("secMahafil") },
-          { key: "information", label: window.t("secInformation") }
+          { key: "information", label: window.t("secInformation") },
+          { key: "complaints", label: window.t("secComplaints") },
+          { key: "profile", label: window.t("secProfile") }
         ];
       }
       if (role === "abroad") {
@@ -800,7 +826,9 @@
           { key: "videos", label: window.t("secVideos") },
           { key: "langar", label: window.t("secLangar") },
           { key: "mahafil", label: window.t("secMahafil") },
-          { key: "information", label: window.t("secInformation") }
+          { key: "information", label: window.t("secInformation") },
+          { key: "complaints", label: window.t("secComplaints") },
+          { key: "profile", label: window.t("secProfile") }
         ];
       }
       return [
@@ -808,10 +836,12 @@
         { key: "expenses", label: window.t("secExpenses") },
         { key: "langar", label: window.t("secLangar") },
         { key: "approvals", label: window.t("secApprovals") },
+        { key: "complaints", label: window.t("secComplaints") },
         { key: "photos", label: window.t("secPhotos") },
         { key: "videos", label: window.t("secVideos") },
         { key: "mahafil", label: window.t("secMahafil") },
-        { key: "information", label: window.t("secInformation") }
+        { key: "information", label: window.t("secInformation") },
+        { key: "profile", label: window.t("secProfile") }
       ];
     };
 
@@ -827,14 +857,16 @@
       };
       el("portalUserRole").textContent = `${roleMap[u.role] || u.role} | ${u.phone}`;
 
-      const pinBox = el("quickPinSetupBox");
-      if (pinBox) {
-        if (u.role === "admin") {
-          pinBox.style.display = "none";
+      const avatarEl = el("portalUserAvatar");
+      const photo = u.photoUrl || (u.role === "admin" ? getCachedAdminPhoto() : "");
+      if (avatarEl) {
+        if (photo) {
+          avatarEl.src = photo;
+          avatarEl.alt = u.name || "Profile";
+          avatarEl.style.display = "block";
         } else {
-          pinBox.style.display = "block";
-          const existingPin = getPinForPhone(u.phone);
-          if (el("quickPinInput")) el("quickPinInput").value = existingPin;
+          avatarEl.src = "";
+          avatarEl.style.display = "none";
         }
       }
     };
@@ -936,6 +968,7 @@
         return;
       }
 
+      entryArea.style.display = "none";
       entryArea.innerHTML = "";
     };
 
@@ -1016,13 +1049,8 @@
       el("tabRegister").textContent = window.t("tabRegister");
       el("lblLoginPhone").textContent = window.t("loginPhone");
       el("lblLoginPass").textContent = window.t("loginPass");
-      if (el("lblLoginPin")) el("lblLoginPin").textContent = window.t("lblLoginPin");
-      if (el("lblQuickPinSetup")) el("lblQuickPinSetup").textContent = window.t("lblQuickPinSetup");
-      if (el("saveQuickPinBtn")) el("saveQuickPinBtn").textContent = window.t("saveQuickPinBtn");
-      if (el("pinLoginBtn")) el("pinLoginBtn").textContent = window.t("pinLoginBtn");
       el("lblSelectAccountRole").textContent = window.t("lblSelectAccountRole");
       el("loginBtn").textContent = window.t("loginBtn");
-      if (el("bioLoginBtn")) el("bioLoginBtn").textContent = window.t("bioLoginBtn");
 
       el("lblRegName").textContent = window.t("regName");
       el("lblRegPhone").textContent = window.t("regPhone");
@@ -1072,63 +1100,6 @@
       el("loginAccountSelect").innerHTML = "";
     });
 
-    if (el("saveQuickPinBtn")) {
-      el("saveQuickPinBtn").addEventListener("click", () => {
-        const u = window.appState.currentUser;
-        if (!u || !u.phone || u.role === "admin") return;
-        const pinVal = String(el("quickPinInput").value || "").trim();
-        if (!/^\d{4,8}$/.test(pinVal)) {
-          return window.showAdminMsg(window.t("pinInvalidFormat"), "error");
-        }
-        savePinForPhone(u.phone, pinVal);
-        window.showAdminMsg(window.t("pinSaved"), "success");
-      });
-    }
-
-    if (el("pinLoginBtn")) {
-      el("pinLoginBtn").addEventListener("click", async () => {
-        const l = window.appState.lang;
-        const phone = window.normalizePhone(el("loginPhone").value);
-        if (!window.isValidPhone(phone)) {
-          return window.showAuthMsg(l === "en" ? "Enter a valid phone number." : "درست فون نمبر لکھیں۔", "error");
-        }
-        if (phone === BUILT_IN_ADMIN.phone) {
-          return window.showAuthMsg(window.t("pinAdminBlocked"), "error");
-        }
-
-        const savedPin = getPinForPhone(phone);
-        if (!savedPin) {
-          if (el("pinLoginField")) el("pinLoginField").style.display = "block";
-          return window.showAuthMsg(window.t("pinNotSet"), "error");
-        }
-
-        const pinField = el("pinLoginField");
-        const pinInput = el("loginPin");
-        if (pinField && pinField.style.display === "none") {
-          pinField.style.display = "block";
-          if (pinInput) pinInput.focus();
-          return;
-        }
-
-        const enteredPin = pinInput ? String(pinInput.value || "").trim() : "";
-        if (!/^\d{4,8}$/.test(enteredPin)) {
-          return window.showAuthMsg(window.t("pinInvalidFormat"), "error");
-        }
-        if (enteredPin !== savedPin) {
-          return window.showAuthMsg(window.t("pinWrong"), "error");
-        }
-
-        if (window.appState.handlers.loginByPin) {
-          await window.appState.handlers.loginByPin(phone);
-        } else {
-          window.showAuthMsg(
-            l === "en" ? "Please check your internet connection and refresh the page." : "براہِ کرم انٹرنیٹ چیک کریں اور صفحہ ریفریش کریں۔",
-            "error"
-          );
-        }
-      });
-    }
-
     async function waitForLoginHandler(maxMs = 2500) {
       const start = Date.now();
       while (!window.appState.handlers.loginUser && Date.now() - start < maxMs) {
@@ -1151,17 +1122,23 @@
       }
 
       if (phone === BUILT_IN_ADMIN.phone) {
-        if (password !== BUILT_IN_ADMIN.password) {
+        if (password !== getAdminPassword()) {
           return window.showAuthMsg(l === "en" ? "Invalid admin password." : "ایڈمن پاس ورڈ غلط ہے۔", "error");
         }
+        const adminPhoto = getCachedAdminPhoto();
         window.appState.currentUser = {
+          id: "built_in_admin",
           phone: BUILT_IN_ADMIN.phone,
           name: BUILT_IN_ADMIN.name,
           role: "admin",
-          status: "active"
+          status: "active",
+          photoUrl: adminPhoto
         };
         window.saveUserSession(window.appState.currentUser);
         window.openPortal();
+        if (window.appState.handlers.syncAdminProfile) {
+          window.appState.handlers.syncAdminProfile();
+        }
         return;
       }
 
@@ -1176,103 +1153,6 @@
       }
     });
 
-    function bytesToB64(buf) {
-      const bytes = new Uint8Array(buf);
-      let s = "";
-      for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
-      return btoa(s);
-    }
-
-    function b64ToBytes(b64) {
-      const bin = atob(b64);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      return bytes;
-    }
-
-    function loadBioCred() {
-      try {
-        const raw = localStorage.getItem(BIO_CRED_STORAGE_KEY);
-        return raw ? JSON.parse(raw) : null;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function saveBioCred(obj) {
-      try {
-        localStorage.setItem(BIO_CRED_STORAGE_KEY, JSON.stringify(obj));
-      } catch (e) {}
-    }
-
-    if (el("bioLoginBtn")) {
-      el("bioLoginBtn").addEventListener("click", async () => {
-        const l = window.appState.lang;
-        if (!window.isSecureContext && location.hostname !== "localhost") {
-          return window.showAuthMsg(window.t("bioNeedHttps"), "error");
-        }
-        if (!window.PublicKeyCredential || !navigator.credentials) {
-          return window.showAuthMsg(window.t("bioNotSupported"), "error");
-        }
-
-        const savedBio = loadBioCred();
-        const inputPhone = window.normalizePhone(el("loginPhone").value);
-        const inputPass = el("loginPass").value;
-
-        try {
-          if (!savedBio) {
-            if (!window.isValidPhone(inputPhone) || !inputPass) {
-              return window.showAuthMsg(window.t("bioEnterCredsFirst"), "error");
-            }
-            const challenge = crypto.getRandomValues(new Uint8Array(32));
-            const userId = new TextEncoder().encode(inputPhone);
-            const cred = await navigator.credentials.create({
-              publicKey: {
-                challenge,
-                rp: { name: "DM Milad", id: location.hostname },
-                user: { id: userId, name: inputPhone, displayName: inputPhone },
-                pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
-                authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
-                timeout: 60000
-              }
-            });
-            if (!cred) return window.showAuthMsg(window.t("bioFailed"), "error");
-            saveBioCred({
-              rawId: bytesToB64(cred.rawId),
-              phone: inputPhone,
-              password: inputPass
-            });
-            window.showAuthMsg(window.t("bioEnrolledAndLoggedIn"), "success");
-            el("loginBtn").click();
-            return;
-          }
-
-          const assertionChallenge = crypto.getRandomValues(new Uint8Array(32));
-          const assertion = await navigator.credentials.get({
-            publicKey: {
-              challenge: assertionChallenge,
-              rpId: location.hostname,
-              allowCredentials: [{ id: b64ToBytes(savedBio.rawId), type: "public-key" }],
-              userVerification: "required",
-              timeout: 60000
-            }
-          });
-
-          if (!assertion) return window.showAuthMsg(window.t("bioFailed"), "error");
-
-          el("loginPhone").value = savedBio.phone;
-          el("loginPass").value = savedBio.password;
-          el("loginBtn").click();
-        } catch (err) {
-          window.showAuthMsg(
-            (l === "en" ? "Fingerprint login unavailable/cancelled: " : "فنگر پرنٹ لاگ ان ممکن نہیں ہو سکا: ") +
-            (err && err.message ? err.message : ""),
-            "error"
-          );
-        }
-      });
-    }
-
     el("logoutBtn").addEventListener("click", () => {
       window.saveUserSession(null);
       window.appState.currentUser = null;
@@ -1281,9 +1161,12 @@
       el("portalCard").style.display = "none";
       el("adminEntryArea").style.display = "none";
       el("adminEntryArea").innerHTML = "";
+      if (el("portalUserAvatar")) {
+        el("portalUserAvatar").src = "";
+        el("portalUserAvatar").style.display = "none";
+      }
       el("authCard").style.display = "block";
       el("loginPass").value = "";
-      if (el("loginPin")) el("loginPin").value = "";
       el("multiAccountPicker").style.display = "none";
       el("loginAccountSelect").innerHTML = "";
       el("authMsg").className = "msg";
@@ -1527,7 +1410,10 @@
     window.applyTranslations();
     const savedSession = window.loadSavedSession();
     if (savedSession && savedSession.role === "admin" && savedSession.phone === BUILT_IN_ADMIN.phone) {
-      window.appState.currentUser = savedSession;
+      window.appState.currentUser = {
+        ...savedSession,
+        photoUrl: savedSession.photoUrl || getCachedAdminPhoto()
+      };
       window.openPortal();
     }
   </script>
@@ -1551,21 +1437,21 @@
 
     const el = (id) => document.getElementById(id);
     let memberNamesMap = {};
+    let memberPhotosMap = {};
 
-    function fileToDataUrl(file) {
+    function fileToDataUrl(file, maxW = 800, quality = 0.72) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
           const img = new Image();
           img.onload = () => {
-            const maxW = 1000;
             const scale = img.width > maxW ? maxW / img.width : 1;
             const canvas = document.createElement("canvas");
             canvas.width = Math.round(img.width * scale);
             canvas.height = Math.round(img.height * scale);
             const ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL("image/jpeg", 0.72));
+            resolve(canvas.toDataURL("image/jpeg", quality));
           };
           img.onerror = () => resolve(reader.result);
           img.src = reader.result;
@@ -1588,6 +1474,28 @@
     function isAdminUser() {
       return Boolean(window.appState.currentUser && window.appState.currentUser.role === "admin");
     }
+
+    async function loadAdminProfileDoc() {
+      if (!db) return null;
+      try {
+        const snap = await getDoc(doc(db, "profiles", BUILT_IN_ADMIN.phone));
+        return snap.exists() ? snap.data() : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    window.appState.handlers.syncAdminProfile = async () => {
+      const prof = await loadAdminProfileDoc();
+      if (prof && prof.photoUrl) {
+        setCachedAdminPhoto(prof.photoUrl);
+        if (window.appState.currentUser && window.appState.currentUser.role === "admin") {
+          window.appState.currentUser.photoUrl = prof.photoUrl;
+          window.saveUserSession(window.appState.currentUser);
+          window.updatePortalHeader();
+        }
+      }
+    };
 
     async function getAccountsForPhone(phone) {
       const results = [];
@@ -1656,7 +1564,7 @@
         : "";
 
       return `
-        <img data-img-item src="${directImg}" alt="${(item.title || "").replace(/"/g, "&quot;")}" />
+        <img class="content-img" data-img-item src="${directImg}" alt="${(item.title || "").replace(/"/g, "&quot;")}" />
         <div class="img-fallback" style="display:none;">
           <div>${window.t("imgNotDirect")}</div>
           ${openBtn ? `<div class="row-actions">${openBtn}</div>` : ""}
@@ -1784,9 +1692,17 @@
         const u = d.data();
         const div = document.createElement("div");
         div.className = "item-box";
+        const avatarHtml = u.photoUrl
+          ? `<img class="avatar-sm" src="${u.photoUrl}" alt="${(u.name || "").replace(/"/g, "&quot;")}" />`
+          : "";
         div.innerHTML = `
-          <div><strong>${u.name}</strong> (${u.phone})</div>
-          <div style="font-size:12px;">${u.role === "abroad" ? window.t("roleAbroadLabel") : window.t("roleMgmtLabel")}</div>
+          <div class="user-header-wrap">
+            ${avatarHtml}
+            <div>
+              <div><strong>${u.name}</strong> (${u.phone})</div>
+              <div style="font-size:12px;">${u.role === "abroad" ? window.t("roleAbroadLabel") : window.t("roleMgmtLabel")}</div>
+            </div>
+          </div>
           <div class="req-actions">
             <button type="button" class="btn btn-approve" data-id="${d.id}">${window.t("approveBtn")}</button>
             <button type="button" class="btn btn-reject" data-id="${d.id}">${window.t("rejectBtn")}</button>
@@ -1815,9 +1731,11 @@
       const snap = await getDocs(collection(db, "users"));
       sel.innerHTML = "";
       memberNamesMap = {};
+      memberPhotosMap = {};
       snap.forEach((d) => {
         const u = d.data();
         memberNamesMap[u.phone] = u.name;
+        if (u.photoUrl) memberPhotosMap[u.phone] = u.photoUrl;
         if (u.role === "management" && u.status === "active") {
           const opt = document.createElement("option");
           opt.value = u.phone;
@@ -1830,10 +1748,12 @@
     async function renderFundsAndMembersDetails(area) {
       const usersSnap = await getDocs(collection(db, "users"));
       memberNamesMap = {};
+      memberPhotosMap = {};
       const allMembers = [];
       usersSnap.forEach((d) => {
         const u = d.data();
         memberNamesMap[u.phone] = u.name;
+        if (u.photoUrl) memberPhotosMap[u.phone] = u.photoUrl;
         if (u.phone !== BUILT_IN_ADMIN.phone) {
           allMembers.push({ id: d.id, ...u });
         }
@@ -1923,17 +1843,26 @@
                 </tr>
               </thead>
               <tbody>
-                ${groupMembers.map((m) => `
-                  <tr>
-                    <td><strong>${m.name || "-"}</strong></td>
-                    <td dir="ltr">${m.phone || "-"}</td>
-                    <td>${roleText(m.role)}</td>
-                    <td>${statusText(m.status)}</td>
-                    <td>
-                      <button type="button" class="btn btn-sm btn-danger" data-remove-user-id="${m.id}" data-remove-user-name="${(m.name || m.phone || "").replace(/"/g, "&quot;")}">${window.t("removeMemberBtn")}</button>
-                    </td>
-                  </tr>
-                `).join("")}
+                ${groupMembers.map((m) => {
+                  const photoThumb = m.photoUrl
+                    ? `<img class="avatar-sm" src="${m.photoUrl}" alt="${(m.name || "").replace(/"/g, "&quot;")}" />`
+                    : "";
+                  return `
+                    <tr>
+                      <td>
+                        <div class="user-header-wrap">
+                          ${photoThumb}
+                          <strong>${m.name || "-"}</strong>
+                        </div>
+                      </td>
+                      <td dir="ltr">${m.phone || "-"}</td>
+                      <td>${roleText(m.role)}</td>
+                      <td>${statusText(m.status)}</td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-danger" data-remove-user-id="${m.id}" data-remove-user-name="${(m.name || m.phone || "").replace(/"/g, "&quot;")}">${window.t("removeMemberBtn")}</button>
+                      </td>
+                    </tr>`;
+                }).join("")}
               </tbody>
             </table>
           </div>`;
@@ -2029,6 +1958,294 @@
           }
         });
       });
+    }
+
+    async function renderProfileSection(area) {
+      const u = window.appState.currentUser;
+      const l = window.appState.lang;
+      if (!u) return;
+
+      const currentPhoto = u.photoUrl || (u.role === "admin" ? getCachedAdminPhoto() : "");
+
+      area.innerHTML = `
+        <h4>${window.t("profileTitle")}</h4>
+        <div class="entry-box">
+          <div style="font-weight:bold; margin-bottom:8px;">${window.t("profilePhotoTitle")}</div>
+          <div class="user-header-wrap" style="margin-bottom:10px;">
+            <img id="profilePreviewImg" class="avatar-md" src="${currentPhoto || ""}" alt="${(u.name || "").replace(/"/g, "&quot;")}" style="${currentPhoto ? "" : "display:none;"}" />
+            <div>
+              <div><strong>${u.name}</strong></div>
+              <div style="font-size:12px; color:#475569;">${u.phone}</div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="profilePhotoInput">${window.t("lblProfilePhoto")}</label>
+            <input id="profilePhotoInput" type="file" accept="image/*" />
+          </div>
+          <button type="button" id="saveProfilePhotoBtn" class="btn btn-primary">${window.t("savePhotoBtn")}</button>
+        </div>
+
+        <div class="entry-box">
+          <div style="font-weight:bold; margin-bottom:8px;">${window.t("changePassTitle")}</div>
+          <div class="field">
+            <label for="currPassInput">${window.t("lblCurrentPass")}</label>
+            <input id="currPassInput" type="password" />
+          </div>
+          <div class="field">
+            <label for="newPassInput">${window.t("lblNewPass")}</label>
+            <input id="newPassInput" type="password" />
+          </div>
+          <div class="field">
+            <label for="confirmPassInput">${window.t("lblConfirmPass")}</label>
+            <input id="confirmPassInput" type="password" />
+          </div>
+          <button type="button" id="changePassBtn" class="btn btn-primary">${window.t("changePassBtn")}</button>
+        </div>`;
+
+      el("saveProfilePhotoBtn").addEventListener("click", async () => {
+        const fileInp = el("profilePhotoInput");
+        const file = fileInp && fileInp.files ? fileInp.files[0] : null;
+        if (!file) {
+          return window.showAdminMsg(l === "en" ? "Please choose a photo first." : "براہِ کرم پہلے تصویر منتخب کریں۔", "error");
+        }
+        el("saveProfilePhotoBtn").disabled = true;
+        try {
+          const dataUrl = await fileToDataUrl(file, 480, 0.72);
+          if (u.role === "admin") {
+            setCachedAdminPhoto(dataUrl);
+            if (db) {
+              await setDoc(doc(db, "profiles", BUILT_IN_ADMIN.phone), {
+                phone: BUILT_IN_ADMIN.phone,
+                name: BUILT_IN_ADMIN.name,
+                photoUrl: dataUrl,
+                updatedAt: serverTimestamp()
+              }, { merge: true });
+            }
+          } else if (u.id && db) {
+            await updateDoc(doc(db, "users", u.id), { photoUrl: dataUrl });
+          }
+          u.photoUrl = dataUrl;
+          window.saveUserSession(u);
+          window.updatePortalHeader();
+          if (el("profilePreviewImg")) {
+            el("profilePreviewImg").src = dataUrl;
+            el("profilePreviewImg").style.display = "block";
+          }
+          fileInp.value = "";
+          window.showAdminMsg(window.t("photoSavedMsg"), "success");
+        } catch (err) {
+          window.showAdminMsg(err && err.message ? err.message : "Photo save failed", "error");
+        } finally {
+          el("saveProfilePhotoBtn").disabled = false;
+        }
+      });
+
+      el("changePassBtn").addEventListener("click", async () => {
+        const currPass = el("currPassInput").value;
+        const newPass = el("newPassInput").value;
+        const confPass = el("confirmPassInput").value;
+
+        if (!currPass || !newPass || !confPass) {
+          return window.showAdminMsg(l === "en" ? "Fill all password fields." : "پاس ورڈ کے تمام خانے پُر کریں۔", "error");
+        }
+        if (newPass.length < 6) {
+          return window.showAdminMsg(l === "en" ? "Password must be at least 6 characters." : "نیا پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
+        }
+        if (newPass !== confPass) {
+          return window.showAdminMsg(window.t("passMismatch"), "error");
+        }
+
+        el("changePassBtn").disabled = true;
+        try {
+          if (u.role === "admin") {
+            if (currPass !== getAdminPassword()) {
+              return window.showAdminMsg(window.t("wrongCurrentPass"), "error");
+            }
+            setAdminPasswordOverride(newPass);
+            el("currPassInput").value = "";
+            el("newPassInput").value = "";
+            el("confirmPassInput").value = "";
+            window.showAdminMsg(window.t("passChangedMsg"), "success");
+            return;
+          }
+
+          if (!db || !u.id) {
+            return window.showAdminMsg(l === "en" ? "Database not connected." : "ڈیٹا بیس کنیکٹ نہیں ہے۔", "error");
+          }
+          const snap = await getDoc(doc(db, "users", u.id));
+          const latest = snap.exists() ? snap.data() : u;
+          if (currPass !== latest.password) {
+            return window.showAdminMsg(window.t("wrongCurrentPass"), "error");
+          }
+          await updateDoc(doc(db, "users", u.id), { password: newPass });
+          u.password = newPass;
+          el("currPassInput").value = "";
+          el("newPassInput").value = "";
+          el("confirmPassInput").value = "";
+          window.showAdminMsg(window.t("passChangedMsg"), "success");
+        } catch (err) {
+          window.showAdminMsg(err && err.message ? err.message : "Password change failed", "error");
+        } finally {
+          el("changePassBtn").disabled = false;
+        }
+      });
+    }
+
+    async function renderComplaintsSection(area) {
+      const u = window.appState.currentUser;
+      const l = window.appState.lang;
+      if (!u) return;
+
+      if (!isAdminUser()) {
+        const q = query(collection(db, "complaints"), where("memberPhone", "==", u.phone));
+        const snap = await getDocs(q);
+        const list = [];
+        snap.forEach((d) => list.push({ id: d.id, ...d.data() }));
+        list.sort((a, b) => {
+          const ta = a.createdAt && typeof a.createdAt.toMillis === "function" ? a.createdAt.toMillis() : 0;
+          const tb = b.createdAt && typeof b.createdAt.toMillis === "function" ? b.createdAt.toMillis() : 0;
+          return tb - ta;
+        });
+
+        const itemsHtml = !list.length
+          ? `<div class="item-box">${window.t("noComplaints")}</div>`
+          : list.map((c) => `
+            <div class="item-box">
+              <div class="item-top">
+                <strong>${c.subject || ""}</strong>
+                <span class="folder-tag">${window.formatDDMMYYYY(c.date)}</span>
+              </div>
+              <div style="margin-top:4px;">${c.message || ""}</div>
+              <div class="reply-box">
+                <strong>${window.t("lblAdminReply")}:</strong>
+                <div>${c.adminReply ? c.adminReply : window.t("awaitingReply")}</div>
+              </div>
+            </div>
+          `).join("");
+
+        area.innerHTML = `
+          <div class="entry-box">
+            <h4>${window.t("complaintSectionTitle")}</h4>
+            <div class="field">
+              <label for="compSubject">${window.t("lblComplaintSubject")}</label>
+              <input id="compSubject" type="text" placeholder="${window.t("lblComplaintSubject")}" />
+            </div>
+            <div class="field">
+              <label for="compMsg">${window.t("lblComplaintMsg")}</label>
+              <textarea id="compMsg" rows="3" placeholder="${window.t("lblComplaintMsg")}"></textarea>
+            </div>
+            <button type="button" id="submitComplaintBtn" class="btn btn-primary">${window.t("submitComplaintBtn")}</button>
+          </div>
+          <h4>${window.t("myComplaintsTitle")}</h4>
+          ${itemsHtml}`;
+
+        el("submitComplaintBtn").addEventListener("click", async () => {
+          const subject = el("compSubject").value.trim();
+          const message = el("compMsg").value.trim();
+          if (!subject || !message) {
+            return window.showAdminMsg(
+              l === "en" ? "Please enter subject and complaint details." : "براہِ کرم موضوع اور کمپلینٹ کی تفصیل لکھیں۔",
+              "error"
+            );
+          }
+          el("submitComplaintBtn").disabled = true;
+          try {
+            await addDoc(collection(db, "complaints"), {
+              memberPhone: u.phone,
+              memberName: u.name || u.phone,
+              memberRole: u.role || "public",
+              memberPhotoUrl: u.photoUrl || "",
+              date: todayISO(),
+              subject,
+              message,
+              adminReply: "",
+              createdAt: serverTimestamp()
+            });
+            window.showAdminMsg(window.t("complaintSubmittedMsg"), "success");
+            await renderComplaintsSection(area);
+          } catch (err) {
+            window.showAdminMsg(err && err.message ? err.message : "Failed to submit", "error");
+          } finally {
+            if (el("submitComplaintBtn")) el("submitComplaintBtn").disabled = false;
+          }
+        });
+        return;
+      }
+
+      const usersSnap = await getDocs(collection(db, "users"));
+      memberNamesMap = {};
+      memberPhotosMap = {};
+      usersSnap.forEach((d) => {
+        const mu = d.data();
+        memberNamesMap[mu.phone] = mu.name;
+        if (mu.photoUrl) memberPhotosMap[mu.phone] = mu.photoUrl;
+      });
+
+      const snap = await getDocs(collection(db, "complaints"));
+      const complaints = [];
+      snap.forEach((d) => complaints.push({ id: d.id, ...d.data() }));
+      complaints.sort((a, b) => {
+        const ta = a.createdAt && typeof a.createdAt.toMillis === "function" ? a.createdAt.toMillis() : 0;
+        const tb = b.createdAt && typeof b.createdAt.toMillis === "function" ? b.createdAt.toMillis() : 0;
+        return tb - ta;
+      });
+
+      if (!complaints.length) {
+        area.innerHTML = `<h4>${window.t("allComplaintsTitle")}</h4><div class="item-box">${window.t("noComplaints")}</div>`;
+        return;
+      }
+
+      area.innerHTML = `<h4>${window.t("allComplaintsTitle")}</h4>` + complaints.map((c) => {
+        const mName = memberNamesMap[c.memberPhone] || c.memberName || c.memberPhone || "-";
+        const mPhoto = memberPhotosMap[c.memberPhone] || c.memberPhotoUrl || "";
+        const avatarHtml = mPhoto
+          ? `<img class="avatar-sm" src="${mPhoto}" alt="${mName.replace(/"/g, "&quot;")}" />`
+          : "";
+        return `
+          <div class="item-box">
+            <div class="item-top">
+              <div class="user-header-wrap">
+                ${avatarHtml}
+                <div>
+                  <div><strong>${mName}</strong> <span style="font-size:12px; color:#475569;">(${c.memberPhone || ""})</span></div>
+                  <div style="font-size:12px;"><strong>${c.subject || ""}</strong></div>
+                </div>
+              </div>
+              <span class="folder-tag">${window.formatDDMMYYYY(c.date)}</span>
+            </div>
+            <div style="margin-top:6px;">${c.message || ""}</div>
+            <div class="field" style="margin-top:8px;">
+              <label>${window.t("lblAdminReply")}</label>
+              <textarea rows="2" data-reply-input="${c.id}" placeholder="${window.t("lblAdminReply")}">${c.adminReply || ""}</textarea>
+            </div>
+            <div class="row-actions">
+              <button type="button" class="btn btn-sm btn-approve" data-save-reply="${c.id}">${window.t("saveReplyBtn")}</button>
+              <button type="button" class="btn btn-sm btn-danger" data-del-col="complaints" data-del-id="${c.id}">${window.t("deleteBtn")}</button>
+            </div>
+          </div>`;
+      }).join("");
+
+      area.querySelectorAll("[data-save-reply]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const cid = btn.dataset.saveReply;
+          const ta = area.querySelector(`[data-reply-input="${cid}"]`);
+          const replyText = ta ? ta.value.trim() : "";
+          btn.disabled = true;
+          try {
+            await updateDoc(doc(db, "complaints", cid), {
+              adminReply: replyText,
+              repliedAt: serverTimestamp()
+            });
+            window.showAdminMsg(window.t("replySavedMsg"), "success");
+          } catch (err) {
+            window.showAdminMsg(err && err.message ? err.message : "Failed to save reply", "error");
+          } finally {
+            btn.disabled = false;
+          }
+        });
+      });
+
+      bindDeleteButtons(area, "complaints", () => renderComplaintsSection(area));
     }
 
     window.appState.handlers.bindSectionMediaAdd = (category) => {
@@ -2174,7 +2391,7 @@
       const area = el("contentArea");
       if (!area) return;
       area.innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
-      if (!db) {
+      if (!db && sectionKey !== "profile") {
         area.innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Database offline." : "ڈیٹا بیس دستیاب نہیں۔"}</div>`;
         return;
       }
@@ -2188,6 +2405,8 @@
         else if (sectionKey === "information") await renderMediaSorted(area, "information", window.t("informationTitle"));
         else if (sectionKey === "funds_members") await renderFundsAndMembersDetails(area);
         else if (sectionKey === "approvals") await renderApprovalsSection(area);
+        else if (sectionKey === "profile") await renderProfileSection(area);
+        else if (sectionKey === "complaints") await renderComplaintsSection(area);
         else area.innerHTML = "";
       } catch (err) {
         area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error loading section."}</div>`;
@@ -2246,28 +2465,6 @@
       }
     };
 
-    window.appState.handlers.loginByPin = async (phone) => {
-      const l = window.appState.lang;
-      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
-      if (el("pinLoginBtn")) el("pinLoginBtn").disabled = true;
-      try {
-        const accounts = await getAccountsForPhone(phone);
-        const activeAccounts = accounts.filter((acc) => acc.status === "active");
-        if (!activeAccounts.length) {
-          return window.showAuthMsg(l === "en" ? "No active account found for PIN login." : "اس نمبر پر کوئی فعال اکاؤنٹ نہیں ملا۔", "error");
-        }
-
-        const targetUser = activeAccounts[0];
-        window.appState.currentUser = targetUser;
-        window.saveUserSession(targetUser);
-        window.openPortal();
-      } catch (err) {
-        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
-      } finally {
-        if (el("pinLoginBtn")) el("pinLoginBtn").disabled = false;
-      }
-    };
-
     el("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const l = window.appState.lang;
@@ -2305,6 +2502,7 @@
           phone,
           password,
           role,
+          photoUrl: "",
           status: needsApproval ? "pending_approval" : "active",
           createdAt: serverTimestamp()
         });
@@ -2331,8 +2529,14 @@
       if (!saved || !db) return;
 
       if (saved.role === "admin" && saved.phone === BUILT_IN_ADMIN.phone) {
-        window.appState.currentUser = saved;
+        window.appState.currentUser = {
+          ...saved,
+          photoUrl: saved.photoUrl || getCachedAdminPhoto()
+        };
         window.openPortal();
+        if (window.appState.handlers.syncAdminProfile) {
+          window.appState.handlers.syncAdminProfile();
+        }
         return;
       }
 

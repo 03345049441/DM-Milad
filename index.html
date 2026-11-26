@@ -567,4 +567,953 @@
         { key: "funds_members", label: window.t("secFundsMembers") },
         { key: "expenses", label: window.t("secExpenses") },
         { key: "langar", label: window.t("secLangar") },
-        { key:
+        { key: "approvals", label: window.t("secApprovals") },
+        { key: "photos", label: window.t("secPhotos") },
+        { key: "videos", label: window.t("secVideos") }
+      ];
+    };
+
+    window.updatePortalHeader = () => {
+      const u = window.appState.currentUser;
+      if (!u) return;
+      el("portalUserName").textContent = u.name;
+      const roleMap = {
+        admin: window.t("roleAdminLabel"),
+        public: window.t("rolePublicLabel"),
+        management: window.t("roleMgmtLabel"),
+        abroad: window.t("roleAbroadLabel")
+      };
+      el("portalUserRole").textContent = `${roleMap[u.role] || u.role} | ${u.phone}`;
+    };
+
+    window.renderAdminSectionEntry = (sectionKey) => {
+      const u = window.appState.currentUser;
+      const entryArea = el("adminEntryArea");
+      if (!u || u.role !== "admin") {
+        entryArea.style.display = "none";
+        entryArea.innerHTML = "";
+        return;
+      }
+
+      entryArea.style.display = "block";
+
+      if (sectionKey === "photos" || sectionKey === "videos" || sectionKey === "langar") {
+        const category = sectionKey;
+        const isVideo = category === "videos";
+        entryArea.innerHTML = `
+          <div class="entry-box">
+            <h4>${window.t("admMediaEntryTitle")}</h4>
+            <div class="field">
+              <label>${window.t("lblDate")}</label>
+              <input id="secMediaDate" type="date" class="date-ltr" value="${todayISO()}" />
+              <div id="secMediaDatePreview" class="date-preview"></div>
+            </div>
+            <div class="field">
+              <label>${window.t("lblTitle")}</label>
+              <input id="secMediaTitle" type="text" placeholder="${window.t("lblTitle")}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblMediaUrl")}</label>
+              <input id="secMediaUrl" type="text" placeholder="https://..." />
+              ${!isVideo ? `<input id="secMediaFile" type="file" accept="image/*" style="margin-top:6px;" />` : ""}
+            </div>
+            <button type="button" id="secAddMediaBtn" class="btn btn-primary">${window.t("addMediaBtn")}</button>
+          </div>`;
+        bindDatePreview("secMediaDate", "secMediaDatePreview");
+        if (window.appState.handlers.bindSectionMediaAdd) {
+          window.appState.handlers.bindSectionMediaAdd(category);
+        }
+        return;
+      }
+
+      if (sectionKey === "expenses") {
+        entryArea.innerHTML = `
+          <div class="entry-box">
+            <h4>${window.t("admExpEntryTitle")}</h4>
+            <div class="field">
+              <label>${window.t("lblDate")}</label>
+              <input id="secExpDate" type="date" class="date-ltr" value="${todayISO()}" />
+              <div id="secExpDatePreview" class="date-preview"></div>
+            </div>
+            <div class="field">
+              <label>${window.t("lblTitle")}</label>
+              <input id="secExpTitle" type="text" placeholder="${window.t("lblTitle")}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblExpMedia")}</label>
+              <input id="secExpUrl" type="text" placeholder="https://..." />
+              <input id="secExpFile" type="file" accept="image/*" style="margin-top:6px;" />
+            </div>
+            <button type="button" id="secAddExpBtn" class="btn btn-primary">${window.t("addExpenseBtn")}</button>
+          </div>`;
+        bindDatePreview("secExpDate", "secExpDatePreview");
+        if (window.appState.handlers.bindSectionExpenseAdd) {
+          window.appState.handlers.bindSectionExpenseAdd();
+        }
+        return;
+      }
+
+      if (sectionKey === "funds_members") {
+        entryArea.innerHTML = `
+          <div class="entry-box">
+            <h4>${window.t("admH2")}</h4>
+            <div class="field">
+              <label>${window.t("lblFundMember")}</label>
+              <select id="fundMemberSelect"></select>
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundDate")}</label>
+              <input id="fundDate" type="date" class="date-ltr" value="${todayISO()}" />
+              <div id="fundDatePreview" class="date-preview"></div>
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundAmount")}</label>
+              <input id="fundAmount" type="number" placeholder="5000" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundPurpose")}</label>
+              <select id="fundPurpose">${window.buildPurposeOptionsHtml("", true)}</select>
+            </div>
+            <button type="button" id="addFundBtn" class="btn btn-primary">${window.t("addFundBtn")}</button>
+          </div>`;
+        bindDatePreview("fundDate", "fundDatePreview");
+        if (window.appState.handlers.bindSectionFundAdd) {
+          window.appState.handlers.bindSectionFundAdd();
+        }
+        return;
+      }
+
+      entryArea.innerHTML = "";
+    };
+
+    window.renderRoleMenu = () => {
+      const u = window.appState.currentUser;
+      if (!u) return;
+      const sections = window.getSectionsForRole(u.role);
+      const menu = el("roleMenu");
+      menu.innerHTML = "";
+
+      if (!sections.some((s) => s.key === window.appState.activeSection)) {
+        window.appState.activeSection = sections[0] ? sections[0].key : null;
+      }
+
+      sections.forEach((sec) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "menu-btn" + (window.appState.activeSection === sec.key ? " active" : "");
+        btn.textContent = sec.label;
+        btn.addEventListener("click", () => {
+          window.appState.activeSection = sec.key;
+          window.renderRoleMenu();
+        });
+        menu.appendChild(btn);
+      });
+
+      window.renderAdminSectionEntry(window.appState.activeSection);
+
+      if (window.appState.handlers.selectSection && window.appState.activeSection) {
+        window.appState.handlers.selectSection(window.appState.activeSection);
+      } else {
+        el("contentArea").innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+      }
+    };
+
+    window.openPortal = () => {
+      const u = window.appState.currentUser;
+      if (!u) return;
+      window.applySelectionRestriction();
+      el("authCard").style.display = "none";
+      el("portalCard").style.display = "block";
+      window.updatePortalHeader();
+      window.renderRoleMenu();
+    };
+
+    window.applyTranslations = () => {
+      const l = window.appState.lang;
+      const isUr = l === "ur";
+      document.documentElement.lang = l;
+      document.documentElement.dir = isUr ? "rtl" : "ltr";
+      document.body.dir = isUr ? "rtl" : "ltr";
+
+      el("appTitle").textContent = window.t("appHeading");
+      el("langBtn").textContent = window.t("toggleBtn");
+      el("portalLangBtn").textContent = window.t("toggleBtn");
+      el("tabLogin").textContent = window.t("tabLogin");
+      el("tabRegister").textContent = window.t("tabRegister");
+      el("lblLoginPhone").textContent = window.t("loginPhone");
+      el("lblLoginPass").textContent = window.t("loginPass");
+      el("lblSelectAccountRole").textContent = window.t("lblSelectAccountRole");
+      el("loginBtn").textContent = window.t("loginBtn");
+
+      el("lblRegName").textContent = window.t("regName");
+      el("lblRegPhone").textContent = window.t("regPhone");
+      el("lblRegPass").textContent = window.t("regPass");
+      el("lblRegRole").textContent = window.t("regRole");
+      el("optRoleSelect").textContent = window.t("roleSelect");
+      el("optRolePublic").textContent = window.t("rolePublic");
+      el("optRoleMgmt").textContent = window.t("roleMgmt");
+      el("optRoleAbroad").textContent = window.t("roleAbroad");
+      el("registerBtn").textContent = window.t("registerBtn");
+      el("logoutBtn").textContent = window.t("logoutBtn");
+
+      if (window.appState.currentUser) {
+        window.updatePortalHeader();
+        window.renderRoleMenu();
+      }
+    };
+
+    function toggleLanguage() {
+      window.appState.lang = window.appState.lang === "ur" ? "en" : "ur";
+      window.applyTranslations();
+    }
+
+    el("langBtn").addEventListener("click", toggleLanguage);
+    el("portalLangBtn").addEventListener("click", toggleLanguage);
+
+    el("tabLogin").addEventListener("click", () => {
+      el("tabLogin").classList.add("active");
+      el("tabRegister").classList.remove("active");
+      el("loginBox").style.display = "block";
+      el("registerForm").style.display = "none";
+      el("authMsg").className = "msg";
+    });
+
+    el("tabRegister").addEventListener("click", () => {
+      el("tabRegister").classList.add("active");
+      el("tabLogin").classList.remove("active");
+      el("loginBox").style.display = "none";
+      el("registerForm").style.display = "block";
+      el("authMsg").className = "msg";
+    });
+
+    el("loginPhone").addEventListener("input", () => {
+      el("multiAccountPicker").style.display = "none";
+      el("loginAccountSelect").innerHTML = "";
+    });
+
+    async function waitForLoginHandler(maxMs = 2500) {
+      const start = Date.now();
+      while (!window.appState.handlers.loginUser && Date.now() - start < maxMs) {
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      return window.appState.handlers.loginUser;
+    }
+
+    el("loginBtn").addEventListener("click", async () => {
+      const l = window.appState.lang;
+      const phone = window.normalizePhone(el("loginPhone").value);
+      const password = el("loginPass").value;
+      const selectedDocId = el("multiAccountPicker").style.display !== "none" ? el("loginAccountSelect").value : "";
+
+      if (!window.isValidPhone(phone)) {
+        return window.showAuthMsg(l === "en" ? "Enter a valid phone number." : "درست فون نمبر لکھیں۔", "error");
+      }
+      if (!password) {
+        return window.showAuthMsg(l === "en" ? "Enter your password." : "پاس ورڈ درج کریں۔", "error");
+      }
+
+      if (phone === BUILT_IN_ADMIN.phone) {
+        if (password !== BUILT_IN_ADMIN.password) {
+          return window.showAuthMsg(l === "en" ? "Invalid admin password." : "ایڈمن پاس ورڈ غلط ہے۔", "error");
+        }
+        window.appState.currentUser = {
+          phone: BUILT_IN_ADMIN.phone,
+          name: BUILT_IN_ADMIN.name,
+          role: "admin",
+          status: "active"
+        };
+        window.openPortal();
+        return;
+      }
+
+      const handler = await waitForLoginHandler();
+      if (handler) {
+        await handler(phone, password, selectedDocId);
+      } else {
+        window.showAuthMsg(
+          l === "en" ? "Please check your internet connection and refresh the page." : "براہِ کرم انٹرنیٹ چیک کریں اور صفحہ ریفریش کریں۔",
+          "error"
+        );
+      }
+    });
+
+    el("logoutBtn").addEventListener("click", () => {
+      window.appState.currentUser = null;
+      window.appState.activeSection = null;
+      window.applySelectionRestriction();
+      el("portalCard").style.display = "none";
+      el("adminEntryArea").style.display = "none";
+      el("adminEntryArea").innerHTML = "";
+      el("authCard").style.display = "block";
+      el("loginPass").value = "";
+      el("multiAccountPicker").style.display = "none";
+      el("loginAccountSelect").innerHTML = "";
+      el("authMsg").className = "msg";
+    });
+
+    window.applySelectionRestriction();
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, addDoc,
+      collection, query, where, getDocs, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkjIRnblF6G-7OfXoc-yvLxh2Mu4CbfjQ",
+      authDomain: "dm-milad-organization.firebaseapp.com",
+      projectId: "dm-milad-organization",
+      storageBucket: "dm-milad-organization.firebasestorage.app",
+      messagingSenderId: "496312588251",
+      appId: "1:496312588251:web:f19613597d27598cdcb9fe",
+      measurementId: "G-BLPHEGFDVL"
+    };
+
+    const el = (id) => document.getElementById(id);
+    let memberNamesMap = {};
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    let db = null;
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      window.appState.dbReady = true;
+    } catch (e) {
+      db = null;
+      window.showAuthMsg(`Firebase init error: ${e && e.message ? e.message : e}`, "error");
+    }
+
+    function isAdminUser() {
+      return Boolean(window.appState.currentUser && window.appState.currentUser.role === "admin");
+    }
+
+    async function getAccountsForPhone(phone) {
+      const results = [];
+      const seenIds = new Set();
+
+      const qSnap = await getDocs(query(collection(db, "users"), where("phone", "==", phone)));
+      qSnap.forEach((d) => {
+        if (!seenIds.has(d.id)) {
+          seenIds.add(d.id);
+          results.push({ id: d.id, ...d.data() });
+        }
+      });
+
+      const legacySnap = await getDoc(doc(db, "users", phone));
+      if (legacySnap.exists() && !seenIds.has(legacySnap.id)) {
+        seenIds.add(legacySnap.id);
+        results.push({ id: legacySnap.id, ...legacySnap.data() });
+      }
+
+      return results;
+    }
+
+    function bindDeleteButtons(container, colName, refreshFn) {
+      if (!isAdminUser()) return;
+      container.querySelectorAll("[data-del-col]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm(window.t("confirmDelete"))) return;
+          await deleteDoc(doc(db, btn.dataset.delCol, btn.dataset.delId));
+          window.showAdminMsg(window.t("deletedMsg"), "success");
+          if (refreshFn) await refreshFn();
+        });
+      });
+    }
+
+    function bindImageFallbacks(container) {
+      container.querySelectorAll("img[data-img-item]").forEach((img) => {
+        img.addEventListener("error", () => {
+          const fallback = img.parentElement.querySelector(".img-fallback");
+          img.style.display = "none";
+          if (fallback) fallback.style.display = "block";
+        });
+      });
+    }
+
+    function renderMediaBlock(item, isVideo) {
+      const rawSrc = item.src || "";
+      if (!rawSrc) return "";
+
+      if (isVideo) {
+        if (window.isSafeExternalUrl(rawSrc)) {
+          return `<div class="row-actions"><a class="btn btn-sm btn-secondary" href="${rawSrc}" target="_blank" rel="noopener noreferrer">${window.t("openVideo")}</a></div>`;
+        }
+        return "";
+      }
+
+      const directImg = window.toDirectImageUrl(rawSrc);
+      const openBtn = window.isSafeExternalUrl(rawSrc)
+        ? `<a class="btn btn-sm btn-secondary" href="${rawSrc}" target="_blank" rel="noopener noreferrer">${window.t("openLink")}</a>`
+        : "";
+
+      return `
+        <img data-img-item src="${directImg}" alt="${(item.title || "").replace(/"/g, "&quot;")}" />
+        <div class="img-fallback" style="display:none;">
+          <div>${window.t("imgNotDirect")}</div>
+          ${openBtn ? `<div class="row-actions">${openBtn}</div>` : ""}
+        </div>
+        ${openBtn ? `<div class="row-actions">${openBtn}</div>` : ""}
+      `;
+    }
+
+    async function renderMemberFunds(area) {
+      const u = window.appState.currentUser;
+      const q = query(collection(db, "funds"), where("memberPhone", "==", u.phone));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        area.innerHTML = `<div class='item-box'>${window.t("noFunds")}</div>`;
+        return;
+      }
+
+      const items = [];
+      let total = 0;
+      snap.forEach((d) => {
+        const norm = window.normalizeFundRecord({ id: d.id, ...d.data() });
+        const amt = Number(norm.amount || 0);
+        total += amt;
+        items.push({ ...norm, amount: amt });
+      });
+
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+
+      const rows = items.map((f) => `
+        <tr>
+          <td>${window.formatDDMMYYYY(f.date)}</td>
+          <td>${f.amount}</td>
+          <td>${window.formatPurposeLabel(f.purpose)}</td>
+        </tr>
+      `).join("");
+
+      area.innerHTML = `
+        <h4>${window.t("fundsTitle", { total })}</h4>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>${window.t("colDate")}</th>
+                <th>${window.t("colAmount")}</th>
+                <th>${window.t("colPurpose")}</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    }
+
+    async function renderImageList(area, colName, title) {
+      const snap = await getDocs(collection(db, colName));
+      if (snap.empty) {
+        area.innerHTML = `<div class='item-box'>${window.t("noImages", { title })}</div>`;
+        return;
+      }
+
+      const items = [];
+      snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+
+      let html = `<h4>${title}</h4>`;
+      items.forEach((item) => {
+        const delBtn = isAdminUser()
+          ? `<button type="button" class="btn btn-sm btn-danger" data-del-col="${colName}" data-del-id="${item.id}">${window.t("deleteBtn")}</button>`
+          : "";
+        html += `<div class="item-box">
+          <div class="item-top">
+            <span class="folder-tag">${window.formatDDMMYYYY(item.date)}</span>
+            ${delBtn}
+          </div>
+          <div><strong>${item.title || ""}</strong></div>
+          ${renderMediaBlock(item, false)}
+        </div>`;
+      });
+      area.innerHTML = html;
+      bindImageFallbacks(area);
+      bindDeleteButtons(area, colName, () => renderImageList(area, colName, title));
+    }
+
+    async function renderMediaSorted(area, category, title) {
+      const q = query(collection(db, "media"), where("category", "==", category));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        area.innerHTML = `<div class='item-box'>${window.t("noFolders", { title })}</div>`;
+        return;
+      }
+
+      const items = [];
+      snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+
+      let html = `<h4>${title}</h4>`;
+      items.forEach((m) => {
+        const delBtn = isAdminUser()
+          ? `<button type="button" class="btn btn-sm btn-danger" data-del-col="media" data-del-id="${m.id}">${window.t("deleteBtn")}</button>`
+          : "";
+        html += `<div class="item-box">
+          <div class="item-top">
+            <span class="folder-tag">${window.formatDDMMYYYY(m.date || m.folder)}</span>
+            ${delBtn}
+          </div>
+          <div><strong>${m.title || ""}</strong></div>
+          ${renderMediaBlock(m, category === "videos")}
+        </div>`;
+      });
+      area.innerHTML = html;
+      bindImageFallbacks(area);
+      bindDeleteButtons(area, "media", () => renderMediaSorted(area, category, title));
+    }
+
+    async function renderApprovalsSection(area) {
+      const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending_approval")));
+      if (snap.empty) {
+        area.innerHTML = `<h4>${window.t("admH1")}</h4><div class='item-box'>${window.t("noPending")}</div>`;
+        return;
+      }
+
+      area.innerHTML = `<h4>${window.t("admH1")}</h4><div id="pendingRequestsList"></div>`;
+      const box = el("pendingRequestsList");
+
+      snap.forEach((d) => {
+        const u = d.data();
+        const div = document.createElement("div");
+        div.className = "item-box";
+        div.innerHTML = `
+          <div><strong>${u.name}</strong> (${u.phone})</div>
+          <div style="font-size:12px;">${u.role === "abroad" ? window.t("roleAbroadLabel") : window.t("roleMgmtLabel")}</div>
+          <div class="req-actions">
+            <button type="button" class="btn btn-approve" data-id="${d.id}">${window.t("approveBtn")}</button>
+            <button type="button" class="btn btn-reject" data-id="${d.id}">${window.t("rejectBtn")}</button>
+          </div>`;
+        box.appendChild(div);
+      });
+
+      box.querySelectorAll(".btn-approve").forEach((b) => {
+        b.addEventListener("click", async () => {
+          await updateDoc(doc(db, "users", b.dataset.id), { status: "active" });
+          await renderApprovalsSection(area);
+        });
+      });
+
+      box.querySelectorAll(".btn-reject").forEach((b) => {
+        b.addEventListener("click", async () => {
+          await updateDoc(doc(db, "users", b.dataset.id), { status: "rejected" });
+          await renderApprovalsSection(area);
+        });
+      });
+    }
+
+    async function populateMemberDropdown() {
+      const sel = el("fundMemberSelect");
+      if (!db || !sel) return;
+      const snap = await getDocs(collection(db, "users"));
+      sel.innerHTML = "";
+      memberNamesMap = {};
+      snap.forEach((d) => {
+        const u = d.data();
+        memberNamesMap[u.phone] = u.name;
+        if (u.role === "management" && u.status === "active") {
+          const opt = document.createElement("option");
+          opt.value = u.phone;
+          opt.textContent = `${u.name} (${u.phone})`;
+          sel.appendChild(opt);
+        }
+      });
+    }
+
+    async function renderFundsAndMembersDetails(area) {
+      const usersSnap = await getDocs(collection(db, "users"));
+      memberNamesMap = {};
+      const members = [];
+      usersSnap.forEach((d) => {
+        const u = d.data();
+        memberNamesMap[u.phone] = u.name;
+        if (u.phone !== BUILT_IN_ADMIN.phone) {
+          members.push({ id: d.id, ...u });
+        }
+      });
+
+      const fundsSnap = await getDocs(collection(db, "funds"));
+      const fundItems = [];
+      fundsSnap.forEach((d) => fundItems.push(window.normalizeFundRecord({ id: d.id, ...d.data() })));
+      fundItems.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+
+      const fundsHtml = !fundItems.length
+        ? `<div class='item-box'>${window.t("noFunds")}</div>`
+        : `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>${window.t("colDate")}</th>
+                  <th>${window.t("colMember")}</th>
+                  <th>${window.t("colAmount")}</th>
+                  <th>${window.t("colPurpose")}</th>
+                  <th>${window.t("colActions")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${fundItems.map((f) => {
+                  const mName = memberNamesMap[f.memberPhone] || f.memberPhone || "-";
+                  return `
+                    <tr>
+                      <td>${window.formatDDMMYYYY(f.date)}</td>
+                      <td>${mName}</td>
+                      <td>${Number(f.amount || 0)}</td>
+                      <td>${window.formatPurposeLabel(f.purpose)}</td>
+                      <td>
+                        <div class="row-actions" style="margin-top:0;">
+                          <button type="button" class="btn btn-sm btn-edit" data-edit-id="${f.id}">${window.t("editBtn")}</button>
+                          <button type="button" class="btn btn-sm btn-danger" data-del-id="${f.id}">${window.t("deleteBtn")}</button>
+                        </div>
+                      </td>
+                    </tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+          <div id="fundEditPanel" class="edit-box" style="display:none;"></div>`;
+
+      const roleText = (r) => r === "abroad"
+        ? window.t("roleAbroadLabel")
+        : r === "management"
+          ? window.t("roleMgmtLabel")
+          : window.t("rolePublicLabel");
+
+      const statusText = (s) => s === "active"
+        ? window.t("statusActive")
+        : s === "pending_approval"
+          ? window.t("statusPending")
+          : window.t("statusRejected");
+
+      const membersHtml = !members.length
+        ? `<div class='item-box'>${window.t("noMembersFound")}</div>`
+        : `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>${window.t("colMember")}</th>
+                  <th>${window.t("colPhone")}</th>
+                  <th>${window.t("colRole")}</th>
+                  <th>${window.t("colStatus")}</th>
+                  <th>${window.t("colActions")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${members.map((m) => `
+                  <tr>
+                    <td><strong>${m.name || "-"}</strong></td>
+                    <td dir="ltr">${m.phone || "-"}</td>
+                    <td>${roleText(m.role)}</td>
+                    <td>${statusText(m.status)}</td>
+                    <td>
+                      <button type="button" class="btn btn-sm btn-danger" data-remove-user-id="${m.id}" data-remove-user-name="${(m.name || m.phone || "").replace(/"/g, "&quot;")}">${window.t("removeMemberBtn")}</button>
+                    </td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>`;
+
+      area.innerHTML = `
+        <div>
+          <h4>${window.t("admFundsTableTitle")}</h4>
+          ${fundsHtml}
+        </div>
+        <div class="sub-section">
+          <h4>${window.t("admH5")}</h4>
+          ${membersHtml}
+        </div>`;
+
+      area.querySelectorAll("[data-edit-id]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = fundItems.find((x) => x.id === btn.dataset.editId);
+          if (!item) return;
+          const panel = el("fundEditPanel");
+          panel.style.display = "block";
+          panel.innerHTML = `
+            <div class="field">
+              <label>${window.t("lblFundDate")}</label>
+              <input id="editFundDate" type="date" class="date-ltr" value="${item.date || todayISO()}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundAmount")}</label>
+              <input id="editFundAmount" type="number" value="${Number(item.amount || 0)}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundPurpose")}</label>
+              <select id="editFundPurpose">${window.buildPurposeOptionsHtml(item.purpose || "", false)}</select>
+            </div>
+            <div class="row-actions">
+              <button type="button" id="saveFundEditBtn" class="btn btn-sm btn-approve">${window.t("saveEditBtn")}</button>
+              <button type="button" id="cancelFundEditBtn" class="btn btn-sm btn-secondary">${window.t("cancelEditBtn")}</button>
+            </div>`;
+
+          el("cancelFundEditBtn").addEventListener("click", () => {
+            panel.style.display = "none";
+          });
+
+          el("saveFundEditBtn").addEventListener("click", async () => {
+            const nextDate = el("editFundDate").value;
+            const nextAmount = Number(el("editFundAmount").value);
+            const nextPurpose = el("editFundPurpose").value.trim();
+            if (!nextDate || !nextAmount) return;
+            await updateDoc(doc(db, "funds", item.id), {
+              date: nextDate,
+              amount: nextAmount,
+              purpose: nextPurpose
+            });
+            window.showAdminMsg(window.appState.lang === "en" ? "Fund updated." : "فنڈ کی انٹری اپ ڈیٹ ہو گئی۔", "success");
+            await renderFundsAndMembersDetails(area);
+          });
+        });
+      });
+
+      area.querySelectorAll("[data-del-id]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm(window.t("confirmDelete"))) return;
+          await deleteDoc(doc(db, "funds", btn.dataset.delId));
+          window.showAdminMsg(window.t("deletedMsg"), "success");
+          await renderFundsAndMembersDetails(area);
+        });
+      });
+
+      area.querySelectorAll("[data-remove-user-id]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const userName = btn.dataset.removeUserName;
+          if (!confirm(window.t("confirmRemoveMember", { name: userName }))) return;
+          btn.disabled = true;
+          try {
+            await deleteDoc(doc(db, "users", btn.dataset.removeUserId));
+            window.showAdminMsg(window.t("memberRemovedMsg"), "success");
+            await populateMemberDropdown();
+            await renderFundsAndMembersDetails(area);
+          } catch (err) {
+            btn.disabled = false;
+            window.showAdminMsg(err && err.message ? err.message : "Error", "error");
+          }
+        });
+      });
+    }
+
+    window.appState.handlers.bindSectionMediaAdd = (category) => {
+      const btn = el("secAddMediaBtn");
+      if (!btn) return;
+      btn.addEventListener("click", async () => {
+        const l = window.appState.lang;
+        if (!db) return;
+        const date = el("secMediaDate").value;
+        const title = el("secMediaTitle").value.trim();
+        let src = el("secMediaUrl").value.trim();
+        const fileInp = el("secMediaFile");
+        const file = fileInp && fileInp.files ? fileInp.files[0] : null;
+        if (file && category !== "videos") src = await fileToDataUrl(file);
+        if (!date || !title || !src) {
+          return window.showAdminMsg(l === "en" ? "Select date and enter title and link/photo." : "تاریخ منتخب کریں اور عنوان و لنک/تصویر درج کریں۔", "error");
+        }
+
+        await addDoc(collection(db, "media"), { category, date, title, src, createdAt: serverTimestamp() });
+        el("secMediaTitle").value = "";
+        el("secMediaUrl").value = "";
+        if (fileInp) fileInp.value = "";
+        window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
+        await window.appState.handlers.selectSection(category);
+      });
+    };
+
+    window.appState.handlers.bindSectionExpenseAdd = () => {
+      const btn = el("secAddExpBtn");
+      if (!btn) return;
+      btn.addEventListener("click", async () => {
+        const l = window.appState.lang;
+        if (!db) return;
+        const date = el("secExpDate").value;
+        const title = el("secExpTitle").value.trim();
+        let src = el("secExpUrl").value.trim();
+        const file = el("secExpFile").files[0];
+        if (file) src = await fileToDataUrl(file);
+        if (!date || !title || !src) {
+          return window.showAdminMsg(l === "en" ? "Select date and enter title and photo URL or file." : "تاریخ منتخب کریں اور عنوان و تصویر درج کریں۔", "error");
+        }
+
+        await addDoc(collection(db, "expenses"), { date, title, src, createdAt: serverTimestamp() });
+        el("secExpTitle").value = "";
+        el("secExpUrl").value = "";
+        el("secExpFile").value = "";
+        window.showAdminMsg(l === "en" ? "Expense photo saved." : "اخراجات کی تصویر محفوظ ہو گئی۔", "success");
+        await window.appState.handlers.selectSection("expenses");
+      });
+    };
+
+    window.appState.handlers.bindSectionFundAdd = () => {
+      populateMemberDropdown().catch((e) => window.showAdminMsg(e.message, "error"));
+      const btn = el("addFundBtn");
+      if (!btn) return;
+      btn.addEventListener("click", async () => {
+        const l = window.appState.lang;
+        if (!db) return;
+        const memberPhone = el("fundMemberSelect").value;
+        const date = el("fundDate").value;
+        const amount = Number(el("fundAmount").value);
+        const purpose = el("fundPurpose").value.trim();
+
+        if (!memberPhone || !date || !amount || !purpose) {
+          return window.showAdminMsg(
+            l === "en" ? "Select member, date, amount, and purpose." : "ممبر، تاریخ، رقم اور مقصد منتخب کریں۔",
+            "error"
+          );
+        }
+
+        await addDoc(collection(db, "funds"), {
+          memberPhone,
+          date,
+          amount,
+          purpose,
+          createdAt: serverTimestamp()
+        });
+        el("fundAmount").value = "";
+        el("fundPurpose").value = "";
+        window.showAdminMsg(l === "en" ? "Fund record saved." : "فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
+        await renderFundsAndMembersDetails(el("contentArea"));
+      });
+    };
+
+    window.appState.handlers.selectSection = async (sectionKey) => {
+      const area = el("contentArea");
+      area.innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+      if (!db) {
+        area.innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Database offline." : "ڈیٹا بیس دستیاب نہیں۔"}</div>`;
+        return;
+      }
+      try {
+        if (sectionKey === "funds") await renderMemberFunds(area);
+        else if (sectionKey === "expenses") await renderImageList(area, "expenses", window.t("expensesTitle"));
+        else if (sectionKey === "langar") await renderImageList(area, "langar", window.t("langarTitle"));
+        else if (sectionKey === "photos") await renderMediaSorted(area, "photos", window.t("photosTitle"));
+        else if (sectionKey === "videos") await renderMediaSorted(area, "videos", window.t("videosTitle"));
+        else if (sectionKey === "funds_members") await renderFundsAndMembersDetails(area);
+        else if (sectionKey === "approvals") await renderApprovalsSection(area);
+      } catch (err) {
+        area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error"}</div>`;
+      }
+    };
+
+    window.appState.handlers.loginUser = async (phone, password, selectedDocId = "") => {
+      const l = window.appState.lang;
+      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+      el("loginBtn").disabled = true;
+      try {
+        const accounts = await getAccountsForPhone(phone);
+        if (!accounts.length) {
+          return window.showAuthMsg(l === "en" ? "Account not found." : "اکاؤنٹ نہیں ملا۔", "error");
+        }
+
+        const matched = accounts.filter((acc) => acc.password === password);
+        if (!matched.length) {
+          return window.showAuthMsg(l === "en" ? "Incorrect password." : "پاس ورڈ غلط ہے۔", "error");
+        }
+
+        let targetUser = matched[0];
+        if (matched.length > 1) {
+          const chosen = matched.find((acc) => acc.id === selectedDocId);
+          if (!chosen) {
+            const picker = el("multiAccountPicker");
+            const sel = el("loginAccountSelect");
+            sel.innerHTML = matched.map((acc) => {
+              const roleText = acc.role === "abroad"
+                ? window.t("roleAbroadLabel")
+                : acc.role === "management"
+                  ? window.t("roleMgmtLabel")
+                  : window.t("rolePublicLabel");
+              return `<option value="${acc.id}">${roleText} - ${acc.name}</option>`;
+            }).join("");
+            picker.style.display = "block";
+            return window.showAuthMsg(window.t("chooseAccountToLogin"), "error");
+          }
+          targetUser = chosen;
+        }
+
+        if ((targetUser.role === "management" || targetUser.role === "abroad") && targetUser.status === "pending_approval") {
+          return window.showAuthMsg(l === "en" ? "Your account is awaiting Admin approval." : "آپ کا اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔", "error");
+        }
+        if (targetUser.status === "rejected") {
+          return window.showAuthMsg(l === "en" ? "Your account request was rejected." : "آپ کی اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔", "error");
+        }
+
+        window.appState.currentUser = targetUser;
+        window.openPortal();
+      } catch (err) {
+        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("loginBtn").disabled = false;
+      }
+    };
+
+    el("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const l = window.appState.lang;
+      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+
+      const name = el("regName").value.trim();
+      const phone = window.normalizePhone(el("regPhone").value);
+      const password = el("regPass").value;
+      const role = el("regRole").value;
+
+      if (!name) return window.showAuthMsg(l === "en" ? "Please enter your full name." : "براہِ کرم پورا نام لکھیں۔", "error");
+      if (!window.isValidPhone(phone)) return window.showAuthMsg(l === "en" ? "Enter a valid phone number (e.g. 03001234567)." : "درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
+      if (phone === BUILT_IN_ADMIN.phone) return window.showAuthMsg(l === "en" ? "This number is reserved for Admin." : "یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
+      if (password.length < 6) return window.showAuthMsg(l === "en" ? "Password must be at least 6 characters." : "پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
+      if (!role) return window.showAuthMsg(l === "en" ? "Please select an account type." : "براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
+
+      el("registerBtn").disabled = true;
+      try {
+        const existingAccounts = await getAccountsForPhone(phone);
+
+        if (role === "public" && existingAccounts.length > 0) {
+          return window.showAuthMsg(window.t("publicNotAllowedExisting"), "error");
+        }
+
+        if (existingAccounts.some((acc) => acc.role === role)) {
+          return window.showAuthMsg(window.t("roleAlreadyExists"), "error");
+        }
+
+        const docId = `${phone}_${role}`;
+        const ref = doc(db, "users", docId);
+        const needsApproval = role === "management" || role === "abroad";
+
+        await setDoc(ref, {
+          name,
+          phone,
+          password,
+          role,
+          status: needsApproval ? "pending_approval" : "active",
+          createdAt: serverTimestamp()
+        });
+
+        el("registerForm").reset();
+        el("tabLogin").click();
+        el("loginPhone").value = phone;
+        el("multiAccountPicker").style.display = "none";
+        window.showAuthMsg(
+          needsApproval
+            ? (l === "en" ? "Account created! You can log in after Admin approval." : "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔")
+            : (l === "en" ? "Public account created! You can log in now." : "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔"),
+          "success"
+        );
+      } catch (err) {
+        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("registerBtn").disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

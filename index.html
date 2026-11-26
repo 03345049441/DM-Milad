@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -1389,13 +1389,4 @@
         return window.showAdminMsg(l === "en" ? "Select date and enter title and link/photo." : "تاریخ منتخب کریں اور عنوان و لنک/تصویر درج کریں۔", "error");
       }
 
-      await addDoc(collection(db, "media"), { category, date, title, src, createdAt: serverTimestamp() });
-      el("mediaTitle").value = "";
-      el("mediaUrl").value = "";
-      el("mediaFile").value = "";
-      window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
-      if (window.appState.activeSection === category) window.appState.handlers.selectSection(category);
-    });
-  </script>
-</body>
-</html>
+      await addDoc(collection(db, "media"),

@@ -62,54 +62,54 @@
   <div class="container">
     <div id="authCard" class="card">
       <div class="top-bar">
-        <h2 id="appTitle">میلاد کمیٹی ڈھوک میکن</h2>
-        <button type="button" id="langBtn" class="btn btn-secondary">English</button>
+        <h2 id="appTitle">Milad Organization Dhoke Maken</h2>
+        <button type="button" id="langBtn" class="btn btn-secondary">اردو</button>
       </div>
 
       <div class="tabs">
-        <button type="button" id="tabLogin" class="tab-btn active">لاگ ان</button>
-        <button type="button" id="tabRegister" class="tab-btn">نیا اکاؤنٹ</button>
+        <button type="button" id="tabLogin" class="tab-btn active">Login</button>
+        <button type="button" id="tabRegister" class="tab-btn">Create Account</button>
       </div>
 
       <div id="loginBox">
         <div class="field">
-          <label id="lblLoginPhone" for="loginPhone">فون نمبر</label>
+          <label id="lblLoginPhone" for="loginPhone">Phone Number</label>
           <input id="loginPhone" type="tel" placeholder="03345049441" />
         </div>
         <div class="field">
-          <label id="lblLoginPass" for="loginPass">پاس ورڈ</label>
-          <input id="loginPass" type="password" placeholder="پاس ورڈ" />
+          <label id="lblLoginPass" for="loginPass">Password</label>
+          <input id="loginPass" type="password" placeholder="Password" />
         </div>
         <div id="multiAccountPicker" class="field" style="display:none;">
-          <label id="lblSelectAccountRole" for="loginAccountSelect">اکاؤنٹ منتخب کریں</label>
+          <label id="lblSelectAccountRole" for="loginAccountSelect">Select Account</label>
           <select id="loginAccountSelect"></select>
         </div>
-        <button type="button" id="loginBtn" class="btn btn-primary">لاگ ان کریں</button>
+        <button type="button" id="loginBtn" class="btn btn-primary">Login</button>
       </div>
 
       <form id="registerForm" style="display:none;" novalidate>
         <div class="field">
-          <label id="lblRegName" for="regName">پورا نام</label>
-          <input id="regName" type="text" placeholder="پورا نام" />
+          <label id="lblRegName" for="regName">Full Name</label>
+          <input id="regName" type="text" placeholder="Full Name" />
         </div>
         <div class="field">
-          <label id="lblRegPhone" for="regPhone">فون نمبر</label>
+          <label id="lblRegPhone" for="regPhone">Phone Number</label>
           <input id="regPhone" type="tel" placeholder="03001234567" />
         </div>
         <div class="field">
-          <label id="lblRegPass" for="regPass">پاس ورڈ</label>
-          <input id="regPass" type="password" placeholder="کم از کم 6 حروف" />
+          <label id="lblRegPass" for="regPass">Password</label>
+          <input id="regPass" type="password" placeholder="At least 6 characters" />
         </div>
         <div class="field">
-          <label id="lblRegRole" for="regRole">اکاؤنٹ کی قسم</label>
+          <label id="lblRegRole" for="regRole">Account Type</label>
           <select id="regRole">
-            <option id="optRoleSelect" value="">منتخب کریں</option>
-            <option id="optRolePublic" value="public">عام عوام (Public)</option>
-            <option id="optRoleMgmt" value="management">انتظامیہ (Management - ایڈمن منظوری درکار)</option>
-            <option id="optRoleAbroad" value="abroad">بیرونِ ملک (Abroad - ایڈمن منظوری درکار)</option>
+            <option id="optRoleSelect" value="">Select Type</option>
+            <option id="optRolePublic" value="public">Public</option>
+            <option id="optRoleMgmt" value="management">Management (Admin approval required)</option>
+            <option id="optRoleAbroad" value="abroad">Abroad (Admin approval required)</option>
           </select>
         </div>
-        <button type="submit" id="registerBtn" class="btn btn-primary">اکاؤنٹ بنائیں</button>
+        <button type="submit" id="registerBtn" class="btn btn-primary">Create Account</button>
       </form>
 
       <div id="authMsg" class="msg"></div>
@@ -118,12 +118,12 @@
     <div id="portalCard" class="card" style="display:none;">
       <div class="top-bar">
         <div>
-          <h3 id="portalUserName">صارف</h3>
+          <h3 id="portalUserName">User</h3>
           <div id="portalUserRole" style="font-size:12px; color:#475569;"></div>
         </div>
         <div style="display:flex; gap:6px;">
-          <button type="button" id="portalLangBtn" class="btn btn-secondary">English</button>
-          <button type="button" id="logoutBtn" class="btn btn-danger">لاگ آؤٹ</button>
+          <button type="button" id="portalLangBtn" class="btn btn-secondary">اردو</button>
+          <button type="button" id="logoutBtn" class="btn btn-danger">Logout</button>
         </div>
       </div>
 
@@ -142,6 +142,7 @@
     };
 
     const SESSION_STORAGE_KEY = "dm_milad_session_v1";
+    const LANG_STORAGE_KEY = "dm_milad_lang_v1";
 
     const FUND_PURPOSES = [
       { id: "monthly", ur: "ماہانہ فنڈ", en: "Monthly Fund" },
@@ -169,8 +170,8 @@
         regRole: "اکاؤنٹ کی قسم",
         roleSelect: "منتخب کریں",
         rolePublic: "عام عوام (Public)",
-        roleMgmt: "انتظامیہ (ایڈمن منظوری درکار)",
-        roleAbroad: "بیرونِ ملک (ایڈمن منظوری درکار)",
+        roleMgmt: "انتظامیہ (Management - ایڈمن منظوری درکار)",
+        roleAbroad: "بیرونِ ملک (Abroad - ایڈمن منظوری درکار)",
         registerBtn: "اکاؤنٹ بنائیں",
         logoutBtn: "لاگ آؤٹ",
         loading: "لوڈ ہو رہا ہے...",
@@ -221,7 +222,7 @@
         colPhone: "فون نمبر",
         colRole: "کیٹیگری",
         colStatus: "اسٹیٹس",
-        statusActive: "فعال",
+        statusActive: "فعال (Active)",
         statusPending: "زیرِ التوا",
         statusRejected: "مسترد",
         noPending: "کوئی زیرِ التوا درخواست نہیں ہے۔",
@@ -435,17 +436,17 @@
 
     window.formatPurposeLabel = (rawPurpose) => {
       if (!rawPurpose) return "-";
-      const lang = window.appState.lang || "ur";
+      const lang = window.appState.lang || "en";
       const val = String(rawPurpose).trim();
       const matched = FUND_PURPOSES.find(
         (p) => p.id === val || p.ur === val || p.en.toLowerCase() === val.toLowerCase()
       );
-      if (matched) return matched[lang] || matched.ur;
+      if (matched) return matched[lang] || matched.en;
       return val;
     };
 
     window.buildPurposeOptionsHtml = (selectedValue = "", includeEmpty = true) => {
-      const lang = window.appState.lang || "ur";
+      const lang = window.appState.lang || "en";
       const parts = [];
       if (includeEmpty) {
         parts.push(`<option value="">${window.t("selectPurposePlaceholder")}</option>`);
@@ -458,7 +459,7 @@
 
       FUND_PURPOSES.forEach((p) => {
         const isSelected = matchedExisting && matchedExisting.id === p.id ? " selected" : "";
-        const label = p[lang] || p.ur;
+        const label = p[lang] || p.en;
         parts.push(`<option value="${p.id}"${isSelected}>${label}</option>`);
       });
 
@@ -538,11 +539,25 @@
       inp.addEventListener("input", refreshPrev);
     }
 
+    function readSavedLang() {
+      try {
+        const saved = localStorage.getItem(LANG_STORAGE_KEY);
+        if (saved === "ur" || saved === "en") return saved;
+      } catch (e) {}
+      return "en";
+    }
+
+    function saveLang(lang) {
+      try {
+        localStorage.setItem(LANG_STORAGE_KEY, lang);
+      } catch (e) {}
+    }
+
     window.appState = {
       currentUser: null,
       activeSection: null,
       activeMemberGroup: "management",
-      lang: "ur",
+      lang: readSavedLang(),
       dbReady: false,
       handlers: {}
     };
@@ -573,8 +588,8 @@
     };
 
     window.t = (key, vars = {}) => {
-      const l = window.appState.lang || "ur";
-      let str = (I18N[l] && I18N[l][key]) || I18N.ur[key] || key;
+      const l = window.appState.lang || "en";
+      let str = (I18N[l] && I18N[l][key]) || I18N.en[key] || key;
       Object.entries(vars).forEach(([k, v]) => {
         str = str.replace(`{${k}}`, v);
       });
@@ -786,7 +801,7 @@
     };
 
     window.applyTranslations = () => {
-      const l = window.appState.lang;
+      const l = window.appState.lang || "en";
       const isUr = l === "ur";
       document.documentElement.lang = l;
       document.documentElement.dir = isUr ? "rtl" : "ltr";
@@ -821,6 +836,7 @@
 
     function toggleLanguage() {
       window.appState.lang = window.appState.lang === "ur" ? "en" : "ur";
+      saveLang(window.appState.lang);
       window.applyTranslations();
     }
 
@@ -911,6 +927,7 @@
     });
 
     window.applySelectionRestriction();
+    window.applyTranslations();
     const savedSession = window.loadSavedSession();
     if (savedSession && savedSession.role === "admin" && savedSession.phone === BUILT_IN_ADMIN.phone) {
       window.appState.currentUser = savedSession;

@@ -62,6 +62,9 @@
     .sub-tab-btn { flex: 1; min-width: 90px; padding: 7px 9px; border: 1px solid #15803d; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; text-align: center; }
     .sub-tab-btn.active { background: #15803d; color: #fff; }
     .entry-box { border: 1px solid #bbf7d0; background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
+    .summary-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .summary-pill { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: bold; }
+    .total-row td { background: #f0fdf4; font-weight: bold; color: #14532d; }
     .item-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px; margin-bottom: 8px; background: #f8fafc; }
     .item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
     .item-box img.content-img { max-width: 100%; max-height: 260px; border-radius: 8px; display: block; margin-top: 8px; cursor: pointer; }
@@ -372,6 +375,8 @@
         selectPurposePlaceholder: "مقصد منتخب کریں",
         addFundBtn: "فنڈ محفوظ کریں",
         admFundsTableTitle: "درج شدہ فنڈز کی تفصیل",
+        overallTotalLabel: "مجموعی Total",
+        memberTotalLabel: "{name} Total",
         admExpEntryTitle: "نئی اخراجات تصویر شامل کریں",
         admMediaEntryTitle: "نئی انٹری شامل کریں",
         admH5: "رجسٹرڈ ممبران ({count})",
@@ -399,7 +404,7 @@
         statusRejected: "مسترد",
         noPending: "کوئی زیرِ التوا درخواست نہیں ہے۔",
         noFunds: "فنڈز کی کوئی تفصیل ابھی درج نہیں ہے۔",
-        fundsTitle: "آپ کے جمع کروائے گئے فنڈز (مجموعی: {total})",
+        fundsTitle: "آپ کے جمع کروائے گئے فنڈز (Total: {total})",
         colDate: "تاریخ (دن/مہینہ/سال)",
         colMember: "ممبر",
         colAmount: "رقم",
@@ -504,6 +509,8 @@
         selectPurposePlaceholder: "Select Purpose",
         addFundBtn: "Save Fund",
         admFundsTableTitle: "Recorded Funds Details",
+        overallTotalLabel: "Overall Total",
+        memberTotalLabel: "{name} Total",
         admExpEntryTitle: "Add New Expense Photo",
         admMediaEntryTitle: "Add New Entry",
         admH5: "Registered Members ({count})",
@@ -2026,7 +2033,14 @@
                 <th>${window.t("colPurpose")}</th>
               </tr>
             </thead>
-            <tbody>${rows}</tbody>
+            <tbody>
+              ${rows}
+              <tr class="total-row">
+                <td>Total</td>
+                <td>${total}</td>
+                <td></td>
+              </tr>
+            </tbody>
           </table>
         </div>`;
     }
@@ -2191,12 +2205,36 @@
 
       const fundsSnap = await getDocs(collection(db, "funds"));
       const fundItems = [];
-      fundsSnap.forEach((d) => fundItems.push(window.normalizeFundRecord({ id: d.id, ...d.data() })));
+      let overallTotal = 0;
+      const perMemberTotals = new Map();
+
+      fundsSnap.forEach((d) => {
+        const norm = window.normalizeFundRecord({ id: d.id, ...d.data() });
+        const amt = Number(norm.amount || 0);
+        overallTotal += amt;
+        const mKey = norm.memberPhone || "-";
+        const mName = memberNamesMap[mKey] || mKey;
+        const prev = perMemberTotals.get(mKey) || { name: mName, total: 0 };
+        prev.name = mName;
+        prev.total += amt;
+        perMemberTotals.set(mKey, prev);
+        fundItems.push({ ...norm, amount: amt });
+      });
+
       fundItems.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+
+      const summaryPillsHtml = `
+        <div class="summary-strip">
+          <div class="summary-pill">${window.t("overallTotalLabel")}: ${overallTotal}</div>
+          ${Array.from(perMemberTotals.values()).map((entry) => `
+            <div class="summary-pill">${window.t("memberTotalLabel", { name: entry.name })}: ${entry.total}</div>
+          `).join("")}
+        </div>`;
 
       const fundsHtml = !fundItems.length
         ? `<div class='item-box'>${window.t("noFunds")}</div>`
         : `
+          ${summaryPillsHtml}
           <div class="table-wrap">
             <table>
               <thead>
@@ -2225,6 +2263,13 @@
                       </td>
                     </tr>`;
                 }).join("")}
+                <tr class="total-row">
+                  <td>Total</td>
+                  <td></td>
+                  <td>${overallTotal}</td>
+                  <td></td>
+                  <td></td>
+                </tr>
               </tbody>
             </table>
           </div>

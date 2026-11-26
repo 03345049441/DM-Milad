@@ -8,15 +8,12 @@
     * { box-sizing: border-box; font-family: "Noto Nastaliq Urdu", Arial, sans-serif; }
     html, body {
       overscroll-behavior: none;
+      overscroll-behavior-y: none;
       touch-action: pan-x pan-y;
     }
     body { margin: 0; padding: 12px; background: #f1f5f9; color: #0f172a; line-height: 1.6; }
     body.no-select { -webkit-user-select: none; user-select: none; }
     body.admin-select { -webkit-user-select: text; user-select: text; }
-    body.subwindow-open,
-    body.subwindow-open html {
-      overscroll-behavior-y: contain;
-    }
     .container { max-width: 720px; margin: 0 auto; }
     .card { background: #fff; padding: 16px; border-radius: 14px; box-shadow: 0 2px 12px rgba(15,23,42,0.08); margin-bottom: 14px; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
@@ -142,17 +139,6 @@
       font-weight: bold;
       margin-bottom: 8px;
     }
-    .ptr-indicator {
-      display: none;
-      text-align: center;
-      font-size: 12px;
-      font-weight: bold;
-      color: #14532d;
-      background: #dcfce7;
-      padding: 6px 10px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
     .img-modal {
       display: none;
       position: fixed;
@@ -212,8 +198,6 @@
 </head>
 <body class="no-select">
   <div class="container">
-    <div id="ptrIndicator" class="ptr-indicator"></div>
-
     <div id="authCard" class="card">
       <div class="top-bar">
         <h2 id="appTitle">Milad Organization Dhoke Maken</h2>
@@ -329,6 +313,7 @@
     const LANG_STORAGE_KEY = "dm_milad_lang_v1";
     const ADMIN_PASS_OVERRIDE_KEY = "dm_milad_admin_pass_v1";
     const ADMIN_PHOTO_CACHE_KEY = "dm_milad_admin_photo_v1";
+    const AUTO_REFRESH_MS = 60000;
 
     const FUND_PURPOSES = [
       { id: "monthly", ur: "ماہانہ فنڈ", en: "Monthly Fund" },
@@ -351,8 +336,6 @@
         lblSelectAccountRole: "اکاؤنٹ منتخب کریں",
         loginBtn: "لاگ ان کریں",
         backBtn: "واپس مینیو",
-        pullToRefreshMsg: "ریفریش کرنے کے لیے مزید نیچے کھینچیں...",
-        releaseToRefreshMsg: "چھوڑ دیں، ایپ ریفریش ہو رہی ہے...",
         regName: "پورا نام",
         regPhone: "فون نمبر",
         regPass: "پاس ورڈ",
@@ -484,8 +467,6 @@
         lblSelectAccountRole: "Select Account",
         loginBtn: "Login",
         backBtn: "Back",
-        pullToRefreshMsg: "Pull down to refresh...",
-        releaseToRefreshMsg: "Release to refresh app...",
         regName: "Full Name",
         regPhone: "Phone Number",
         regPass: "Password",
@@ -1115,12 +1096,6 @@
       handlers: {}
     };
 
-    function syncBodySubwindowClass() {
-      const inSubWindow = Boolean(window.appState.currentUser && window.appState.activeSection);
-      document.body.classList.toggle("subwindow-open", inSubWindow);
-      document.documentElement.classList.toggle("subwindow-open", inSubWindow);
-    }
-
     window.saveUserSession = (user) => {
       try {
         if (user) {
@@ -1349,7 +1324,7 @@
       return window.appState.handlers.selectSection;
     }
 
-    function openSectionWindow(sectionKey) {
+    function openSectionWindow(sectionKey, { silent = false } = {}) {
       const u = window.appState.currentUser;
       if (!u) return;
       const sections = window.getSectionsForRole(u.role);
@@ -1357,22 +1332,27 @@
       if (!matched) return;
 
       window.appState.activeSection = matched.key;
-      syncBodySubwindowClass();
       el("roleMenu").style.display = "none";
       el("sectionWindow").style.display = "block";
       el("activeSectionTitle").textContent = matched.label;
       el("backToMenuBtn").textContent = window.t("backBtn");
-      window.scrollTo({ top: 0, behavior: "instant" });
+      if (!silent) {
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
 
-      window.renderAdminSectionEntry(matched.key);
+      if (!silent) {
+        window.renderAdminSectionEntry(matched.key);
+      } else if (u.role === "admin" && matched.key === "funds_members" && window.appState.handlers.refreshMemberDropdown) {
+        window.appState.handlers.refreshMemberDropdown().catch(() => {});
+      }
 
       if (window.appState.handlers.selectSection) {
-        window.appState.handlers.selectSection(matched.key);
-      } else {
+        window.appState.handlers.selectSection(matched.key, { silent });
+      } else if (!silent) {
         el("contentArea").innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
         waitForSectionHandler().then((fn) => {
           if (fn && window.appState.activeSection === matched.key) {
-            fn(matched.key);
+            fn(matched.key, { silent: false });
           } else if (window.appState.activeSection === matched.key) {
             el("contentArea").innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Please refresh or check connection." : "براہِ کرم صفحہ ریفریش کریں یا انٹرنیٹ چیک کریں۔"}</div>`;
           }
@@ -1402,7 +1382,6 @@
         openSectionWindow(window.appState.activeSection);
       } else {
         window.appState.activeSection = null;
-        syncBodySubwindowClass();
         menu.style.display = "grid";
         el("sectionWindow").style.display = "none";
         el("adminEntryArea").style.display = "none";
@@ -1413,7 +1392,6 @@
 
     el("backToMenuBtn").addEventListener("click", () => {
       window.appState.activeSection = null;
-      syncBodySubwindowClass();
       el("sectionWindow").style.display = "none";
       el("adminEntryArea").style.display = "none";
       el("adminEntryArea").innerHTML = "";
@@ -1427,7 +1405,6 @@
       const u = window.appState.currentUser;
       if (!u) return;
       window.appState.activeSection = null;
-      syncBodySubwindowClass();
       window.applySelectionRestriction();
       el("authCard").style.display = "none";
       el("portalCard").style.display = "block";
@@ -1564,7 +1541,6 @@
       window.saveUserSession(null);
       window.appState.currentUser = null;
       window.appState.activeSection = null;
-      syncBodySubwindowClass();
       window.applySelectionRestriction();
       el("portalCard").style.display = "none";
       el("sectionWindow").style.display = "none";
@@ -1583,89 +1559,53 @@
       el("authMsg").className = "msg";
     });
 
-    let ptrStartY = 0;
-    let ptrPulling = false;
-    const ptrBox = el("ptrIndicator");
-
-    function getPageScrollTop() {
-      return Math.max(
-        window.scrollY || 0,
-        document.documentElement ? document.documentElement.scrollTop || 0 : 0,
-        document.body ? document.body.scrollTop || 0 : 0
-      );
-    }
-
-    function isFirstMenuInterfaceAtTop() {
-      const hasUser = Boolean(window.appState.currentUser);
-      const portalCard = el("portalCard");
-      const portalVisible = Boolean(portalCard && getComputedStyle(portalCard).display !== "none");
-      const sectionWindowOpen = Boolean(el("sectionWindow") && getComputedStyle(el("sectionWindow")).display !== "none");
-      const noActiveSection = !window.appState.activeSection;
-      const modalOpen = Boolean(el("imgPreviewModal") && el("imgPreviewModal").classList.contains("open"));
-      return hasUser && portalVisible && !sectionWindowOpen && noActiveSection && !modalOpen && getPageScrollTop() <= 0;
-    }
-
-    function resetPullToRefreshUi() {
-      ptrPulling = false;
-      ptrStartY = 0;
-      if (ptrBox) {
-        ptrBox.style.display = "none";
-        ptrBox.textContent = "";
-      }
-    }
-
-    document.addEventListener("touchstart", (e) => {
-      if (e.touches.length !== 1) {
-        resetPullToRefreshUi();
-        return;
-      }
-      ptrStartY = e.touches[0].clientY;
-      ptrPulling = isFirstMenuInterfaceAtTop();
-      if (!ptrPulling && ptrBox) {
-        ptrBox.style.display = "none";
-      }
-    }, { passive: true, capture: true });
-
-    document.addEventListener("touchmove", (e) => {
-      if (e.touches.length !== 1) {
-        resetPullToRefreshUi();
-        return;
-      }
-      const dy = e.touches[0].clientY - ptrStartY;
-      const allowHere = isFirstMenuInterfaceAtTop();
-
-      if (!allowHere) {
-        resetPullToRefreshUi();
-        if (dy > 0 && getPageScrollTop() <= 0 && e.cancelable) {
-          e.preventDefault();
+    function isUserActivelyTyping() {
+      const active = document.activeElement;
+      if (!active) return false;
+      const tag = active.tagName ? active.tagName.toUpperCase() : "";
+      if (tag === "TEXTAREA" || tag === "SELECT") return true;
+      if (tag === "INPUT") {
+        const type = (active.type || "text").toLowerCase();
+        if (["text", "number", "password", "tel", "url", "email", "search", "date"].includes(type)) {
+          return Boolean(active.value && active.value.trim().length > 0) || document.activeElement === active;
         }
-        return;
+      }
+      return false;
+    }
+
+    async function runBackgroundRefresh() {
+      if (!window.appState.currentUser) return;
+      if (document.visibilityState && document.visibilityState !== "visible") return;
+      if (isUserActivelyTyping()) return;
+
+      if (window.appState.currentUser.role === "admin" && window.appState.handlers.syncAdminProfile) {
+        window.appState.handlers.syncAdminProfile().catch(() => {});
       }
 
-      if (!ptrPulling) ptrPulling = true;
-      if (dy > 14 && ptrBox) {
-        ptrBox.style.display = "block";
-        ptrBox.textContent = dy > 105 ? window.t("releaseToRefreshMsg") : window.t("pullToRefreshMsg");
-      } else if (ptrBox) {
-        ptrBox.style.display = "none";
+      if (window.appState.activeSection && window.appState.handlers.selectSection) {
+        await window.appState.handlers.selectSection(window.appState.activeSection, { silent: true });
       }
-    }, { passive: false, capture: true });
+    }
 
-    document.addEventListener("touchend", (e) => {
-      if (!ptrPulling) {
-        resetPullToRefreshUi();
-        return;
-      }
-      const canRefresh = isFirstMenuInterfaceAtTop();
-      const endY = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : ptrStartY;
-      const dy = endY - ptrStartY;
-      resetPullToRefreshUi();
-      if (canRefresh && dy > 105) {
-        location.reload();
-      }
-    }, { capture: true });
+    setInterval(() => {
+      runBackgroundRefresh().catch(() => {});
+    }, AUTO_REFRESH_MS);
 
-    document.addEventListener("touchcancel", resetPullToRefreshUi, { capture: true });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        if (window.appState.handlers.refreshOnReopen) {
+          window.appState.handlers.refreshOnReopen().catch(() => {});
+        } else {
+          runBackgroundRefresh().catch(() => {});
+        }
+      }
+    });
+
+    window.addEventListener("pageshow", () => {
+      if (window.appState.handlers.refreshOnReopen) {
+        window.appState.handlers.refreshOnReopen().catch(() => {});
+      }
+    });
 
     const imgModal = el("imgPreviewModal");
     const imgModalViewport = el("imgModalViewport");
@@ -2220,6 +2160,8 @@
         });
       }
     }
+
+    window.appState.handlers.refreshMemberDropdown = populateMemberDropdown;
 
     async function renderFundsAndMembersDetails(area) {
       const usersSnap = await getDocs(collection(db, "users"));
@@ -2914,12 +2856,16 @@
       });
     };
 
-    window.appState.handlers.selectSection = async (sectionKey) => {
+    window.appState.handlers.selectSection = async (sectionKey, { silent = false } = {}) => {
       const area = el("contentArea");
       if (!area) return;
-      area.innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+      if (!silent) {
+        area.innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+      }
       if (!db && sectionKey !== "profile") {
-        area.innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Database offline." : "ڈیٹا بیس دستیاب نہیں۔"}</div>`;
+        if (!silent) {
+          area.innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Database offline." : "ڈیٹا بیس دستیاب نہیں۔"}</div>`;
+        }
         return;
       }
       try {
@@ -2932,11 +2878,15 @@
         else if (sectionKey === "information") await renderMediaSorted(area, "information", window.t("informationTitle"));
         else if (sectionKey === "funds_members") await renderFundsAndMembersDetails(area);
         else if (sectionKey === "approvals") await renderApprovalsSection(area);
-        else if (sectionKey === "profile") await renderProfileSection(area);
+        else if (sectionKey === "profile") {
+          if (!silent) await renderProfileSection(area);
+        }
         else if (sectionKey === "complaints") await renderComplaintsSection(area);
-        else area.innerHTML = "";
+        else if (!silent) area.innerHTML = "";
       } catch (err) {
-        area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error loading section."}</div>`;
+        if (!silent) {
+          area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error loading section."}</div>`;
+        }
       }
     };
 
@@ -3063,18 +3013,27 @@
       }
     });
 
-    (async function restoreSessionOnRefresh() {
+    async function restoreOrRefreshSession({ forceOpenPortal = false } = {}) {
       const saved = window.loadSavedSession ? window.loadSavedSession() : null;
       if (!saved || !db) return;
 
       if (saved.role === "admin" && saved.phone === BUILT_IN_ADMIN.phone) {
+        const wasAlreadyOpen = Boolean(window.appState.currentUser);
+        const prevSection = window.appState.activeSection;
         window.appState.currentUser = {
           ...saved,
           photoUrl: saved.photoUrl || getCachedAdminPhoto()
         };
-        window.openPortal();
+        if (!wasAlreadyOpen || forceOpenPortal) {
+          window.openPortal();
+        } else {
+          window.updatePortalHeader();
+          if (prevSection && window.appState.handlers.selectSection) {
+            await window.appState.handlers.selectSection(prevSection, { silent: true });
+          }
+        }
         if (window.appState.handlers.syncAdminProfile) {
-          window.appState.handlers.syncAdminProfile();
+          await window.appState.handlers.syncAdminProfile();
         }
         return;
       }
@@ -3086,15 +3045,33 @@
         );
 
         if (matchedAcc) {
+          const wasAlreadyOpen = Boolean(window.appState.currentUser);
+          const prevSection = window.appState.activeSection;
           window.appState.currentUser = matchedAcc;
           window.saveUserSession(matchedAcc);
-          window.openPortal();
+          if (!wasAlreadyOpen || forceOpenPortal) {
+            window.openPortal();
+          } else {
+            window.updatePortalHeader();
+            if (prevSection && window.appState.handlers.selectSection) {
+              await window.appState.handlers.selectSection(prevSection, { silent: true });
+            }
+          }
         } else if (saved.role === "public" && saved.status === "active") {
           const pubAcc = accounts.find((acc) => acc.role === "public" && acc.status !== "rejected");
           if (pubAcc) {
+            const wasAlreadyOpen = Boolean(window.appState.currentUser);
+            const prevSection = window.appState.activeSection;
             window.appState.currentUser = pubAcc;
             window.saveUserSession(pubAcc);
-            window.openPortal();
+            if (!wasAlreadyOpen || forceOpenPortal) {
+              window.openPortal();
+            } else {
+              window.updatePortalHeader();
+              if (prevSection && window.appState.handlers.selectSection) {
+                await window.appState.handlers.selectSection(prevSection, { silent: true });
+              }
+            }
           } else {
             window.saveUserSession(null);
           }
@@ -3107,7 +3084,14 @@
           window.openPortal();
         }
       }
-    })();
+    }
+
+    window.appState.handlers.refreshOnReopen = async () => {
+      if (!window.loadSavedSession || !window.loadSavedSession()) return;
+      await restoreOrRefreshSession({ forceOpenPortal: false });
+    };
+
+    restoreOrRefreshSession({ forceOpenPortal: false });
   </script>
 </body>
 </html>

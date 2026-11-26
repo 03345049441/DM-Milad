@@ -2294,18 +2294,10 @@
 
       const selectedMemberTotal = filteredFundItems.reduce((sum, f) => sum + Number(f.amount || 0), 0);
 
-      const memberFilterOptionsHtml = Array.from(memberOptionsMap.entries()).map(([phoneKey, mName]) => {
-        const selAttr = phoneKey === activeMemberPhone ? " selected" : "";
-        return `<option value="${phoneKey}"${selAttr}>${mName} (${phoneKey})</option>`;
-      }).join("");
-
-      const memberTotalBannerHtml = memberOptionsMap.size
+      const memberTotalBannerHtml = activeMemberPhone
         ? `
           <div class="member-total-banner">
             <div>${window.t("memberTotalLabel", { name: selectedMemberName })}: ${selectedMemberTotal}</div>
-            <div style="min-width:190px;">
-              <select id="fundsMemberFilterSelect">${memberFilterOptionsHtml}</select>
-            </div>
           </div>`
         : "";
 
@@ -2339,13 +2331,6 @@
                     </td>
                   </tr>
                 `).join("")}
-                <tr class="total-row">
-                  <td>Total</td>
-                  <td>${selectedMemberName}</td>
-                  <td>${selectedMemberTotal}</td>
-                  <td></td>
-                  <td></td>
-                </tr>
               </tbody>
             </table>
           </div>
@@ -2416,17 +2401,6 @@
           </div>
           ${membersTableHtml}
         </div>`;
-
-      const filterSelect = el("fundsMemberFilterSelect");
-      if (filterSelect) {
-        filterSelect.addEventListener("change", async () => {
-          window.appState.selectedFundMemberPhone = filterSelect.value || "";
-          if (el("fundMemberSelect") && Array.from(el("fundMemberSelect").options).some((o) => o.value === window.appState.selectedFundMemberPhone)) {
-            el("fundMemberSelect").value = window.appState.selectedFundMemberPhone;
-          }
-          await renderFundsAndMembersDetails(area);
-        });
-      }
 
       area.querySelectorAll("[data-member-group]").forEach((btn) => {
         btn.addEventListener("click", async () => {

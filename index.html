@@ -205,6 +205,11 @@
           <button type="button" id="addMediaBtn" class="btn btn-primary">محفوظ کریں</button>
         </div>
 
+        <div class="admin-section">
+          <h4 id="admH5">5. ممبران کا انتظام (ممبر ریموو کریں)</h4>
+          <div id="adminMembersListWrap"></div>
+        </div>
+
         <div id="adminMsg" class="msg"></div>
       </div>
     </div>
@@ -264,6 +269,7 @@
         lblExpMedia: "تصویر کا ڈائریکٹ لنک یا تصویر فائل منتخب کریں",
         addExpenseBtn: "اخراجات کی تصویر محفوظ کریں",
         admH4: "4. تصاویر اور ویڈیوز کی انٹری (تاریخ کے حساب سے)",
+        admH5: "5. ممبران کا انتظام (ممبر ریموو کریں)",
         lblMediaCat: "سیکشن منتخب کریں",
         catPhotos: "تصاویر (Photos)",
         catVideos: "ویڈیوز (Videos)",
@@ -275,6 +281,16 @@
         selectedDatePrefix: "منتخب تاریخ (دن/مہینہ/سال): ",
         approveBtn: "منظور کریں",
         rejectBtn: "مسترد کریں",
+        removeMemberBtn: "ریموو کریں",
+        confirmRemoveMember: "کیا آپ واقعی {name} کو تنظیم کی ایپ سے ریموو کرنا چاہتے ہیں؟ اس کے بعد وہ لاگ ان نہیں کر سکے گا۔",
+        memberRemovedMsg: "ممبر کو کامیابی سے ریموو کر دیا گیا۔",
+        noMembersFound: "کوئی رجسٹرڈ ممبر موجود نہیں ہے۔",
+        colPhone: "فون نمبر",
+        colRole: "کیٹیگری",
+        colStatus: "اسٹیٹس",
+        statusActive: "فعال (Active)",
+        statusPending: "زیرِ التوا",
+        statusRejected: "مسترد",
         noPending: "کوئی زیرِ التوا درخواست نہیں ہے۔",
         noFunds: "آپ کے جمع کروائے گئے فنڈز کی کوئی تفصیل ابھی درج نہیں ہے۔",
         fundsTitle: "آپ کے جمع کروائے گئے فنڈز (کل: {total})",
@@ -345,6 +361,7 @@
         lblExpMedia: "Direct Photo URL or Image File",
         addExpenseBtn: "Save Expense Photo",
         admH4: "4. Photo & Video Entry (Sorted by Date)",
+        admH5: "5. Manage Members (Remove Member)",
         lblMediaCat: "Select Section",
         catPhotos: "Photos",
         catVideos: "Videos",
@@ -356,6 +373,16 @@
         selectedDatePrefix: "Selected Date (DD/MM/YYYY): ",
         approveBtn: "Approve",
         rejectBtn: "Reject",
+        removeMemberBtn: "Remove",
+        confirmRemoveMember: "Are you sure you want to remove {name} from the app? They will no longer be able to log in.",
+        memberRemovedMsg: "Member removed successfully.",
+        noMembersFound: "No registered members found.",
+        colPhone: "Phone",
+        colRole: "Role",
+        colStatus: "Status",
+        statusActive: "Active",
+        statusPending: "Pending",
+        statusRejected: "Rejected",
         noPending: "No pending requests.",
         noFunds: "No fund records found for your account yet.",
         fundsTitle: "Your Submitted Funds (Total: {total})",
@@ -394,7 +421,7 @@
       authMsgTimer = setTimeout(() => {
         box.className = "msg";
         box.textContent = "";
-      }, 2000);
+      }, 4000);
     };
 
     let adminMsgTimer = null;
@@ -407,7 +434,7 @@
       adminMsgTimer = setTimeout(() => {
         box.className = "msg";
         box.textContent = "";
-      }, 2000);
+      }, 4000);
     };
 
     window.onerror = (msg, src, line) => {
@@ -716,6 +743,7 @@
       el("addExpenseBtn").textContent = window.t("addExpenseBtn");
 
       el("admH4").textContent = window.t("admH4");
+      el("admH5").textContent = window.t("admH5");
       el("lblMediaCat").textContent = window.t("lblMediaCat");
       el("optCatPhotos").textContent = window.t("catPhotos");
       el("optCatVideos").textContent = window.t("catVideos");
@@ -1071,15 +1099,17 @@
       box.querySelectorAll(".btn-approve").forEach((b) => {
         b.addEventListener("click", async () => {
           await updateDoc(doc(db, "users", b.dataset.id), { status: "active" });
-          loadPendingRequests();
-          loadMembersForFunds();
+          await loadPendingRequests();
+          await loadMembersForFunds();
+          await loadAllMembersManager();
         });
       });
 
       box.querySelectorAll(".btn-reject").forEach((b) => {
         b.addEventListener("click", async () => {
           await updateDoc(doc(db, "users", b.dataset.id), { status: "rejected" });
-          loadPendingRequests();
+          await loadPendingRequests();
+          await loadAllMembersManager();
         });
       });
     }
@@ -1099,6 +1129,84 @@
           opt.textContent = `${u.name} (${u.phone})`;
           sel.appendChild(opt);
         }
+      });
+    }
+
+    async function loadAllMembersManager() {
+      if (!db || !isAdminUser()) return;
+      const wrap = el("adminMembersListWrap");
+      if (!wrap) return;
+      const snap = await getDocs(collection(db, "users"));
+      const members = [];
+      snap.forEach((d) => {
+        const u = d.data();
+        if (u.phone !== BUILT_IN_ADMIN.phone) {
+          members.push({ id: d.id, ...u });
+        }
+      });
+
+      if (!members.length) {
+        wrap.innerHTML = `<div class='item-box'>${window.t("noMembersFound")}</div>`;
+        return;
+      }
+
+      const roleText = (r) => r === "abroad"
+        ? window.t("roleAbroadLabel")
+        : r === "management"
+          ? window.t("roleMgmtLabel")
+          : window.t("rolePublicLabel");
+
+      const statusText = (s) => s === "active"
+        ? window.t("statusActive")
+        : s === "pending_approval"
+          ? window.t("statusPending")
+          : window.t("statusRejected");
+
+      const rows = members.map((m) => `
+        <tr>
+          <td><strong>${m.name || "-"}</strong></td>
+          <td dir="ltr">${m.phone || "-"}</td>
+          <td>${roleText(m.role)}</td>
+          <td>${statusText(m.status)}</td>
+          <td>
+            <button type="button" class="btn btn-sm btn-danger" data-remove-user-id="${m.id}" data-remove-user-name="${(m.name || m.phone || "").replace(/"/g, "&quot;")}">${window.t("removeMemberBtn")}</button>
+          </td>
+        </tr>
+      `).join("");
+
+      wrap.innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>${window.t("colMember")}</th>
+                <th>${window.t("colPhone")}</th>
+                <th>${window.t("colRole")}</th>
+                <th>${window.t("colStatus")}</th>
+                <th>${window.t("colActions")}</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+
+      wrap.querySelectorAll("[data-remove-user-id]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const userName = btn.dataset.removeUserName;
+          if (!confirm(window.t("confirmRemoveMember", { name: userName }))) return;
+          btn.disabled = true;
+          try {
+            await deleteDoc(doc(db, "users", btn.dataset.removeUserId));
+            window.showAdminMsg(window.t("memberRemovedMsg"), "success");
+            await loadPendingRequests();
+            await loadMembersForFunds();
+            await loadAdminFundsTable();
+            await loadAllMembersManager();
+          } catch (err) {
+            btn.disabled = false;
+            window.showAdminMsg(err && err.message ? err.message : "Error", "error");
+          }
+        });
       });
     }
 
@@ -1231,7 +1339,9 @@
 
     window.appState.handlers.onAdminOpen = () => {
       loadPendingRequests().catch((e) => window.showAdminMsg(e.message, "error"));
-      loadMembersForFunds().then(() => loadAdminFundsTable()).catch((e) => window.showAdminMsg(e.message, "error"));
+      loadMembersForFunds()
+        .then(() => Promise.all([loadAdminFundsTable(), loadAllMembersManager()]))
+        .catch((e) => window.showAdminMsg(e.message, "error"));
     };
 
     window.appState.handlers.loginUser = async (phone, password, selectedDocId = "") => {

@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
   <title>میلاد کمیٹی ڈھوک میکن | Milad Organization Dhoke Maken</title>
   <style>
     * { box-sizing: border-box; font-family: "Noto Nastaliq Urdu", Arial, sans-serif; }
@@ -57,7 +57,7 @@
     .entry-box { border: 1px solid #bbf7d0; background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
     .item-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px; margin-bottom: 8px; background: #f8fafc; }
     .item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
-    .item-box img { max-width: 100%; max-height: 260px; border-radius: 8px; display: block; margin-top: 8px; cursor: zoom-in; }
+    .item-box img { max-width: 100%; max-height: 260px; border-radius: 8px; display: block; margin-top: 8px; cursor: pointer; }
     .img-fallback { margin-top: 6px; padding: 8px; background: #fef3c7; color: #92400e; border-radius: 6px; font-size: 12px; }
     .folder-tag { display: inline-block; background: #dcfce7; color: #166534; padding: 2px 9px; border-radius: 12px; font-size: 12px; font-weight: bold; }
     .sub-section { border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 14px; }
@@ -72,48 +72,46 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.9);
       z-index: 9999;
       justify-content: center;
       align-items: center;
-      padding: 14px;
+      padding: 12px;
+      overflow: auto;
+      touch-action: manipulation;
     }
     .img-modal.open {
       display: flex;
     }
     .img-modal-box {
       position: relative;
-      max-width: 95vw;
-      max-height: 90vh;
+      max-width: 100%;
+      max-height: 95vh;
       background: #0f172a;
       padding: 10px;
       border-radius: 10px;
       text-align: center;
+      touch-action: manipulation;
     }
     .img-modal-viewport {
       overflow: auto;
-      max-width: 90vw;
-      max-height: 74vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      max-width: 92vw;
+      max-height: 76vh;
       border-radius: 8px;
+      touch-action: manipulation;
+      -webkit-overflow-scrolling: touch;
     }
     .img-modal-box img {
       max-width: 100%;
-      max-height: 72vh;
+      max-height: 75vh;
+      width: auto;
+      height: auto;
       border-radius: 8px;
       display: block;
       margin: 0 auto;
-      transform-origin: center center;
-      transition: transform 0.15s ease;
-      cursor: zoom-in;
+      touch-action: manipulation;
     }
-    .img-modal-controls {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
+    .img-modal-close {
       margin-top: 10px;
     }
   </style>
@@ -200,12 +198,7 @@
         <img id="imgPreviewTag" src="" alt="Preview" />
       </div>
       <div id="imgPreviewTitle" style="color:#fff; font-size:13px; margin-top:8px;"></div>
-      <div class="img-modal-controls">
-        <button type="button" id="zoomInBtn" class="btn btn-sm btn-primary" style="width:auto;">Zoom +</button>
-        <button type="button" id="zoomOutBtn" class="btn btn-sm btn-secondary">Zoom -</button>
-        <button type="button" id="zoomResetBtn" class="btn btn-sm btn-edit">Reset</button>
-        <button type="button" id="closeImgModalBtn" class="btn btn-sm btn-danger">Close</button>
-      </div>
+      <button type="button" id="closeImgModalBtn" class="btn btn-sm btn-danger img-modal-close">Close</button>
     </div>
   </div>
 
@@ -351,9 +344,9 @@
         secPhotos: "Photos",
         secVideos: "Videos",
         secFunds: "Funds Details",
-        secExpenses: "Expenses Details",
+        secExpenses: "Expenses Detail",
         secLangar: "Langar Details",
-        secFundsMembers: "Members Details",
+        secFundsMembers: "Members Detail",
         secApprovals: "Pending Approvals",
         secMahafil: "Mahafil",
         secInformation: "Information",
@@ -1008,25 +1001,11 @@
     const imgModalViewport = el("imgModalViewport");
     const imgModalTag = el("imgPreviewTag");
     const imgModalTitle = el("imgPreviewTitle");
-    const zoomInBtn = el("zoomInBtn");
-    const zoomOutBtn = el("zoomOutBtn");
-    const zoomResetBtn = el("zoomResetBtn");
     const closeImgModalBtn = el("closeImgModalBtn");
-    let currentZoom = 1;
-
-    function applyImageZoom(nextZoom) {
-      currentZoom = Math.min(4, Math.max(1, Number(nextZoom.toFixed(2))));
-      if (!imgModalTag) return;
-      imgModalTag.style.transform = `scale(${currentZoom})`;
-      imgModalTag.style.cursor = currentZoom > 1 ? "zoom-out" : "zoom-in";
-    }
 
     function closeImageModal() {
       if (!imgModal) return;
-      currentZoom = 1;
       if (imgModalTag) {
-        imgModalTag.style.transform = "scale(1)";
-        imgModalTag.style.cursor = "zoom-in";
         imgModalTag.src = "";
       }
       if (imgModalViewport) {
@@ -1036,29 +1015,6 @@
       imgModal.classList.remove("open");
     }
 
-    if (zoomInBtn) {
-      zoomInBtn.addEventListener("click", () => applyImageZoom(currentZoom + 0.5));
-    }
-    if (zoomOutBtn) {
-      zoomOutBtn.addEventListener("click", () => applyImageZoom(currentZoom - 0.5));
-    }
-    if (zoomResetBtn) {
-      zoomResetBtn.addEventListener("click", () => applyImageZoom(1));
-    }
-    if (imgModalTag) {
-      imgModalTag.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (currentZoom >= 2) applyImageZoom(1);
-        else applyImageZoom(currentZoom + 0.75);
-      });
-    }
-    if (imgModalViewport) {
-      imgModalViewport.addEventListener("wheel", (e) => {
-        if (!imgModal || !imgModal.classList.contains("open")) return;
-        e.preventDefault();
-        applyImageZoom(e.deltaY < 0 ? currentZoom + 0.25 : currentZoom - 0.25);
-      }, { passive: false });
-    }
     if (closeImgModalBtn) {
       closeImgModalBtn.addEventListener("click", closeImageModal);
     }
@@ -1072,9 +1028,6 @@
       const clickedImg = e.target.closest("img");
       if (!clickedImg || clickedImg.id === "imgPreviewTag" || !clickedImg.src) return;
       if (imgModal && imgModalTag) {
-        currentZoom = 1;
-        imgModalTag.style.transform = "scale(1)";
-        imgModalTag.style.cursor = "zoom-in";
         imgModalTag.src = clickedImg.src;
         if (imgModalTitle) {
           imgModalTitle.textContent = clickedImg.alt || "";

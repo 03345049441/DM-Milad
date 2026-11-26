@@ -72,51 +72,50 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.92);
+      background: rgba(0, 0, 0, 0.94);
       z-index: 9999;
       justify-content: center;
       align-items: center;
-      padding: 12px;
-      touch-action: none;
+      padding: 10px;
     }
     .img-modal.open {
       display: flex;
     }
     .img-modal-box {
       position: relative;
-      max-width: 100%;
-      max-height: 95vh;
+      width: 100%;
+      max-width: 98vw;
+      max-height: 96vh;
       background: #0f172a;
       padding: 10px;
       border-radius: 10px;
       text-align: center;
-      touch-action: none;
+      display: flex;
+      flex-direction: column;
     }
     .img-modal-viewport {
       overflow: auto;
-      max-width: 92vw;
+      width: 100%;
+      height: 76vh;
       max-height: 76vh;
       border-radius: 8px;
-      touch-action: none;
+      background: #020617;
+      touch-action: pan-x pan-y;
       -webkit-overflow-scrolling: touch;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      text-align: center;
     }
     .img-modal-box img {
-      max-width: 100%;
-      max-height: 75vh;
-      width: auto;
+      display: inline-block;
+      width: 100%;
       height: auto;
-      border-radius: 8px;
-      display: block;
-      margin: 0 auto;
-      transform-origin: center center;
-      transition: transform 0.06s ease-out;
-      touch-action: none;
+      max-width: none;
+      max-height: none;
+      border-radius: 6px;
+      vertical-align: middle;
     }
     .img-modal-close {
       margin-top: 10px;
+      align-self: center;
     }
   </style>
 </head>
@@ -1007,15 +1006,15 @@
     const imgModalTitle = el("imgPreviewTitle");
     const closeImgModalBtn = el("closeImgModalBtn");
 
-    let pinchScale = 1;
+    let zoomPercent = 100;
     let pinchStartDist = 0;
-    let pinchStartScale = 1;
+    let pinchStartZoom = 100;
     let lastTapTime = 0;
 
-    function applyPinchTransform(nextScale) {
-      pinchScale = Math.min(4, Math.max(1, Number(nextScale.toFixed(2))));
+    function applyZoomWidth(nextPercent) {
+      zoomPercent = Math.min(350, Math.max(100, Math.round(nextPercent)));
       if (!imgModalTag) return;
-      imgModalTag.style.transform = `scale(${pinchScale})`;
+      imgModalTag.style.width = `${zoomPercent}%`;
     }
 
     function getTouchDistance(t1, t2) {
@@ -1026,11 +1025,11 @@
 
     function closeImageModal() {
       if (!imgModal) return;
-      pinchScale = 1;
+      zoomPercent = 100;
       pinchStartDist = 0;
-      pinchStartScale = 1;
+      pinchStartZoom = 100;
       if (imgModalTag) {
-        imgModalTag.style.transform = "scale(1)";
+        imgModalTag.style.width = "100%";
         imgModalTag.src = "";
       }
       if (imgModalViewport) {
@@ -1045,12 +1044,12 @@
         if (e.touches.length === 2) {
           e.preventDefault();
           pinchStartDist = getTouchDistance(e.touches[0], e.touches[1]);
-          pinchStartScale = pinchScale;
+          pinchStartZoom = zoomPercent;
         } else if (e.touches.length === 1) {
           const now = Date.now();
           if (now - lastTapTime < 300) {
             e.preventDefault();
-            applyPinchTransform(pinchScale > 1 ? 1 : 2);
+            applyZoomWidth(zoomPercent > 100 ? 100 : 200);
           }
           lastTapTime = now;
         }
@@ -1061,14 +1060,14 @@
           e.preventDefault();
           const currentDist = getTouchDistance(e.touches[0], e.touches[1]);
           const ratio = currentDist / pinchStartDist;
-          applyPinchTransform(pinchStartScale * ratio);
+          applyZoomWidth(pinchStartZoom * ratio);
         }
       }, { passive: false });
 
       imgModalTag.addEventListener("touchend", (e) => {
         if (e.touches.length < 2) {
           pinchStartDist = 0;
-          pinchStartScale = pinchScale;
+          pinchStartZoom = zoomPercent;
         }
       });
     }
@@ -1086,11 +1085,15 @@
       const clickedImg = e.target.closest("img");
       if (!clickedImg || clickedImg.id === "imgPreviewTag" || !clickedImg.src) return;
       if (imgModal && imgModalTag) {
-        pinchScale = 1;
+        zoomPercent = 100;
         pinchStartDist = 0;
-        pinchStartScale = 1;
-        imgModalTag.style.transform = "scale(1)";
+        pinchStartZoom = 100;
+        imgModalTag.style.width = "100%";
         imgModalTag.src = clickedImg.src;
+        if (imgModalViewport) {
+          imgModalViewport.scrollTop = 0;
+          imgModalViewport.scrollLeft = 0;
+        }
         if (imgModalTitle) {
           imgModalTitle.textContent = clickedImg.alt || "";
         }

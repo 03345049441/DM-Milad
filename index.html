@@ -10,14 +10,14 @@
     body.no-select { -webkit-user-select: none; user-select: none; }
     body.admin-select { -webkit-user-select: text; user-select: text; }
     .container { max-width: 720px; margin: 0 auto; }
-    .card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); margin-bottom: 14px; }
+    .card { background: #fff; padding: 16px; border-radius: 14px; box-shadow: 0 2px 12px rgba(15,23,42,0.08); margin-bottom: 14px; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
     h2, h3, h4 { margin: 0; color: #14532d; }
     h2 { font-size: 19px; }
     h3 { font-size: 16px; }
     h4 { font-size: 14px; margin-bottom: 8px; }
-    .btn { padding: 7px 11px; border: none; border-radius: 7px; font-weight: bold; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
-    .btn-sm { padding: 4px 8px; font-size: 12px; border-radius: 5px; }
+    .btn { padding: 7px 11px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
+    .btn-sm { padding: 4px 8px; font-size: 12px; border-radius: 6px; }
     .btn-primary { background: #15803d; color: #fff; width: 100%; padding: 10px; font-size: 14px; }
     .btn-secondary { background: #334155; color: #fff; }
     .btn-danger { background: #b91c1c; color: #fff; }
@@ -26,25 +26,26 @@
     .btn-reject { background: #b91c1c; color: #fff; flex: 1; }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-    .tab-btn { flex: 1; padding: 9px; border: 1px solid #15803d; background: #fff; color: #15803d; border-radius: 7px; font-weight: bold; cursor: pointer; }
+    .tab-btn { flex: 1; padding: 9px; border: 1px solid #15803d; background: #fff; color: #15803d; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .tab-btn.active { background: #15803d; color: #fff; }
     .field { margin-bottom: 10px; }
     label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; }
-    input, select, textarea { width: 100%; padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 14px; background: #fff; }
+    input, select, textarea { width: 100%; padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; }
     .date-ltr { direction: ltr; text-align: left; }
     .date-preview { margin-top: 4px; font-size: 12px; color: #166534; font-weight: bold; direction: rtl; }
-    .msg { margin-top: 10px; padding: 10px; border-radius: 7px; font-size: 13px; display: none; }
+    .msg { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; display: none; }
     .msg.error { display: block; background: #fee2e2; color: #991b1b; }
     .msg.success { display: block; background: #dcfce7; color: #166534; }
-    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0; }
-    .menu-btn { padding: 11px 8px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; text-align: center; }
-    .menu-btn.active { background: #15803d; color: #fff; border-color: #15803d; }
-    .item-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 8px; background: #f8fafc; }
+    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; margin: 12px 0 14px; }
+    .menu-btn { padding: 12px 10px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #14532d; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; text-align: center; transition: 0.15s ease; }
+    .menu-btn.active { background: #15803d; color: #fff; border-color: #15803d; box-shadow: 0 3px 8px rgba(21,128,61,0.22); }
+    .entry-box { border: 1px solid #bbf7d0; background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
+    .item-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px; margin-bottom: 8px; background: #f8fafc; }
     .item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
-    .item-box img { max-width: 100%; max-height: 260px; border-radius: 6px; display: block; margin-top: 8px; }
+    .item-box img { max-width: 100%; max-height: 260px; border-radius: 8px; display: block; margin-top: 8px; }
     .img-fallback { margin-top: 6px; padding: 8px; background: #fef3c7; color: #92400e; border-radius: 6px; font-size: 12px; }
-    .folder-tag { display: inline-block; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-    .admin-section { border-top: 2px dashed #cbd5e1; padding-top: 12px; margin-top: 14px; }
+    .folder-tag { display: inline-block; background: #dcfce7; color: #166534; padding: 2px 9px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+    .sub-section { border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 14px; }
     .req-actions { display: flex; gap: 8px; margin-top: 8px; }
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
@@ -124,94 +125,9 @@
       </div>
 
       <div id="roleMenu" class="menu-grid"></div>
+      <div id="adminEntryArea" style="display:none;"></div>
       <div id="contentArea"></div>
-
-      <div id="adminControls" style="display:none;">
-        <div class="admin-section">
-          <h4 id="admH1">1. زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)</h4>
-          <div id="pendingRequestsList"></div>
-        </div>
-
-        <div class="admin-section">
-          <h4 id="admH2">2. ممبر کے جمع کروائے گئے فنڈز درج کریں</h4>
-          <div class="field">
-            <label id="lblFundMember">ممبر منتخب کریں</label>
-            <select id="fundMemberSelect"></select>
-          </div>
-          <div class="field">
-            <label id="lblFundDate">تاریخ منتخب کریں (دن / مہینہ / سال)</label>
-            <input id="fundDate" type="date" class="date-ltr" />
-            <div id="fundDatePreview" class="date-preview"></div>
-          </div>
-          <div class="field">
-            <label id="lblFundAmount">رقم (مثلاً 5000)</label>
-            <input id="fundAmount" type="number" placeholder="5000" />
-          </div>
-          <div class="field">
-            <label id="lblFundPurpose">مقصد / دینے والے نے کیوں دی؟</label>
-            <input id="fundPurpose" type="text" placeholder="مثلاً ماہانہ چندہ / محفلِ میلاد / لنگر" />
-          </div>
-          <button type="button" id="addFundBtn" class="btn btn-primary">فنڈ محفوظ کریں</button>
-
-          <div style="margin-top:14px;">
-            <h4 id="admFundsTableTitle">درج شدہ فنڈز کی فہرست (تازہ تاریخ سب سے اوپر)</h4>
-            <div id="adminFundsTableWrap"></div>
-          </div>
-        </div>
-
-        <div class="admin-section">
-          <h4 id="admH3">3. اخراجات کی تصویر شامل کریں</h4>
-          <div class="field">
-            <label id="lblExpDate">تاریخ منتخب کریں (دن / مہینہ / سال)</label>
-            <input id="expenseDate" type="date" class="date-ltr" />
-            <div id="expenseDatePreview" class="date-preview"></div>
-          </div>
-          <div class="field">
-            <label id="lblExpTitle">عنوان</label>
-            <input id="expenseTitle" type="text" placeholder="عنوان" />
-          </div>
-          <div class="field">
-            <label id="lblExpMedia">تصویر کا ڈائریکٹ لنک یا تصویر فائل منتخب کریں</label>
-            <input id="expenseUrl" type="text" placeholder="https://..." />
-            <input id="expenseFile" type="file" accept="image/*" style="margin-top:6px;" />
-          </div>
-          <button type="button" id="addExpenseBtn" class="btn btn-primary">اخراجات کی تصویر محفوظ کریں</button>
-        </div>
-
-        <div class="admin-section">
-          <h4 id="admH4">4. تصاویر اور ویڈیوز کی انٹری (تاریخ کے حساب سے)</h4>
-          <div class="field">
-            <label id="lblMediaCat">سیکشن منتخب کریں</label>
-            <select id="mediaCategory">
-              <option id="optCatPhotos" value="photos">تصاویر (Photos)</option>
-              <option id="optCatVideos" value="videos">ویڈیوز (Videos)</option>
-              <option id="optCatLangar" value="langar">لنگر کی تفصیل (Langar Photos)</option>
-            </select>
-          </div>
-          <div class="field">
-            <label id="lblMediaDate">تاریخ منتخب کریں (دن / مہینہ / سال)</label>
-            <input id="mediaDate" type="date" class="date-ltr" />
-            <div id="mediaDatePreview" class="date-preview"></div>
-          </div>
-          <div class="field">
-            <label id="lblMediaTitle">عنوان</label>
-            <input id="mediaTitle" type="text" placeholder="Title" />
-          </div>
-          <div class="field">
-            <label id="lblMediaUrl">تصویر / ویڈیو کا لنک (یا تصویر فائل)</label>
-            <input id="mediaUrl" type="text" placeholder="https://..." />
-            <input id="mediaFile" type="file" accept="image/*" style="margin-top:6px;" />
-          </div>
-          <button type="button" id="addMediaBtn" class="btn btn-primary">محفوظ کریں</button>
-        </div>
-
-        <div class="admin-section">
-          <h4 id="admH5">5. ممبران کا انتظام (ممبر ریموو کریں)</h4>
-          <div id="adminMembersListWrap"></div>
-        </div>
-
-        <div id="adminMsg" class="msg"></div>
-      </div>
+      <div id="adminMsg" class="msg"></div>
     </div>
   </div>
 
@@ -248,6 +164,8 @@
         secFunds: "فنڈز کی تفصیل",
         secExpenses: "اخراجات",
         secLangar: "لنگر کی تفصیل",
+        secFundsMembers: "فنڈز و ممبران",
+        secApprovals: "زیرِ التوا درخواستیں",
         roleAdminLabel: "ایڈمن (Admin)",
         rolePublicLabel: "عام عوام (Public)",
         roleMgmtLabel: "انتظامیہ (Management)",
@@ -255,27 +173,21 @@
         publicNotAllowedExisting: "اس فون نمبر پر پہلے سے اکاؤنٹ موجود ہے، اس لیے عام عوام (Public) میں اکاؤنٹ نہیں بن سکتا۔",
         roleAlreadyExists: "اس نمبر پر اس کیٹیگری میں پہلے سے اکاؤنٹ موجود ہے۔",
         chooseAccountToLogin: "اس نمبر پر ایک سے زیادہ اکاؤنٹس موجود ہیں، براہِ کرم اکاؤنٹ منتخب کر کے دوبارہ لاگ ان دبائیں۔",
-        admH1: "1. زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)",
-        admH2: "2. ممبر کے جمع کروائے گئے فنڈز درج کریں",
+        admH1: "زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)",
+        admH2: "ممبر کے جمع کروائے گئے فنڈز درج کریں",
         lblFundMember: "ممبر منتخب کریں",
         lblFundDate: "تاریخ منتخب کریں (دن / مہینہ / سال)",
         lblFundAmount: "رقم (مثلاً 5000)",
         lblFundPurpose: "مقصد / دینے والے نے کیوں دی؟",
         addFundBtn: "فنڈ محفوظ کریں",
-        admFundsTableTitle: "درج شدہ فنڈز کی فہرست (تازہ تاریخ سب سے اوپر)",
-        admH3: "3. اخراجات کی تصویر شامل کریں",
-        lblExpDate: "تاریخ منتخب کریں (دن / مہینہ / سال)",
-        lblExpTitle: "عنوان",
+        admFundsTableTitle: "درج شدہ فنڈز کی تفصیل (تازہ تاریخ سب سے اوپر)",
+        admExpEntryTitle: "نئی اخراجات تصویر شامل کریں",
+        admMediaEntryTitle: "نئی انٹری شامل کریں",
+        admH5: "رجسٹرڈ ممبران (ممبر ریموو کریں)",
+        lblDate: "تاریخ منتخب کریں (دن / مہینہ / سال)",
+        lblTitle: "عنوان",
         lblExpMedia: "تصویر کا ڈائریکٹ لنک یا تصویر فائل منتخب کریں",
         addExpenseBtn: "اخراجات کی تصویر محفوظ کریں",
-        admH4: "4. تصاویر اور ویڈیوز کی انٹری (تاریخ کے حساب سے)",
-        admH5: "5. ممبران کا انتظام (ممبر ریموو کریں)",
-        lblMediaCat: "سیکشن منتخب کریں",
-        catPhotos: "تصاویر (Photos)",
-        catVideos: "ویڈیوز (Videos)",
-        catLangar: "لنگر کی تفصیل (Langar Photos)",
-        lblMediaDate: "تاریخ منتخب کریں (دن / مہینہ / سال)",
-        lblMediaTitle: "عنوان",
         lblMediaUrl: "تصویر / ویڈیو کا لنک (یا تصویر فائل)",
         addMediaBtn: "محفوظ کریں",
         selectedDatePrefix: "منتخب تاریخ (دن/مہینہ/سال): ",
@@ -292,7 +204,7 @@
         statusPending: "زیرِ التوا",
         statusRejected: "مسترد",
         noPending: "کوئی زیرِ التوا درخواست نہیں ہے۔",
-        noFunds: "آپ کے جمع کروائے گئے فنڈز کی کوئی تفصیل ابھی درج نہیں ہے۔",
+        noFunds: "فنڈز کی کوئی تفصیل ابھی درج نہیں ہے۔",
         fundsTitle: "آپ کے جمع کروائے گئے فنڈز (کل: {total})",
         colDate: "تاریخ (دن/مہینہ/سال)",
         colMember: "ممبر",
@@ -340,6 +252,8 @@
         secFunds: "Funds Details",
         secExpenses: "Expenses",
         secLangar: "Langar Details",
+        secFundsMembers: "Funds & Members",
+        secApprovals: "Pending Approvals",
         roleAdminLabel: "Admin",
         rolePublicLabel: "Public",
         roleMgmtLabel: "Management",
@@ -347,27 +261,21 @@
         publicNotAllowedExisting: "An account already exists for this phone number, so a Public account cannot be created.",
         roleAlreadyExists: "An account already exists for this number under this role.",
         chooseAccountToLogin: "Multiple accounts exist for this number. Please select an account and click Login again.",
-        admH1: "1. Pending Approvals (Management / Abroad)",
-        admH2: "2. Add Member Funds",
+        admH1: "Pending Approvals (Management / Abroad)",
+        admH2: "Add Member Funds",
         lblFundMember: "Select Member",
         lblFundDate: "Select Date (Day / Month / Year)",
         lblFundAmount: "Amount (e.g. 5000)",
         lblFundPurpose: "Purpose / Why Given?",
         addFundBtn: "Save Fund",
-        admFundsTableTitle: "Recorded Funds (Latest Date First)",
-        admH3: "3. Add Expense Photo",
-        lblExpDate: "Select Date (Day / Month / Year)",
-        lblExpTitle: "Title",
+        admFundsTableTitle: "Recorded Funds Details (Latest Date First)",
+        admExpEntryTitle: "Add New Expense Photo",
+        admMediaEntryTitle: "Add New Entry",
+        admH5: "Registered Members (Remove Member)",
+        lblDate: "Select Date (Day / Month / Year)",
+        lblTitle: "Title",
         lblExpMedia: "Direct Photo URL or Image File",
         addExpenseBtn: "Save Expense Photo",
-        admH4: "4. Photo & Video Entry (Sorted by Date)",
-        admH5: "5. Manage Members (Remove Member)",
-        lblMediaCat: "Select Section",
-        catPhotos: "Photos",
-        catVideos: "Videos",
-        catLangar: "Langar Details (Photos)",
-        lblMediaDate: "Select Date (Day / Month / Year)",
-        lblMediaTitle: "Title",
         lblMediaUrl: "Photo / Video URL (or Image File)",
         addMediaBtn: "Save",
         selectedDatePrefix: "Selected Date (DD/MM/YYYY): ",
@@ -384,7 +292,7 @@
         statusPending: "Pending",
         statusRejected: "Rejected",
         noPending: "No pending requests.",
-        noFunds: "No fund records found for your account yet.",
+        noFunds: "No fund records found yet.",
         fundsTitle: "Your Submitted Funds (Total: {total})",
         colDate: "Date (DD/MM/YYYY)",
         colMember: "Member",
@@ -547,35 +455,18 @@
       return /^https?:\/\//i.test(u);
     };
 
-    function updateDatePreviews() {
-      const pairs = [
-        ["fundDate", "fundDatePreview"],
-        ["expenseDate", "expenseDatePreview"],
-        ["mediaDate", "mediaDatePreview"]
-      ];
-      pairs.forEach(([inpId, prevId]) => {
-        const inp = el(inpId);
-        const prev = el(prevId);
-        if (inp && prev) {
-          prev.innerHTML = `${window.t("selectedDatePrefix")}${window.formatDDMMYYYY(inp.value)}`;
-        }
-      });
+    function bindDatePreview(inputId, previewId) {
+      const inp = el(inputId);
+      const prev = el(previewId);
+      if (!inp || !prev) return;
+      if (!inp.value) inp.value = todayISO();
+      const refreshPrev = () => {
+        prev.innerHTML = `${window.t("selectedDatePrefix")}${window.formatDDMMYYYY(inp.value)}`;
+      };
+      refreshPrev();
+      inp.addEventListener("change", refreshPrev);
+      inp.addEventListener("input", refreshPrev);
     }
-
-    function setDefaultDates() {
-      const today = todayISO();
-      if (el("fundDate") && !el("fundDate").value) el("fundDate").value = today;
-      if (el("expenseDate") && !el("expenseDate").value) el("expenseDate").value = today;
-      if (el("mediaDate") && !el("mediaDate").value) el("mediaDate").value = today;
-      updateDatePreviews();
-    }
-
-    ["fundDate", "expenseDate", "mediaDate"].forEach((id) => {
-      if (el(id)) {
-        el(id).addEventListener("change", updateDatePreviews);
-        el(id).addEventListener("input", updateDatePreviews);
-      }
-    });
 
     window.appState = {
       currentUser: null,
@@ -629,7 +520,9 @@
         { key: "photos", label: window.t("secPhotos") },
         { key: "videos", label: window.t("secVideos") },
         { key: "expenses", label: window.t("secExpenses") },
-        { key: "langar", label: window.t("secLangar") }
+        { key: "langar", label: window.t("secLangar") },
+        { key: "funds_members", label: window.t("secFundsMembers") },
+        { key: "approvals", label: window.t("secApprovals") }
       ];
     };
 
@@ -646,6 +539,106 @@
       el("portalUserRole").textContent = `${roleMap[u.role] || u.role} | ${u.phone}`;
     };
 
+    window.renderAdminSectionEntry = (sectionKey) => {
+      const u = window.appState.currentUser;
+      const entryArea = el("adminEntryArea");
+      if (!u || u.role !== "admin") {
+        entryArea.style.display = "none";
+        entryArea.innerHTML = "";
+        return;
+      }
+
+      entryArea.style.display = "block";
+
+      if (sectionKey === "photos" || sectionKey === "videos" || sectionKey === "langar") {
+        const category = sectionKey;
+        const isVideo = category === "videos";
+        entryArea.innerHTML = `
+          <div class="entry-box">
+            <h4>${window.t("admMediaEntryTitle")}</h4>
+            <div class="field">
+              <label>${window.t("lblDate")}</label>
+              <input id="secMediaDate" type="date" class="date-ltr" value="${todayISO()}" />
+              <div id="secMediaDatePreview" class="date-preview"></div>
+            </div>
+            <div class="field">
+              <label>${window.t("lblTitle")}</label>
+              <input id="secMediaTitle" type="text" placeholder="${window.t("lblTitle")}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblMediaUrl")}</label>
+              <input id="secMediaUrl" type="text" placeholder="https://..." />
+              ${!isVideo ? `<input id="secMediaFile" type="file" accept="image/*" style="margin-top:6px;" />` : ""}
+            </div>
+            <button type="button" id="secAddMediaBtn" class="btn btn-primary">${window.t("addMediaBtn")}</button>
+          </div>`;
+        bindDatePreview("secMediaDate", "secMediaDatePreview");
+        if (window.appState.handlers.bindSectionMediaAdd) {
+          window.appState.handlers.bindSectionMediaAdd(category);
+        }
+        return;
+      }
+
+      if (sectionKey === "expenses") {
+        entryArea.innerHTML = `
+          <div class="entry-box">
+            <h4>${window.t("admExpEntryTitle")}</h4>
+            <div class="field">
+              <label>${window.t("lblDate")}</label>
+              <input id="secExpDate" type="date" class="date-ltr" value="${todayISO()}" />
+              <div id="secExpDatePreview" class="date-preview"></div>
+            </div>
+            <div class="field">
+              <label>${window.t("lblTitle")}</label>
+              <input id="secExpTitle" type="text" placeholder="${window.t("lblTitle")}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblExpMedia")}</label>
+              <input id="secExpUrl" type="text" placeholder="https://..." />
+              <input id="secExpFile" type="file" accept="image/*" style="margin-top:6px;" />
+            </div>
+            <button type="button" id="secAddExpBtn" class="btn btn-primary">${window.t("addExpenseBtn")}</button>
+          </div>`;
+        bindDatePreview("secExpDate", "secExpDatePreview");
+        if (window.appState.handlers.bindSectionExpenseAdd) {
+          window.appState.handlers.bindSectionExpenseAdd();
+        }
+        return;
+      }
+
+      if (sectionKey === "funds_members") {
+        entryArea.innerHTML = `
+          <div class="entry-box">
+            <h4>${window.t("admH2")}</h4>
+            <div class="field">
+              <label>${window.t("lblFundMember")}</label>
+              <select id="fundMemberSelect"></select>
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundDate")}</label>
+              <input id="fundDate" type="date" class="date-ltr" value="${todayISO()}" />
+              <div id="fundDatePreview" class="date-preview"></div>
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundAmount")}</label>
+              <input id="fundAmount" type="number" placeholder="5000" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundPurpose")}</label>
+              <input id="fundPurpose" type="text" placeholder="مثلاً ماہانہ چندہ / محفلِ میلاد / لنگر" />
+            </div>
+            <button type="button" id="addFundBtn" class="btn btn-primary">${window.t("addFundBtn")}</button>
+          </div>`;
+        bindDatePreview("fundDate", "fundDatePreview");
+        if (window.appState.handlers.bindSectionFundAdd) {
+          window.appState.handlers.bindSectionFundAdd();
+        }
+        return;
+      }
+
+      entryArea.innerHTML = "";
+    };
+
     window.renderRoleMenu = () => {
       const u = window.appState.currentUser;
       if (!u) return;
@@ -653,8 +646,8 @@
       const menu = el("roleMenu");
       menu.innerHTML = "";
 
-      if (!window.appState.activeSection && sections.length > 0) {
-        window.appState.activeSection = sections[0].key;
+      if (!sections.some((s) => s.key === window.appState.activeSection)) {
+        window.appState.activeSection = sections[0] ? sections[0].key : null;
       }
 
       sections.forEach((sec) => {
@@ -665,14 +658,11 @@
         btn.addEventListener("click", () => {
           window.appState.activeSection = sec.key;
           window.renderRoleMenu();
-          if (window.appState.handlers.selectSection) {
-            window.appState.handlers.selectSection(sec.key);
-          } else {
-            el("contentArea").innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
-          }
         });
         menu.appendChild(btn);
       });
+
+      window.renderAdminSectionEntry(window.appState.activeSection);
 
       if (window.appState.handlers.selectSection && window.appState.activeSection) {
         window.appState.handlers.selectSection(window.appState.activeSection);
@@ -684,19 +674,11 @@
     window.openPortal = () => {
       const u = window.appState.currentUser;
       if (!u) return;
-      setDefaultDates();
       window.applySelectionRestriction();
       el("authCard").style.display = "none";
       el("portalCard").style.display = "block";
       window.updatePortalHeader();
-
-      const isAdmin = u.role === "admin";
-      el("adminControls").style.display = isAdmin ? "block" : "none";
       window.renderRoleMenu();
-
-      if (isAdmin && window.appState.handlers.onAdminOpen) {
-        window.appState.handlers.onAdminOpen();
-      }
     };
 
     window.applyTranslations = () => {
@@ -727,40 +709,9 @@
       el("registerBtn").textContent = window.t("registerBtn");
       el("logoutBtn").textContent = window.t("logoutBtn");
 
-      el("admH1").textContent = window.t("admH1");
-      el("admH2").textContent = window.t("admH2");
-      el("lblFundMember").textContent = window.t("lblFundMember");
-      el("lblFundDate").textContent = window.t("lblFundDate");
-      el("lblFundAmount").textContent = window.t("lblFundAmount");
-      el("lblFundPurpose").textContent = window.t("lblFundPurpose");
-      el("addFundBtn").textContent = window.t("addFundBtn");
-      el("admFundsTableTitle").textContent = window.t("admFundsTableTitle");
-
-      el("admH3").textContent = window.t("admH3");
-      el("lblExpDate").textContent = window.t("lblExpDate");
-      el("lblExpTitle").textContent = window.t("lblExpTitle");
-      el("lblExpMedia").textContent = window.t("lblExpMedia");
-      el("addExpenseBtn").textContent = window.t("addExpenseBtn");
-
-      el("admH4").textContent = window.t("admH4");
-      el("admH5").textContent = window.t("admH5");
-      el("lblMediaCat").textContent = window.t("lblMediaCat");
-      el("optCatPhotos").textContent = window.t("catPhotos");
-      el("optCatVideos").textContent = window.t("catVideos");
-      el("optCatLangar").textContent = window.t("catLangar");
-      el("lblMediaDate").textContent = window.t("lblMediaDate");
-      el("lblMediaTitle").textContent = window.t("lblMediaTitle");
-      el("lblMediaUrl").textContent = window.t("lblMediaUrl");
-      el("addMediaBtn").textContent = window.t("addMediaBtn");
-
-      updateDatePreviews();
-
       if (window.appState.currentUser) {
         window.updatePortalHeader();
         window.renderRoleMenu();
-        if (window.appState.currentUser.role === "admin" && window.appState.handlers.onAdminOpen) {
-          window.appState.handlers.onAdminOpen();
-        }
       }
     };
 
@@ -844,7 +795,8 @@
       window.appState.activeSection = null;
       window.applySelectionRestriction();
       el("portalCard").style.display = "none";
-      el("adminControls").style.display = "none";
+      el("adminEntryArea").style.display = "none";
+      el("adminEntryArea").innerHTML = "";
       el("authCard").style.display = "block";
       el("loginPass").value = "";
       el("multiAccountPicker").style.display = "none";
@@ -852,7 +804,6 @@
       el("authMsg").className = "msg";
     });
 
-    setDefaultDates();
     window.applySelectionRestriction();
   </script>
 
@@ -968,7 +919,7 @@
       `;
     }
 
-    async function renderFunds(area) {
+    async function renderMemberFunds(area) {
       const u = window.appState.currentUser;
       const q = query(collection(db, "funds"), where("memberPhone", "==", u.phone));
       const snap = await getDocs(q);
@@ -1073,15 +1024,16 @@
       bindDeleteButtons(area, "media", () => renderMediaSorted(area, category, title));
     }
 
-    async function loadPendingRequests() {
-      if (!db || !isAdminUser()) return;
+    async function renderApprovalsSection(area) {
       const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending_approval")));
-      const box = el("pendingRequestsList");
       if (snap.empty) {
-        box.innerHTML = `<div class='item-box'>${window.t("noPending")}</div>`;
+        area.innerHTML = `<h4>${window.t("admH1")}</h4><div class='item-box'>${window.t("noPending")}</div>`;
         return;
       }
-      box.innerHTML = "";
+
+      area.innerHTML = `<h4>${window.t("admH1")}</h4><div id="pendingRequestsList"></div>`;
+      const box = el("pendingRequestsList");
+
       snap.forEach((d) => {
         const u = d.data();
         const div = document.createElement("div");
@@ -1099,25 +1051,22 @@
       box.querySelectorAll(".btn-approve").forEach((b) => {
         b.addEventListener("click", async () => {
           await updateDoc(doc(db, "users", b.dataset.id), { status: "active" });
-          await loadPendingRequests();
-          await loadMembersForFunds();
-          await loadAllMembersManager();
+          await renderApprovalsSection(area);
         });
       });
 
       box.querySelectorAll(".btn-reject").forEach((b) => {
         b.addEventListener("click", async () => {
           await updateDoc(doc(db, "users", b.dataset.id), { status: "rejected" });
-          await loadPendingRequests();
-          await loadAllMembersManager();
+          await renderApprovalsSection(area);
         });
       });
     }
 
-    async function loadMembersForFunds() {
-      if (!db) return;
-      const snap = await getDocs(collection(db, "users"));
+    async function populateMemberDropdown() {
       const sel = el("fundMemberSelect");
+      if (!db || !sel) return;
+      const snap = await getDocs(collection(db, "users"));
       sel.innerHTML = "";
       memberNamesMap = {};
       snap.forEach((d) => {
@@ -1132,23 +1081,58 @@
       });
     }
 
-    async function loadAllMembersManager() {
-      if (!db || !isAdminUser()) return;
-      const wrap = el("adminMembersListWrap");
-      if (!wrap) return;
-      const snap = await getDocs(collection(db, "users"));
+    async function renderFundsAndMembersDetails(area) {
+      const usersSnap = await getDocs(collection(db, "users"));
+      memberNamesMap = {};
       const members = [];
-      snap.forEach((d) => {
+      usersSnap.forEach((d) => {
         const u = d.data();
+        memberNamesMap[u.phone] = u.name;
         if (u.phone !== BUILT_IN_ADMIN.phone) {
           members.push({ id: d.id, ...u });
         }
       });
 
-      if (!members.length) {
-        wrap.innerHTML = `<div class='item-box'>${window.t("noMembersFound")}</div>`;
-        return;
-      }
+      const fundsSnap = await getDocs(collection(db, "funds"));
+      const fundItems = [];
+      fundsSnap.forEach((d) => fundItems.push(window.normalizeFundRecord({ id: d.id, ...d.data() })));
+      fundItems.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+
+      const fundsHtml = !fundItems.length
+        ? `<div class='item-box'>${window.t("noFunds")}</div>`
+        : `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>${window.t("colDate")}</th>
+                  <th>${window.t("colMember")}</th>
+                  <th>${window.t("colAmount")}</th>
+                  <th>${window.t("colPurpose")}</th>
+                  <th>${window.t("colActions")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${fundItems.map((f) => {
+                  const mName = memberNamesMap[f.memberPhone] || f.memberPhone || "-";
+                  return `
+                    <tr>
+                      <td>${window.formatDDMMYYYY(f.date)}</td>
+                      <td>${mName}</td>
+                      <td>${Number(f.amount || 0)}</td>
+                      <td>${f.purpose || "-"}</td>
+                      <td>
+                        <div class="row-actions" style="margin-top:0;">
+                          <button type="button" class="btn btn-sm btn-edit" data-edit-id="${f.id}">${window.t("editBtn")}</button>
+                          <button type="button" class="btn btn-sm btn-danger" data-del-id="${f.id}">${window.t("deleteBtn")}</button>
+                        </div>
+                      </td>
+                    </tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+          <div id="fundEditPanel" class="edit-box" style="display:none;"></div>`;
 
       const roleText = (r) => r === "abroad"
         ? window.t("roleAbroadLabel")
@@ -1162,105 +1146,49 @@
           ? window.t("statusPending")
           : window.t("statusRejected");
 
-      const rows = members.map((m) => `
-        <tr>
-          <td><strong>${m.name || "-"}</strong></td>
-          <td dir="ltr">${m.phone || "-"}</td>
-          <td>${roleText(m.role)}</td>
-          <td>${statusText(m.status)}</td>
-          <td>
-            <button type="button" class="btn btn-sm btn-danger" data-remove-user-id="${m.id}" data-remove-user-name="${(m.name || m.phone || "").replace(/"/g, "&quot;")}">${window.t("removeMemberBtn")}</button>
-          </td>
-        </tr>
-      `).join("");
+      const membersHtml = !members.length
+        ? `<div class='item-box'>${window.t("noMembersFound")}</div>`
+        : `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>${window.t("colMember")}</th>
+                  <th>${window.t("colPhone")}</th>
+                  <th>${window.t("colRole")}</th>
+                  <th>${window.t("colStatus")}</th>
+                  <th>${window.t("colActions")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${members.map((m) => `
+                  <tr>
+                    <td><strong>${m.name || "-"}</strong></td>
+                    <td dir="ltr">${m.phone || "-"}</td>
+                    <td>${roleText(m.role)}</td>
+                    <td>${statusText(m.status)}</td>
+                    <td>
+                      <button type="button" class="btn btn-sm btn-danger" data-remove-user-id="${m.id}" data-remove-user-name="${(m.name || m.phone || "").replace(/"/g, "&quot;")}">${window.t("removeMemberBtn")}</button>
+                    </td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>`;
 
-      wrap.innerHTML = `
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>${window.t("colMember")}</th>
-                <th>${window.t("colPhone")}</th>
-                <th>${window.t("colRole")}</th>
-                <th>${window.t("colStatus")}</th>
-                <th>${window.t("colActions")}</th>
-              </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>
+      area.innerHTML = `
+        <div>
+          <h4>${window.t("admFundsTableTitle")}</h4>
+          ${fundsHtml}
+        </div>
+        <div class="sub-section">
+          <h4>${window.t("admH5")}</h4>
+          ${membersHtml}
         </div>`;
 
-      wrap.querySelectorAll("[data-remove-user-id]").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const userName = btn.dataset.removeUserName;
-          if (!confirm(window.t("confirmRemoveMember", { name: userName }))) return;
-          btn.disabled = true;
-          try {
-            await deleteDoc(doc(db, "users", btn.dataset.removeUserId));
-            window.showAdminMsg(window.t("memberRemovedMsg"), "success");
-            await loadPendingRequests();
-            await loadMembersForFunds();
-            await loadAdminFundsTable();
-            await loadAllMembersManager();
-          } catch (err) {
-            btn.disabled = false;
-            window.showAdminMsg(err && err.message ? err.message : "Error", "error");
-          }
-        });
-      });
-    }
-
-    async function loadAdminFundsTable() {
-      if (!db || !isAdminUser()) return;
-      const wrap = el("adminFundsTableWrap");
-      const snap = await getDocs(collection(db, "funds"));
-      if (snap.empty) {
-        wrap.innerHTML = `<div class='item-box'>${window.t("noFunds")}</div>`;
-        return;
-      }
-
-      const items = [];
-      snap.forEach((d) => items.push(window.normalizeFundRecord({ id: d.id, ...d.data() })));
-      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
-
-      const rows = items.map((f) => {
-        const mName = memberNamesMap[f.memberPhone] || f.memberPhone || "-";
-        const purposeText = f.purpose || "-";
-        return `
-          <tr>
-            <td>${window.formatDDMMYYYY(f.date)}</td>
-            <td>${mName}</td>
-            <td>${Number(f.amount || 0)}</td>
-            <td>${purposeText}</td>
-            <td>
-              <div class="row-actions" style="margin-top:0;">
-                <button type="button" class="btn btn-sm btn-edit" data-edit-id="${f.id}">${window.t("editBtn")}</button>
-                <button type="button" class="btn btn-sm btn-danger" data-del-id="${f.id}">${window.t("deleteBtn")}</button>
-              </div>
-            </td>
-          </tr>`;
-      }).join("");
-
-      wrap.innerHTML = `
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>${window.t("colDate")}</th>
-                <th>${window.t("colMember")}</th>
-                <th>${window.t("colAmount")}</th>
-                <th>${window.t("colPurpose")}</th>
-                <th>${window.t("colActions")}</th>
-              </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>
-        </div>
-        <div id="fundEditPanel" class="edit-box" style="display:none;"></div>`;
-
-      wrap.querySelectorAll("[data-edit-id]").forEach((btn) => {
+      area.querySelectorAll("[data-edit-id]").forEach((btn) => {
         btn.addEventListener("click", () => {
-          const item = items.find((x) => x.id === btn.dataset.editId);
+          const item = fundItems.find((x) => x.id === btn.dataset.editId);
           if (!item) return;
           const panel = el("fundEditPanel");
           panel.style.display = "block";
@@ -1296,28 +1224,117 @@
               amount: nextAmount,
               purpose: nextPurpose
             });
-            panel.style.display = "none";
             window.showAdminMsg(window.appState.lang === "en" ? "Fund updated." : "فنڈ کی انٹری اپ ڈیٹ ہو گئی۔", "success");
-            await loadAdminFundsTable();
-            if (window.appState.activeSection === "funds") {
-              window.appState.handlers.selectSection("funds");
-            }
+            await renderFundsAndMembersDetails(area);
           });
         });
       });
 
-      wrap.querySelectorAll("[data-del-id]").forEach((btn) => {
+      area.querySelectorAll("[data-del-id]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           if (!confirm(window.t("confirmDelete"))) return;
           await deleteDoc(doc(db, "funds", btn.dataset.delId));
           window.showAdminMsg(window.t("deletedMsg"), "success");
-          await loadAdminFundsTable();
-          if (window.appState.activeSection === "funds") {
-            window.appState.handlers.selectSection("funds");
+          await renderFundsAndMembersDetails(area);
+        });
+      });
+
+      area.querySelectorAll("[data-remove-user-id]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const userName = btn.dataset.removeUserName;
+          if (!confirm(window.t("confirmRemoveMember", { name: userName }))) return;
+          btn.disabled = true;
+          try {
+            await deleteDoc(doc(db, "users", btn.dataset.removeUserId));
+            window.showAdminMsg(window.t("memberRemovedMsg"), "success");
+            await populateMemberDropdown();
+            await renderFundsAndMembersDetails(area);
+          } catch (err) {
+            btn.disabled = false;
+            window.showAdminMsg(err && err.message ? err.message : "Error", "error");
           }
         });
       });
     }
+
+    window.appState.handlers.bindSectionMediaAdd = (category) => {
+      const btn = el("secAddMediaBtn");
+      if (!btn) return;
+      btn.addEventListener("click", async () => {
+        const l = window.appState.lang;
+        if (!db) return;
+        const date = el("secMediaDate").value;
+        const title = el("secMediaTitle").value.trim();
+        let src = el("secMediaUrl").value.trim();
+        const fileInp = el("secMediaFile");
+        const file = fileInp && fileInp.files ? fileInp.files[0] : null;
+        if (file && category !== "videos") src = await fileToDataUrl(file);
+        if (!date || !title || !src) {
+          return window.showAdminMsg(l === "en" ? "Select date and enter title and link/photo." : "تاریخ منتخب کریں اور عنوان و لنک/تصویر درج کریں۔", "error");
+        }
+
+        await addDoc(collection(db, "media"), { category, date, title, src, createdAt: serverTimestamp() });
+        el("secMediaTitle").value = "";
+        el("secMediaUrl").value = "";
+        if (fileInp) fileInp.value = "";
+        window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
+        await window.appState.handlers.selectSection(category);
+      });
+    };
+
+    window.appState.handlers.bindSectionExpenseAdd = () => {
+      const btn = el("secAddExpBtn");
+      if (!btn) return;
+      btn.addEventListener("click", async () => {
+        const l = window.appState.lang;
+        if (!db) return;
+        const date = el("secExpDate").value;
+        const title = el("secExpTitle").value.trim();
+        let src = el("secExpUrl").value.trim();
+        const file = el("secExpFile").files[0];
+        if (file) src = await fileToDataUrl(file);
+        if (!date || !title || !src) {
+          return window.showAdminMsg(l === "en" ? "Select date and enter title and photo URL or file." : "تاریخ منتخب کریں اور عنوان و تصویر درج کریں۔", "error");
+        }
+
+        await addDoc(collection(db, "expenses"), { date, title, src, createdAt: serverTimestamp() });
+        el("secExpTitle").value = "";
+        el("secExpUrl").value = "";
+        el("secExpFile").value = "";
+        window.showAdminMsg(l === "en" ? "Expense photo saved." : "اخراجات کی تصویر محفوظ ہو گئی۔", "success");
+        await window.appState.handlers.selectSection("expenses");
+      });
+    };
+
+    window.appState.handlers.bindSectionFundAdd = () => {
+      populateMemberDropdown().catch((e) => window.showAdminMsg(e.message, "error"));
+      const btn = el("addFundBtn");
+      if (!btn) return;
+      btn.addEventListener("click", async () => {
+        const l = window.appState.lang;
+        if (!db) return;
+        const memberPhone = el("fundMemberSelect").value;
+        const date = el("fundDate").value;
+        const amount = Number(el("fundAmount").value);
+        const purpose = el("fundPurpose").value.trim();
+
+        if (!memberPhone || !date || !amount) {
+          return window.showAdminMsg(l === "en" ? "Select member, date, and amount." : "ممبر، تاریخ اور رقم درج کریں۔", "error");
+        }
+
+        await addDoc(collection(db, "funds"), {
+          memberPhone,
+          date,
+          amount,
+          purpose,
+          createdAt: serverTimestamp()
+        });
+        el("fundAmount").value = "";
+        el("fundPurpose").value = "";
+        window.showAdminMsg(l === "en" ? "Fund record saved." : "فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
+        await renderFundsAndMembersDetails(el("contentArea"));
+      });
+    };
 
     window.appState.handlers.selectSection = async (sectionKey) => {
       const area = el("contentArea");
@@ -1327,21 +1344,16 @@
         return;
       }
       try {
-        if (sectionKey === "funds") await renderFunds(area);
+        if (sectionKey === "funds") await renderMemberFunds(area);
         else if (sectionKey === "expenses") await renderImageList(area, "expenses", window.t("expensesTitle"));
         else if (sectionKey === "langar") await renderImageList(area, "langar", window.t("langarTitle"));
         else if (sectionKey === "photos") await renderMediaSorted(area, "photos", window.t("photosTitle"));
         else if (sectionKey === "videos") await renderMediaSorted(area, "videos", window.t("videosTitle"));
+        else if (sectionKey === "funds_members") await renderFundsAndMembersDetails(area);
+        else if (sectionKey === "approvals") await renderApprovalsSection(area);
       } catch (err) {
         area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error"}</div>`;
       }
-    };
-
-    window.appState.handlers.onAdminOpen = () => {
-      loadPendingRequests().catch((e) => window.showAdminMsg(e.message, "error"));
-      loadMembersForFunds()
-        .then(() => Promise.all([loadAdminFundsTable(), loadAllMembersManager()]))
-        .catch((e) => window.showAdminMsg(e.message, "error"));
     };
 
     window.appState.handlers.loginUser = async (phone, password, selectedDocId = "") => {
@@ -1451,73 +1463,6 @@
       } finally {
         el("registerBtn").disabled = false;
       }
-    });
-
-    el("addFundBtn").addEventListener("click", async () => {
-      const l = window.appState.lang;
-      if (!db) return;
-      const memberPhone = el("fundMemberSelect").value;
-      const date = el("fundDate").value;
-      const amount = Number(el("fundAmount").value);
-      const purpose = el("fundPurpose").value.trim();
-
-      if (!memberPhone || !date || !amount) {
-        return window.showAdminMsg(l === "en" ? "Select member, date, and amount." : "ممبر، تاریخ اور رقم درج کریں۔", "error");
-      }
-
-      await addDoc(collection(db, "funds"), {
-        memberPhone,
-        date,
-        amount,
-        purpose,
-        createdAt: serverTimestamp()
-      });
-      el("fundAmount").value = "";
-      el("fundPurpose").value = "";
-      window.showAdminMsg(l === "en" ? "Fund record saved." : "فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
-      await loadAdminFundsTable();
-      if (window.appState.activeSection === "funds") window.appState.handlers.selectSection("funds");
-    });
-
-    el("addExpenseBtn").addEventListener("click", async () => {
-      const l = window.appState.lang;
-      if (!db) return;
-      const date = el("expenseDate").value;
-      const title = el("expenseTitle").value.trim();
-      let src = el("expenseUrl").value.trim();
-      const file = el("expenseFile").files[0];
-      if (file) src = await fileToDataUrl(file);
-      if (!date || !title || !src) {
-        return window.showAdminMsg(l === "en" ? "Select date and enter title and photo URL or file." : "تاریخ منتخب کریں اور عنوان و تصویر درج کریں۔", "error");
-      }
-
-      await addDoc(collection(db, "expenses"), { date, title, src, createdAt: serverTimestamp() });
-      el("expenseTitle").value = "";
-      el("expenseUrl").value = "";
-      el("expenseFile").value = "";
-      window.showAdminMsg(l === "en" ? "Expense photo saved." : "اخراجات کی تصویر محفوظ ہو گئی۔", "success");
-      if (window.appState.activeSection === "expenses") window.appState.handlers.selectSection("expenses");
-    });
-
-    el("addMediaBtn").addEventListener("click", async () => {
-      const l = window.appState.lang;
-      if (!db) return;
-      const category = el("mediaCategory").value;
-      const date = el("mediaDate").value;
-      const title = el("mediaTitle").value.trim();
-      let src = el("mediaUrl").value.trim();
-      const file = el("mediaFile").files[0];
-      if (file && category !== "videos") src = await fileToDataUrl(file);
-      if (!date || !title || !src) {
-        return window.showAdminMsg(l === "en" ? "Select date and enter title and link/photo." : "تاریخ منتخب کریں اور عنوان و لنک/تصویر درج کریں۔", "error");
-      }
-
-      await addDoc(collection(db, "media"), { category, date, title, src, createdAt: serverTimestamp() });
-      el("mediaTitle").value = "";
-      el("mediaUrl").value = "";
-      el("mediaFile").value = "";
-      window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
-      if (window.appState.activeSection === category) window.appState.handlers.selectSection(category);
     });
   </script>
 </body>

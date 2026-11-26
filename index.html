@@ -375,7 +375,7 @@
         secApprovals: "زیرِ التوا درخواستیں",
         secMahafil: "محافل",
         secInformation: "معلومات",
-        secComplaints: "کمپلینٹس",
+        secComplaints: "شکایات",
         secProfile: "پروفائل",
         roleAdminLabel: "ایڈمن",
         rolePublicLabel: "عام عوام",
@@ -461,14 +461,14 @@
         passChangedMsg: "پاس ورڈ کامیابی سے تبدیل ہو گیا۔",
         wrongCurrentPass: "موجودہ پاس ورڈ غلط ہے۔",
         passMismatch: "دونوں پاس ورڈ ایک جیسے نہیں ہیں۔",
-        complaintSectionTitle: "کمپلینٹ درج کریں",
-        lblComplaintSubject: "کمپلینٹ کا موضوع",
-        lblComplaintMsg: "کمپلینٹ کی تفصیل",
-        submitComplaintBtn: "کمپلینٹ بھیجیں",
-        complaintSubmittedMsg: "آپ کی کمپلینٹ ایڈمن کو بھیج دی گئی ہے۔",
-        myComplaintsTitle: "میری کمپلینٹس اور ایڈمن کا جواب",
-        allComplaintsTitle: "ممبران کی کمپلینٹس",
-        noComplaints: "ابھی کوئی کمپلینٹ موجود نہیں ہے۔",
+        complaintSectionTitle: "شکایت درج کریں",
+        lblComplaintSubject: "شکایت کا موضوع",
+        lblComplaintMsg: "شکایت کی تفصیل",
+        submitComplaintBtn: "شکایت بھیجیں",
+        complaintSubmittedMsg: "آپ کی شکایت ایڈمن کو بھیج دی گئی ہے۔",
+        myComplaintsTitle: "میری شکایات اور ایڈمن کا جواب",
+        allComplaintsTitle: "ممبران کی شکایات",
+        noComplaints: "ابھی کوئی شکایت موجود نہیں ہے۔",
         lblAdminReply: "ایڈمن کا جواب",
         saveReplyBtn: "جواب محفوظ کریں",
         replySavedMsg: "جواب محفوظ ہو گیا۔",
@@ -2669,7 +2669,7 @@
           const message = el("compMsg").value.trim();
           if (!subject || !message) {
             return window.showAdminMsg(
-              l === "en" ? "Please enter subject and complaint details." : "براہِ کرم موضوع اور کمپلینٹ کی تفصیل لکھیں۔",
+              l === "en" ? "Please enter subject and complaint details." : "براہِ کرم موضوع اور شکایت کی تفصیل لکھیں۔",
               "error"
             );
           }

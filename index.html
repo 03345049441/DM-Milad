@@ -504,14 +504,28 @@
     window.formatDDMMYYYY = (rawDate) => {
       const p = parseDateParts(rawDate);
       if (p) {
-        return `<span dir="ltr">${p.dd}/${p.mm}/${p.yyyy}</span>`;
-      }
-      return rawDate ? `<span dir="ltr">${rawDate}</span>` : `<span dir="ltr">-</span>`;
-    };
-
-    window.dateSortValue = (item) => {
-      if (typeof item._ts === "number" && item._ts > 0) return item._ts;
-      const p = parseDateParts(item && (item.date || item.folder));
+function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            const maxW = 1000;
+            const scale = img.width > maxW ? maxW / img.width : 1;
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL("image/jpeg", 0.72));
+          };
+          img.onerror = () => resolve(reader.result);
+          img.src = reader.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
       if (p && !Number.isNaN(p.ts)) return p.ts;
       if (item && item.createdAt && typeof item.createdAt.toMillis === "function") {
         return item.createdAt.toMillis();
@@ -737,28 +751,50 @@
         entryArea.innerHTML = `
           <div class="entry-box">
             <h4>${window.t("admH2")}</h4>
-            <div class="field">
-              <label>${window.t("lblFundMember")}</label>
-              <select id="fundMemberSelect"></select>
-            </div>
-            <div class="field">
-              <label>${window.t("lblFundDate")}</label>
-              <input id="fundDate" type="date" class="date-ltr" value="${todayISO()}" />
-              <div id="fundDatePreview" class="date-preview"></div>
-            </div>
-            <div class="field">
-              <label>${window.t("lblFundAmount")}</label>
-              <input id="fundAmount" type="number" placeholder="5000" />
-            </div>
-            <div class="field">
-              <label>${window.t("lblFundPurpose")}</label>
-              <select id="fundPurpose">${window.buildPurposeOptionsHtml("", true)}</select>
-            </div>
-            <button type="button" id="addFundBtn" class="btn btn-primary">${window.t("addFundBtn")}</button>
-          </div>`;
-        bindDatePreview("fundDate", "fundDatePreview");
-        if (window.appState.handlers.bindSectionFundAdd) {
-          window.appState.handlers.bindSectionFundAdd();
+window.appState.handlers.bindSectionMediaAdd = (category) => {
+      const btn = el("secAddMediaBtn");
+      if (!btn) return;
+      btn.addEventListener("click", async () => {
+        if (!isAdminUser()) {
+          return window.showAdminMsg(window.t("adminOnlyActionError"), "error");
+        }
+        const l = window.appState.lang;
+        if (!db) {
+          return window.showAdminMsg(l === "en" ? "Database not connected." : "ڈیٹا بیس کنیکٹ نہیں ہے۔", "error");
+        }
+
+        btn.disabled = true;
+        try {
+          const date = el("secMediaDate").value;
+          const title = el("secMediaTitle").value.trim();
+          let src = el("secMediaUrl").value.trim();
+          const fileInp = el("secMediaFile");
+          const file = fileInp && fileInp.files ? fileInp.files[0] : null;
+          if (file && category !== "videos") src = await fileToDataUrl(file);
+
+          if (!date || !title || !src) {
+            return window.showAdminMsg(
+              l === "en" ? "Select date and enter title and link/photo." : "تاریخ منتخب کریں اور عنوان و لنک/تصویر درج کریں۔",
+              "error"
+            );
+          }
+
+          await addDoc(collection(db, "media"), { category, date, title, src, createdAt: serverTimestamp() });
+          el("secMediaTitle").value = "";
+          el("secMediaUrl").value = "";
+          if (fileInp) fileInp.value = "";
+          window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
+          await window.appState.handlers.selectSection(category);
+        } catch (err) {
+          window.showAdminMsg(
+            (l === "en" ? "Save failed: " : "محفوظ نہیں ہو سکا: ") + (err && err.message ? err.message : err),
+            "error"
+          );
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    };
         }
         return;
       }

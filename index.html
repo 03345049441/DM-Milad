@@ -528,7 +528,33 @@
     };
 
     window.onerror = (msg, src, line) => {
-      window.showAuthMsg(`Error: ${msg} (Line ${line \vert{}\vert{} "?"})`, "error"); };  window.applySelectionRestriction = () => { const isAdmin = Boolean(window.appState.currentUser && window.appState.currentUser.role === "admin"); document.body.classList.toggle("admin-select", isAdmin); document.body.classList.toggle("no-select", !isAdmin); };  document.addEventListener("contextmenu", (e) => { if (!window.appState.currentUser \vert{}\vert{} window.appState.currentUser.role !== "admin") { e.preventDefault(); } });  document.addEventListener("copy", (e) => { if (!window.appState.currentUser \vert{}\vert{} window.appState.currentUser.role !== "admin") { e.preventDefault(); } });  function todayISO() { const d = new Date(); const yyyy = d.getFullYear(); const mm = String(d.getMonth() + 1).padStart(2, "0"); const dd = String(d.getDate()).padStart(2, "0"); return `${yyyy}-${mm}-${dd}`;
+      window.showAuthMsg(`Error: ${msg} (Line ${line || "?"})`, "error");
+    };
+
+    window.applySelectionRestriction = () => {
+      const isAdmin = Boolean(window.appState.currentUser && window.appState.currentUser.role === "admin");
+      document.body.classList.toggle("admin-select", isAdmin);
+      document.body.classList.toggle("no-select", !isAdmin);
+    };
+
+    document.addEventListener("contextmenu", (e) => {
+      if (!window.appState.currentUser || window.appState.currentUser.role !== "admin") {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener("copy", (e) => {
+      if (!window.appState.currentUser || window.appState.currentUser.role !== "admin") {
+        e.preventDefault();
+      }
+    });
+
+    function todayISO() {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
     }
 
     function parseDateParts(raw) {
@@ -541,7 +567,16 @@
         const mm = m[2].padStart(2, "0");
         const dd = m[3].padStart(2, "0");
         const ts = new Date(Number(yyyy), Number(mm) - 1, Number(dd)).getTime();
-        return { dd, mm, yyyy, ts, iso: `${yyyy}-${mm}-${dd}` }; }  m = str.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/); if (m) { const dd = m[1].padStart(2, "0"); const mm = m[2].padStart(2, "0"); const yyyy = m[3]; const ts = new Date(Number(yyyy), Number(mm) - 1, Number(dd)).getTime(); return { dd, mm, yyyy, ts, iso: `${yyyy}-${mm}-${dd}` };
+        return { dd, mm, yyyy, ts, iso: `${yyyy}-${mm}-${dd}` };
+      }
+
+      m = str.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+      if (m) {
+        const dd = m[1].padStart(2, "0");
+        const mm = m[2].padStart(2, "0");
+        const yyyy = m[3];
+        const ts = new Date(Number(yyyy), Number(mm) - 1, Number(dd)).getTime();
+        return { dd, mm, yyyy, ts, iso: `${yyyy}-${mm}-${dd}` };
       }
 
       return null;
@@ -629,7 +664,104 @@
       if (!u) return "";
       const driveMatch = u.match(/drive\.google\.com\/file\/d\/([^/]+)/);
       if (driveMatch && driveMatch[1]) {
-        return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`; } return u; };  window.isSafeExternalUrl = (rawUrl) => { const u = String(rawUrl \vert{}\vert{} "").trim(); return /^https?:\/\//i.test(u); };  function bindDatePreview(inputId, previewId) { const inp = el(inputId); const prev = el(previewId); if (!inp \vert{}\vert{} !prev) return; if (!inp.value) inp.value = todayISO(); const refreshPrev = () => { prev.innerHTML = `${window.t("selectedDatePrefix")}${window.formatDDMMYYYY(inp.value)}`; }; refreshPrev(); inp.addEventListener("change", refreshPrev); inp.addEventListener("input", refreshPrev); }  function readSavedLang() { try { const saved = localStorage.getItem(LANG_STORAGE_KEY); if (saved === "ur" \vert{}\vert{} saved === "en") return saved; } catch (e) {} return "en"; }  function saveLang(lang) { try { localStorage.setItem(LANG_STORAGE_KEY, lang); } catch (e) {} }  function loadPinsMap() { try { const raw = localStorage.getItem(QUICK_PIN_STORAGE_KEY); return raw ? JSON.parse(raw) : {}; } catch (e) { return {}; } }  function savePinForPhone(phone, pin) { try { const map = loadPinsMap(); map[phone] = pin; localStorage.setItem(QUICK_PIN_STORAGE_KEY, JSON.stringify(map)); } catch (e) {} }  function getPinForPhone(phone) { const map = loadPinsMap(); return map && map[phone] ? String(map[phone]) : ""; }  window.appState = { currentUser: null, activeSection: null, activeMemberGroup: "management", lang: readSavedLang(), dbReady: false, handlers: {} };  window.saveUserSession = (user) => { try { if (user) { localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ phone: user.phone \vert{}\vert{} "", name: user.name \vert{}\vert{} "", role: user.role \vert{}\vert{} "", status: user.status \vert{}\vert{} "" })); } else { localStorage.removeItem(SESSION_STORAGE_KEY); } } catch (e) {} };  window.loadSavedSession = () => { try { const raw = localStorage.getItem(SESSION_STORAGE_KEY); if (!raw) return null; const parsed = JSON.parse(raw); if (parsed && parsed.phone && parsed.role) return parsed; } catch (e) {} return null; };  window.t = (key, vars = {}) => { const l = window.appState.lang \vert{}\vert{} "en"; let str = (I18N[l] && I18N[l][key]) \vert{}\vert{} I18N.en[key] \vert{}\vert{} key; Object.entries(vars).forEach(([k, v]) => { str = str.replace(`{${k}}`, v);
+        return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+      }
+      return u;
+    };
+
+    window.isSafeExternalUrl = (rawUrl) => {
+      const u = String(rawUrl || "").trim();
+      return /^https?:\/\//i.test(u);
+    };
+
+    function bindDatePreview(inputId, previewId) {
+      const inp = el(inputId);
+      const prev = el(previewId);
+      if (!inp || !prev) return;
+      if (!inp.value) inp.value = todayISO();
+      const refreshPrev = () => {
+        prev.innerHTML = `${window.t("selectedDatePrefix")}${window.formatDDMMYYYY(inp.value)}`;
+      };
+      refreshPrev();
+      inp.addEventListener("change", refreshPrev);
+      inp.addEventListener("input", refreshPrev);
+    }
+
+    function readSavedLang() {
+      try {
+        const saved = localStorage.getItem(LANG_STORAGE_KEY);
+        if (saved === "ur" || saved === "en") return saved;
+      } catch (e) {}
+      return "en";
+    }
+
+    function saveLang(lang) {
+      try {
+        localStorage.setItem(LANG_STORAGE_KEY, lang);
+      } catch (e) {}
+    }
+
+    function loadPinsMap() {
+      try {
+        const raw = localStorage.getItem(QUICK_PIN_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function savePinForPhone(phone, pin) {
+      try {
+        const map = loadPinsMap();
+        map[phone] = pin;
+        localStorage.setItem(QUICK_PIN_STORAGE_KEY, JSON.stringify(map));
+      } catch (e) {}
+    }
+
+    function getPinForPhone(phone) {
+      const map = loadPinsMap();
+      return map && map[phone] ? String(map[phone]) : "";
+    }
+
+    window.appState = {
+      currentUser: null,
+      activeSection: null,
+      activeMemberGroup: "management",
+      lang: readSavedLang(),
+      dbReady: false,
+      handlers: {}
+    };
+
+    window.saveUserSession = (user) => {
+      try {
+        if (user) {
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({
+            phone: user.phone || "",
+            name: user.name || "",
+            role: user.role || "",
+            status: user.status || ""
+          }));
+        } else {
+          localStorage.removeItem(SESSION_STORAGE_KEY);
+        }
+      } catch (e) {}
+    };
+
+    window.loadSavedSession = () => {
+      try {
+        const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.phone && parsed.role) return parsed;
+      } catch (e) {}
+      return null;
+    };
+
+    window.t = (key, vars = {}) => {
+      const l = window.appState.lang || "en";
+      let str = (I18N[l] && I18N[l][key]) || I18N.en[key] || key;
+      Object.entries(vars).forEach(([k, v]) => {
+        str = str.replace(`{${k}}`, v);
       });
       return str;
     };
@@ -693,7 +825,7 @@
         management: window.t("roleMgmtLabel"),
         abroad: window.t("roleAbroadLabel")
       };
-      el("portalUserRole").textContent = `${roleMap[u.role] \vert{}\vert{} u.role} \vert{}${u.phone}`;
+      el("portalUserRole").textContent = `${roleMap[u.role] || u.role} | ${u.phone}`;
 
       const pinBox = el("quickPinSetupBox");
       if (pinBox) {
@@ -854,7 +986,398 @@
           if (fn && window.appState.activeSection === currentSec) {
             fn(currentSec);
           } else if (window.appState.activeSection === currentSec) {
-            el("contentArea").innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Please refresh or check connection." : "براہِ کرم صفحہ ریفریش کریں یا انٹرنیٹ چیک کریں۔"}</div>`; } }); } };  window.openPortal = () => { const u = window.appState.currentUser; if (!u) return; window.applySelectionRestriction(); el("authCard").style.display = "none"; el("portalCard").style.display = "block"; window.updatePortalHeader(); window.renderRoleMenu(); };  window.applyTranslations = () => { const l = window.appState.lang \vert{}\vert{} "en"; const isUr = l === "ur"; document.documentElement.lang = l; document.documentElement.dir = isUr ? "rtl" : "ltr"; document.body.dir = isUr ? "rtl" : "ltr";  el("appTitle").textContent = window.t("appHeading"); el("langBtn").textContent = window.t("toggleBtn"); el("portalLangBtn").textContent = window.t("toggleBtn"); el("tabLogin").textContent = window.t("tabLogin"); el("tabRegister").textContent = window.t("tabRegister"); el("lblLoginPhone").textContent = window.t("loginPhone"); el("lblLoginPass").textContent = window.t("loginPass"); if (el("lblLoginPin")) el("lblLoginPin").textContent = window.t("lblLoginPin"); if (el("lblQuickPinSetup")) el("lblQuickPinSetup").textContent = window.t("lblQuickPinSetup"); if (el("saveQuickPinBtn")) el("saveQuickPinBtn").textContent = window.t("saveQuickPinBtn"); if (el("pinLoginBtn")) el("pinLoginBtn").textContent = window.t("pinLoginBtn"); el("lblSelectAccountRole").textContent = window.t("lblSelectAccountRole"); el("loginBtn").textContent = window.t("loginBtn"); if (el("bioLoginBtn")) el("bioLoginBtn").textContent = window.t("bioLoginBtn");  el("lblRegName").textContent = window.t("regName"); el("lblRegPhone").textContent = window.t("regPhone"); el("lblRegPass").textContent = window.t("regPass"); el("lblRegRole").textContent = window.t("regRole"); el("optRoleSelect").textContent = window.t("roleSelect"); el("optRolePublic").textContent = window.t("rolePublic"); el("optRoleMgmt").textContent = window.t("roleMgmt"); el("optRoleAbroad").textContent = window.t("roleAbroad"); el("registerBtn").textContent = window.t("registerBtn"); el("logoutBtn").textContent = window.t("logoutBtn"); if (el("closeImgModalBtn")) el("closeImgModalBtn").textContent = window.t("closeBtn");  if (window.appState.currentUser) { window.updatePortalHeader(); window.renderRoleMenu(); } };  function toggleLanguage() { window.appState.lang = window.appState.lang === "ur" ? "en" : "ur"; saveLang(window.appState.lang); window.applyTranslations(); }  el("langBtn").addEventListener("click", toggleLanguage); el("portalLangBtn").addEventListener("click", toggleLanguage);  el("tabLogin").addEventListener("click", () => { el("tabLogin").classList.add("active"); el("tabRegister").classList.remove("active"); el("loginBox").style.display = "block"; el("registerForm").style.display = "none"; el("authMsg").className = "msg"; });  el("tabRegister").addEventListener("click", () => { el("tabRegister").classList.add("active"); el("tabLogin").classList.remove("active"); el("loginBox").style.display = "none"; el("registerForm").style.display = "block"; el("authMsg").className = "msg"; });  el("loginPhone").addEventListener("input", () => { el("multiAccountPicker").style.display = "none"; el("loginAccountSelect").innerHTML = ""; });  if (el("saveQuickPinBtn")) { el("saveQuickPinBtn").addEventListener("click", () => { const u = window.appState.currentUser; if (!u \vert{}\vert{} !u.phone \vert{}\vert{} u.role === "admin") return; const pinVal = String(el("quickPinInput").value \vert{}\vert{} "").trim(); if (!/^\d{4,8}$/.test(pinVal)) { return window.showAdminMsg(window.t("pinInvalidFormat"), "error"); } savePinForPhone(u.phone, pinVal); window.showAdminMsg(window.t("pinSaved"), "success"); }); }  if (el("pinLoginBtn")) { el("pinLoginBtn").addEventListener("click", async () => { const l = window.appState.lang; const phone = window.normalizePhone(el("loginPhone").value); if (!window.isValidPhone(phone)) { return window.showAuthMsg(l === "en" ? "Enter a valid phone number." : "درست فون نمبر لکھیں۔", "error"); } if (phone === BUILT_IN_ADMIN.phone) { return window.showAuthMsg(window.t("pinAdminBlocked"), "error"); }  const savedPin = getPinForPhone(phone); if (!savedPin) { if (el("pinLoginField")) el("pinLoginField").style.display = "block"; return window.showAuthMsg(window.t("pinNotSet"), "error"); }  const pinField = el("pinLoginField"); const pinInput = el("loginPin"); if (pinField && pinField.style.display === "none") { pinField.style.display = "block"; if (pinInput) pinInput.focus(); return; }  const enteredPin = pinInput ? String(pinInput.value \vert{}\vert{} "").trim() : ""; if (!/^\d{4,8}$/.test(enteredPin)) { return window.showAuthMsg(window.t("pinInvalidFormat"), "error"); } if (enteredPin !== savedPin) { return window.showAuthMsg(window.t("pinWrong"), "error"); }  if (window.appState.handlers.loginByPin) { await window.appState.handlers.loginByPin(phone); } else { window.showAuthMsg( l === "en" ? "Please check your internet connection and refresh the page." : "براہِ کرم انٹرنیٹ چیک کریں اور صفحہ ریفریش کریں۔", "error" ); } }); }  async function waitForLoginHandler(maxMs = 2500) { const start = Date.now(); while (!window.appState.handlers.loginUser && Date.now() - start < maxMs) { await new Promise((r) => setTimeout(r, 100)); } return window.appState.handlers.loginUser; }  el("loginBtn").addEventListener("click", async () => { const l = window.appState.lang; const phone = window.normalizePhone(el("loginPhone").value); const password = el("loginPass").value; const selectedDocId = el("multiAccountPicker").style.display !== "none" ? el("loginAccountSelect").value : "";  if (!window.isValidPhone(phone)) { return window.showAuthMsg(l === "en" ? "Enter a valid phone number." : "درست فون نمبر لکھیں۔", "error"); } if (!password) { return window.showAuthMsg(l === "en" ? "Enter your password." : "پاس ورڈ درج کریں۔", "error"); }  if (phone === BUILT_IN_ADMIN.phone) { if (password !== BUILT_IN_ADMIN.password) { return window.showAuthMsg(l === "en" ? "Invalid admin password." : "ایڈمن پاس ورڈ غلط ہے۔", "error"); } window.appState.currentUser = { phone: BUILT_IN_ADMIN.phone, name: BUILT_IN_ADMIN.name, role: "admin", status: "active" }; window.saveUserSession(window.appState.currentUser); window.openPortal(); return; }  const handler = await waitForLoginHandler(); if (handler) { await handler(phone, password, selectedDocId); } else { window.showAuthMsg( l === "en" ? "Please check your internet connection and refresh the page." : "براہِ کرم انٹرنیٹ چیک کریں اور صفحہ ریفریش کریں۔", "error" ); } });  function bytesToB64(buf) { const bytes = new Uint8Array(buf); let s = ""; for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]); return btoa(s); }  function b64ToBytes(b64) { const bin = atob(b64); const bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i); return bytes; }  function loadBioCred() { try { const raw = localStorage.getItem(BIO_CRED_STORAGE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }  function saveBioCred(obj) { try { localStorage.setItem(BIO_CRED_STORAGE_KEY, JSON.stringify(obj)); } catch (e) {} }  if (el("bioLoginBtn")) { el("bioLoginBtn").addEventListener("click", async () => { const l = window.appState.lang; if (!window.isSecureContext && location.hostname !== "localhost") { return window.showAuthMsg(window.t("bioNeedHttps"), "error"); } if (!window.PublicKeyCredential \vert{}\vert{} !navigator.credentials) { return window.showAuthMsg(window.t("bioNotSupported"), "error"); }  const savedBio = loadBioCred(); const inputPhone = window.normalizePhone(el("loginPhone").value); const inputPass = el("loginPass").value;  try { if (!savedBio) { if (!window.isValidPhone(inputPhone) \vert{}\vert{} !inputPass) { return window.showAuthMsg(window.t("bioEnterCredsFirst"), "error"); } const challenge = crypto.getRandomValues(new Uint8Array(32)); const userId = new TextEncoder().encode(inputPhone); const cred = await navigator.credentials.create({ publicKey: { challenge, rp: { name: "DM Milad", id: location.hostname }, user: { id: userId, name: inputPhone, displayName: inputPhone }, pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }], authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" }, timeout: 60000 } }); if (!cred) return window.showAuthMsg(window.t("bioFailed"), "error"); saveBioCred({ rawId: bytesToB64(cred.rawId), phone: inputPhone, password: inputPass }); window.showAuthMsg(window.t("bioEnrolledAndLoggedIn"), "success"); el("loginBtn").click(); return; }  const assertionChallenge = crypto.getRandomValues(new Uint8Array(32)); const assertion = await navigator.credentials.get({ publicKey: { challenge: assertionChallenge, rpId: location.hostname, allowCredentials: [{ id: b64ToBytes(savedBio.rawId), type: "public-key" }], userVerification: "required", timeout: 60000 } });  if (!assertion) return window.showAuthMsg(window.t("bioFailed"), "error");  el("loginPhone").value = savedBio.phone; el("loginPass").value = savedBio.password; el("loginBtn").click(); } catch (err) { window.showAuthMsg( (l === "en" ? "Fingerprint login unavailable/cancelled: " : "فنگر پرنٹ لاگ ان ممکن نہیں ہو سکا: ") + (err && err.message ? err.message : ""), "error" ); } }); }  el("logoutBtn").addEventListener("click", () => { window.saveUserSession(null); window.appState.currentUser = null; window.appState.activeSection = null; window.applySelectionRestriction(); el("portalCard").style.display = "none"; el("adminEntryArea").style.display = "none"; el("adminEntryArea").innerHTML = ""; el("authCard").style.display = "block"; el("loginPass").value = ""; if (el("loginPin")) el("loginPin").value = ""; el("multiAccountPicker").style.display = "none"; el("loginAccountSelect").innerHTML = ""; el("authMsg").className = "msg"; });  let ptrStartY = 0; let ptrPulling = false; const ptrBox = el("ptrIndicator");  function isOnMainPageTop() { const authVisible = el("authCard") && el("authCard").style.display !== "none"; const modalOpen = el("imgPreviewModal") && el("imgPreviewModal").classList.contains("open"); return authVisible && !modalOpen && (window.scrollY \vert{}\vert{} document.documentElement.scrollTop \vert{}\vert{} 0) <= 0; }  document.addEventListener("touchstart", (e) => { if (e.touches.length !== 1) return; if (isOnMainPageTop()) { ptrStartY = e.touches[0].clientY; ptrPulling = true; } else { ptrPulling = false; if (ptrBox) ptrBox.style.display = "none"; } }, { passive: true });  document.addEventListener("touchmove", (e) => { if (!ptrPulling \vert{}\vert{} e.touches.length !== 1) return; if (!isOnMainPageTop()) { ptrPulling = false; if (ptrBox) ptrBox.style.display = "none"; return; } const dy = e.touches[0].clientY - ptrStartY; if (dy > 12 && ptrBox) { ptrBox.style.display = "block"; ptrBox.textContent = dy > 95 ? window.t("releaseToRefreshMsg") : window.t("pullToRefreshMsg"); } }, { passive: true });  document.addEventListener("touchend", (e) => { if (!ptrPulling) return; ptrPulling = false; const endY = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : ptrStartY; const dy = endY - ptrStartY; if (ptrBox) ptrBox.style.display = "none"; if (dy > 95 && isOnMainPageTop()) { location.reload(); } });  const imgModal = el("imgPreviewModal"); const imgModalViewport = el("imgModalViewport"); const imgModalTag = el("imgPreviewTag"); const imgModalTitle = el("imgPreviewTitle"); const closeImgModalBtn = el("closeImgModalBtn");  let zoomScale = 1; let panX = 0; let panY = 0; let panStartX = 0; let panStartY = 0; let panBaseX = 0; let panBaseY = 0; let isOneFingerPanning = false; let pinchStartDist = 0; let pinchStartScale = 1; let lastTapTime = 0;  function clampPan() { if (zoomScale <= 1 \vert{}\vert{} !imgModalTag \vert{}\vert{} !imgModalViewport) { panX = 0; panY = 0; return; } const baseW = imgModalTag.offsetWidth \vert{}\vert{} imgModalViewport.clientWidth; const baseH = imgModalTag.offsetHeight \vert{}\vert{} imgModalViewport.clientHeight; const maxPanX = Math.max(40, ((baseW * zoomScale) - imgModalViewport.clientWidth) * 0.65); const maxPanY = Math.max(40, ((baseH * zoomScale) - imgModalViewport.clientHeight) * 0.65); panX = Math.min(maxPanX, Math.max(-maxPanX, panX)); panY = Math.min(maxPanY, Math.max(-maxPanY, panY)); }  function applyImageTransform() { if (!imgModalTag) return; if (zoomScale <= 1) { zoomScale = 1; panX = 0; panY = 0; imgModalTag.style.transformOrigin = "50\% 50\%"; imgModalTag.style.transform = "translate3d(0px, 0px, 0) scale(1)"; } else { clampPan(); imgModalTag.style.transform = `translate3d(${panX.toFixed(1)}px, ${panY.toFixed(1)}px, 0) scale(${zoomScale})`;
+            el("contentArea").innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Please refresh or check connection." : "براہِ کرم صفحہ ریفریش کریں یا انٹرنیٹ چیک کریں۔"}</div>`;
+          }
+        });
+      }
+    };
+
+    window.openPortal = () => {
+      const u = window.appState.currentUser;
+      if (!u) return;
+      window.applySelectionRestriction();
+      el("authCard").style.display = "none";
+      el("portalCard").style.display = "block";
+      window.updatePortalHeader();
+      window.renderRoleMenu();
+    };
+
+    window.applyTranslations = () => {
+      const l = window.appState.lang || "en";
+      const isUr = l === "ur";
+      document.documentElement.lang = l;
+      document.documentElement.dir = isUr ? "rtl" : "ltr";
+      document.body.dir = isUr ? "rtl" : "ltr";
+
+      el("appTitle").textContent = window.t("appHeading");
+      el("langBtn").textContent = window.t("toggleBtn");
+      el("portalLangBtn").textContent = window.t("toggleBtn");
+      el("tabLogin").textContent = window.t("tabLogin");
+      el("tabRegister").textContent = window.t("tabRegister");
+      el("lblLoginPhone").textContent = window.t("loginPhone");
+      el("lblLoginPass").textContent = window.t("loginPass");
+      if (el("lblLoginPin")) el("lblLoginPin").textContent = window.t("lblLoginPin");
+      if (el("lblQuickPinSetup")) el("lblQuickPinSetup").textContent = window.t("lblQuickPinSetup");
+      if (el("saveQuickPinBtn")) el("saveQuickPinBtn").textContent = window.t("saveQuickPinBtn");
+      if (el("pinLoginBtn")) el("pinLoginBtn").textContent = window.t("pinLoginBtn");
+      el("lblSelectAccountRole").textContent = window.t("lblSelectAccountRole");
+      el("loginBtn").textContent = window.t("loginBtn");
+      if (el("bioLoginBtn")) el("bioLoginBtn").textContent = window.t("bioLoginBtn");
+
+      el("lblRegName").textContent = window.t("regName");
+      el("lblRegPhone").textContent = window.t("regPhone");
+      el("lblRegPass").textContent = window.t("regPass");
+      el("lblRegRole").textContent = window.t("regRole");
+      el("optRoleSelect").textContent = window.t("roleSelect");
+      el("optRolePublic").textContent = window.t("rolePublic");
+      el("optRoleMgmt").textContent = window.t("roleMgmt");
+      el("optRoleAbroad").textContent = window.t("roleAbroad");
+      el("registerBtn").textContent = window.t("registerBtn");
+      el("logoutBtn").textContent = window.t("logoutBtn");
+      if (el("closeImgModalBtn")) el("closeImgModalBtn").textContent = window.t("closeBtn");
+
+      if (window.appState.currentUser) {
+        window.updatePortalHeader();
+        window.renderRoleMenu();
+      }
+    };
+
+    function toggleLanguage() {
+      window.appState.lang = window.appState.lang === "ur" ? "en" : "ur";
+      saveLang(window.appState.lang);
+      window.applyTranslations();
+    }
+
+    el("langBtn").addEventListener("click", toggleLanguage);
+    el("portalLangBtn").addEventListener("click", toggleLanguage);
+
+    el("tabLogin").addEventListener("click", () => {
+      el("tabLogin").classList.add("active");
+      el("tabRegister").classList.remove("active");
+      el("loginBox").style.display = "block";
+      el("registerForm").style.display = "none";
+      el("authMsg").className = "msg";
+    });
+
+    el("tabRegister").addEventListener("click", () => {
+      el("tabRegister").classList.add("active");
+      el("tabLogin").classList.remove("active");
+      el("loginBox").style.display = "none";
+      el("registerForm").style.display = "block";
+      el("authMsg").className = "msg";
+    });
+
+    el("loginPhone").addEventListener("input", () => {
+      el("multiAccountPicker").style.display = "none";
+      el("loginAccountSelect").innerHTML = "";
+    });
+
+    if (el("saveQuickPinBtn")) {
+      el("saveQuickPinBtn").addEventListener("click", () => {
+        const u = window.appState.currentUser;
+        if (!u || !u.phone || u.role === "admin") return;
+        const pinVal = String(el("quickPinInput").value || "").trim();
+        if (!/^\d{4,8}$/.test(pinVal)) {
+          return window.showAdminMsg(window.t("pinInvalidFormat"), "error");
+        }
+        savePinForPhone(u.phone, pinVal);
+        window.showAdminMsg(window.t("pinSaved"), "success");
+      });
+    }
+
+    if (el("pinLoginBtn")) {
+      el("pinLoginBtn").addEventListener("click", async () => {
+        const l = window.appState.lang;
+        const phone = window.normalizePhone(el("loginPhone").value);
+        if (!window.isValidPhone(phone)) {
+          return window.showAuthMsg(l === "en" ? "Enter a valid phone number." : "درست فون نمبر لکھیں۔", "error");
+        }
+        if (phone === BUILT_IN_ADMIN.phone) {
+          return window.showAuthMsg(window.t("pinAdminBlocked"), "error");
+        }
+
+        const savedPin = getPinForPhone(phone);
+        if (!savedPin) {
+          if (el("pinLoginField")) el("pinLoginField").style.display = "block";
+          return window.showAuthMsg(window.t("pinNotSet"), "error");
+        }
+
+        const pinField = el("pinLoginField");
+        const pinInput = el("loginPin");
+        if (pinField && pinField.style.display === "none") {
+          pinField.style.display = "block";
+          if (pinInput) pinInput.focus();
+          return;
+        }
+
+        const enteredPin = pinInput ? String(pinInput.value || "").trim() : "";
+        if (!/^\d{4,8}$/.test(enteredPin)) {
+          return window.showAuthMsg(window.t("pinInvalidFormat"), "error");
+        }
+        if (enteredPin !== savedPin) {
+          return window.showAuthMsg(window.t("pinWrong"), "error");
+        }
+
+        if (window.appState.handlers.loginByPin) {
+          await window.appState.handlers.loginByPin(phone);
+        } else {
+          window.showAuthMsg(
+            l === "en" ? "Please check your internet connection and refresh the page." : "براہِ کرم انٹرنیٹ چیک کریں اور صفحہ ریفریش کریں۔",
+            "error"
+          );
+        }
+      });
+    }
+
+    async function waitForLoginHandler(maxMs = 2500) {
+      const start = Date.now();
+      while (!window.appState.handlers.loginUser && Date.now() - start < maxMs) {
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      return window.appState.handlers.loginUser;
+    }
+
+    el("loginBtn").addEventListener("click", async () => {
+      const l = window.appState.lang;
+      const phone = window.normalizePhone(el("loginPhone").value);
+      const password = el("loginPass").value;
+      const selectedDocId = el("multiAccountPicker").style.display !== "none" ? el("loginAccountSelect").value : "";
+
+      if (!window.isValidPhone(phone)) {
+        return window.showAuthMsg(l === "en" ? "Enter a valid phone number." : "درست فون نمبر لکھیں۔", "error");
+      }
+      if (!password) {
+        return window.showAuthMsg(l === "en" ? "Enter your password." : "پاس ورڈ درج کریں۔", "error");
+      }
+
+      if (phone === BUILT_IN_ADMIN.phone) {
+        if (password !== BUILT_IN_ADMIN.password) {
+          return window.showAuthMsg(l === "en" ? "Invalid admin password." : "ایڈمن پاس ورڈ غلط ہے۔", "error");
+        }
+        window.appState.currentUser = {
+          phone: BUILT_IN_ADMIN.phone,
+          name: BUILT_IN_ADMIN.name,
+          role: "admin",
+          status: "active"
+        };
+        window.saveUserSession(window.appState.currentUser);
+        window.openPortal();
+        return;
+      }
+
+      const handler = await waitForLoginHandler();
+      if (handler) {
+        await handler(phone, password, selectedDocId);
+      } else {
+        window.showAuthMsg(
+          l === "en" ? "Please check your internet connection and refresh the page." : "براہِ کرم انٹرنیٹ چیک کریں اور صفحہ ریفریش کریں۔",
+          "error"
+        );
+      }
+    });
+
+    function bytesToB64(buf) {
+      const bytes = new Uint8Array(buf);
+      let s = "";
+      for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+      return btoa(s);
+    }
+
+    function b64ToBytes(b64) {
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return bytes;
+    }
+
+    function loadBioCred() {
+      try {
+        const raw = localStorage.getItem(BIO_CRED_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function saveBioCred(obj) {
+      try {
+        localStorage.setItem(BIO_CRED_STORAGE_KEY, JSON.stringify(obj));
+      } catch (e) {}
+    }
+
+    if (el("bioLoginBtn")) {
+      el("bioLoginBtn").addEventListener("click", async () => {
+        const l = window.appState.lang;
+        if (!window.isSecureContext && location.hostname !== "localhost") {
+          return window.showAuthMsg(window.t("bioNeedHttps"), "error");
+        }
+        if (!window.PublicKeyCredential || !navigator.credentials) {
+          return window.showAuthMsg(window.t("bioNotSupported"), "error");
+        }
+
+        const savedBio = loadBioCred();
+        const inputPhone = window.normalizePhone(el("loginPhone").value);
+        const inputPass = el("loginPass").value;
+
+        try {
+          if (!savedBio) {
+            if (!window.isValidPhone(inputPhone) || !inputPass) {
+              return window.showAuthMsg(window.t("bioEnterCredsFirst"), "error");
+            }
+            const challenge = crypto.getRandomValues(new Uint8Array(32));
+            const userId = new TextEncoder().encode(inputPhone);
+            const cred = await navigator.credentials.create({
+              publicKey: {
+                challenge,
+                rp: { name: "DM Milad", id: location.hostname },
+                user: { id: userId, name: inputPhone, displayName: inputPhone },
+                pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
+                authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+                timeout: 60000
+              }
+            });
+            if (!cred) return window.showAuthMsg(window.t("bioFailed"), "error");
+            saveBioCred({
+              rawId: bytesToB64(cred.rawId),
+              phone: inputPhone,
+              password: inputPass
+            });
+            window.showAuthMsg(window.t("bioEnrolledAndLoggedIn"), "success");
+            el("loginBtn").click();
+            return;
+          }
+
+          const assertionChallenge = crypto.getRandomValues(new Uint8Array(32));
+          const assertion = await navigator.credentials.get({
+            publicKey: {
+              challenge: assertionChallenge,
+              rpId: location.hostname,
+              allowCredentials: [{ id: b64ToBytes(savedBio.rawId), type: "public-key" }],
+              userVerification: "required",
+              timeout: 60000
+            }
+          });
+
+          if (!assertion) return window.showAuthMsg(window.t("bioFailed"), "error");
+
+          el("loginPhone").value = savedBio.phone;
+          el("loginPass").value = savedBio.password;
+          el("loginBtn").click();
+        } catch (err) {
+          window.showAuthMsg(
+            (l === "en" ? "Fingerprint login unavailable/cancelled: " : "فنگر پرنٹ لاگ ان ممکن نہیں ہو سکا: ") +
+            (err && err.message ? err.message : ""),
+            "error"
+          );
+        }
+      });
+    }
+
+    el("logoutBtn").addEventListener("click", () => {
+      window.saveUserSession(null);
+      window.appState.currentUser = null;
+      window.appState.activeSection = null;
+      window.applySelectionRestriction();
+      el("portalCard").style.display = "none";
+      el("adminEntryArea").style.display = "none";
+      el("adminEntryArea").innerHTML = "";
+      el("authCard").style.display = "block";
+      el("loginPass").value = "";
+      if (el("loginPin")) el("loginPin").value = "";
+      el("multiAccountPicker").style.display = "none";
+      el("loginAccountSelect").innerHTML = "";
+      el("authMsg").className = "msg";
+    });
+
+    let ptrStartY = 0;
+    let ptrPulling = false;
+    const ptrBox = el("ptrIndicator");
+
+    function isOnMainPageTop() {
+      const authVisible = el("authCard") && el("authCard").style.display !== "none";
+      const modalOpen = el("imgPreviewModal") && el("imgPreviewModal").classList.contains("open");
+      return authVisible && !modalOpen && (window.scrollY || document.documentElement.scrollTop || 0) <= 0;
+    }
+
+    document.addEventListener("touchstart", (e) => {
+      if (e.touches.length !== 1) return;
+      if (isOnMainPageTop()) {
+        ptrStartY = e.touches[0].clientY;
+        ptrPulling = true;
+      } else {
+        ptrPulling = false;
+        if (ptrBox) ptrBox.style.display = "none";
+      }
+    }, { passive: true });
+
+    document.addEventListener("touchmove", (e) => {
+      if (!ptrPulling || e.touches.length !== 1) return;
+      if (!isOnMainPageTop()) {
+        ptrPulling = false;
+        if (ptrBox) ptrBox.style.display = "none";
+        return;
+      }
+      const dy = e.touches[0].clientY - ptrStartY;
+      if (dy > 12 && ptrBox) {
+        ptrBox.style.display = "block";
+        ptrBox.textContent = dy > 95 ? window.t("releaseToRefreshMsg") : window.t("pullToRefreshMsg");
+      }
+    }, { passive: true });
+
+    document.addEventListener("touchend", (e) => {
+      if (!ptrPulling) return;
+      ptrPulling = false;
+      const endY = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : ptrStartY;
+      const dy = endY - ptrStartY;
+      if (ptrBox) ptrBox.style.display = "none";
+      if (dy > 95 && isOnMainPageTop()) {
+        location.reload();
+      }
+    });
+
+    const imgModal = el("imgPreviewModal");
+    const imgModalViewport = el("imgModalViewport");
+    const imgModalTag = el("imgPreviewTag");
+    const imgModalTitle = el("imgPreviewTitle");
+    const closeImgModalBtn = el("closeImgModalBtn");
+
+    let zoomScale = 1;
+    let panX = 0;
+    let panY = 0;
+    let panStartX = 0;
+    let panStartY = 0;
+    let panBaseX = 0;
+    let panBaseY = 0;
+    let isOneFingerPanning = false;
+    let pinchStartDist = 0;
+    let pinchStartScale = 1;
+    let lastTapTime = 0;
+
+    function clampPan() {
+      if (zoomScale <= 1 || !imgModalTag || !imgModalViewport) {
+        panX = 0;
+        panY = 0;
+        return;
+      }
+      const baseW = imgModalTag.offsetWidth || imgModalViewport.clientWidth;
+      const baseH = imgModalTag.offsetHeight || imgModalViewport.clientHeight;
+      const maxPanX = Math.max(40, ((baseW * zoomScale) - imgModalViewport.clientWidth) * 0.65);
+      const maxPanY = Math.max(40, ((baseH * zoomScale) - imgModalViewport.clientHeight) * 0.65);
+      panX = Math.min(maxPanX, Math.max(-maxPanX, panX));
+      panY = Math.min(maxPanY, Math.max(-maxPanY, panY));
+    }
+
+    function applyImageTransform() {
+      if (!imgModalTag) return;
+      if (zoomScale <= 1) {
+        zoomScale = 1;
+        panX = 0;
+        panY = 0;
+        imgModalTag.style.transformOrigin = "50% 50%";
+        imgModalTag.style.transform = "translate3d(0px, 0px, 0) scale(1)";
+      } else {
+        clampPan();
+        imgModalTag.style.transform = `translate3d(${panX.toFixed(1)}px, ${panY.toFixed(1)}px, 0) scale(${zoomScale})`;
       }
     }
 
@@ -867,7 +1390,7 @@
         if (rect.width > 0 && rect.height > 0) {
           const ox = Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
           const oy = Math.min(100, Math.max(0, ((clientY - rect.top) / rect.height) * 100));
-          imgModalTag.style.transformOrigin = `${ox.toFixed(1)}\%${oy.toFixed(1)}%`;
+          imgModalTag.style.transformOrigin = `${ox.toFixed(1)}% ${oy.toFixed(1)}%`;
         }
       }
 
@@ -1189,14 +1712,23 @@
     async function renderImageList(area, colName, title) {
       const snap = await getDocs(collection(db, colName));
       if (snap.empty) {
-        area.innerHTML = `<div class='item-box'>${window.t("noImages", { title })}</div>`; return; }  const items = []; snap.forEach((d) => items.push({ id: d.id, ...d.data() })); items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));  let html = `<h4>${title}</h4>`;
+        area.innerHTML = `<div class='item-box'>${window.t("noImages", { title })}</div>`;
+        return;
+      }
+
+      const items = [];
+      snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+
+      let html = `<h4>${title}</h4>`;
       items.forEach((item) => {
         const delBtn = isAdminUser()
           ? `<button type="button" class="btn btn-sm btn-danger" data-del-col="${colName}" data-del-id="${item.id}">${window.t("deleteBtn")}</button>`
           : "";
         html += `<div class="item-box">
           <div class="item-top">
-            <span class="folder-tag">${window.formatDDMMYYYY(item.date)}</span>${delBtn}
+            <span class="folder-tag">${window.formatDDMMYYYY(item.date)}</span>
+            ${delBtn}
           </div>
           <div><strong>${item.title || ""}</strong></div>
           ${renderMediaBlock(item, false)}
@@ -1211,14 +1743,23 @@
       const q = query(collection(db, "media"), where("category", "==", category));
       const snap = await getDocs(q);
       if (snap.empty) {
-        area.innerHTML = `<div class='item-box'>${window.t("noFolders", { title })}</div>`; return; }  const items = []; snap.forEach((d) => items.push({ id: d.id, ...d.data() })); items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));  let html = `<h4>${title}</h4>`;
+        area.innerHTML = `<div class='item-box'>${window.t("noFolders", { title })}</div>`;
+        return;
+      }
+
+      const items = [];
+      snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+
+      let html = `<h4>${title}</h4>`;
       items.forEach((m) => {
         const delBtn = isAdminUser()
           ? `<button type="button" class="btn btn-sm btn-danger" data-del-col="media" data-del-id="${m.id}">${window.t("deleteBtn")}</button>`
           : "";
         html += `<div class="item-box">
           <div class="item-top">
-            <span class="folder-tag">${window.formatDDMMYYYY(m.date \vert{}\vert{} m.folder)}</span>${delBtn}
+            <span class="folder-tag">${window.formatDDMMYYYY(m.date || m.folder)}</span>
+            ${delBtn}
           </div>
           <div><strong>${m.title || ""}</strong></div>
           ${renderMediaBlock(m, category === "videos")}
@@ -1232,7 +1773,11 @@
     async function renderApprovalsSection(area) {
       const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending_approval")));
       if (snap.empty) {
-        area.innerHTML = `<h4>${window.t("admH1")}</h4><div class='item-box'>${window.t("noPending")}</div>`; return; }  area.innerHTML = `<h4>${window.t("admH1")}</h4><div id="pendingRequestsList"></div>`;
+        area.innerHTML = `<h4>${window.t("admH1")}</h4><div class='item-box'>${window.t("noPending")}</div>`;
+        return;
+      }
+
+      area.innerHTML = `<h4>${window.t("admH1")}</h4><div id="pendingRequestsList"></div>`;
       const box = el("pendingRequestsList");
 
       snap.forEach((d) => {
@@ -1630,4 +2175,196 @@
       if (!area) return;
       area.innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
       if (!db) {
-        area.innerHTML = `<div class='item-box'>${
+        area.innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Database offline." : "ڈیٹا بیس دستیاب نہیں۔"}</div>`;
+        return;
+      }
+      try {
+        if (sectionKey === "funds") await renderMemberFunds(area);
+        else if (sectionKey === "expenses") await renderImageList(area, "expenses", window.t("expensesTitle"));
+        else if (sectionKey === "langar") await renderMediaSorted(area, "langar", window.t("langarTitle"));
+        else if (sectionKey === "photos") await renderMediaSorted(area, "photos", window.t("photosTitle"));
+        else if (sectionKey === "videos") await renderMediaSorted(area, "videos", window.t("videosTitle"));
+        else if (sectionKey === "mahafil") await renderMediaSorted(area, "mahafil", window.t("mahafilTitle"));
+        else if (sectionKey === "information") await renderMediaSorted(area, "information", window.t("informationTitle"));
+        else if (sectionKey === "funds_members") await renderFundsAndMembersDetails(area);
+        else if (sectionKey === "approvals") await renderApprovalsSection(area);
+        else area.innerHTML = "";
+      } catch (err) {
+        area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error loading section."}</div>`;
+      }
+    };
+
+    window.appState.handlers.loginUser = async (phone, password, selectedDocId = "") => {
+      const l = window.appState.lang;
+      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+      el("loginBtn").disabled = true;
+      try {
+        const accounts = await getAccountsForPhone(phone);
+        if (!accounts.length) {
+          return window.showAuthMsg(l === "en" ? "Account not found." : "اکاؤنٹ نہیں ملا۔", "error");
+        }
+
+        const matched = accounts.filter((acc) => acc.password === password);
+        if (!matched.length) {
+          return window.showAuthMsg(l === "en" ? "Incorrect password." : "پاس ورڈ غلط ہے۔", "error");
+        }
+
+        let targetUser = matched[0];
+        if (matched.length > 1) {
+          const chosen = matched.find((acc) => acc.id === selectedDocId);
+          if (!chosen) {
+            const picker = el("multiAccountPicker");
+            const sel = el("loginAccountSelect");
+            sel.innerHTML = matched.map((acc) => {
+              const roleText = acc.role === "abroad"
+                ? window.t("roleAbroadLabel")
+                : acc.role === "management"
+                  ? window.t("roleMgmtLabel")
+                  : window.t("rolePublicLabel");
+              return `<option value="${acc.id}">${roleText} - ${acc.name}</option>`;
+            }).join("");
+            picker.style.display = "block";
+            return window.showAuthMsg(window.t("chooseAccountToLogin"), "error");
+          }
+          targetUser = chosen;
+        }
+
+        if ((targetUser.role === "management" || targetUser.role === "abroad") && targetUser.status === "pending_approval") {
+          return window.showAuthMsg(l === "en" ? "Your account is awaiting Admin approval." : "آپ کا اکاؤنٹ ابھی ایڈمن کی منظوری کے منتظر ہے۔", "error");
+        }
+        if (targetUser.status === "rejected") {
+          return window.showAuthMsg(l === "en" ? "Your account request was rejected." : "آپ کی اکاؤنٹ کی درخواست مسترد کر دی گئی ہے۔", "error");
+        }
+
+        window.appState.currentUser = targetUser;
+        window.saveUserSession(targetUser);
+        window.openPortal();
+      } catch (err) {
+        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("loginBtn").disabled = false;
+      }
+    };
+
+    window.appState.handlers.loginByPin = async (phone) => {
+      const l = window.appState.lang;
+      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+      if (el("pinLoginBtn")) el("pinLoginBtn").disabled = true;
+      try {
+        const accounts = await getAccountsForPhone(phone);
+        const activeAccounts = accounts.filter((acc) => acc.status === "active");
+        if (!activeAccounts.length) {
+          return window.showAuthMsg(l === "en" ? "No active account found for PIN login." : "اس نمبر پر کوئی فعال اکاؤنٹ نہیں ملا۔", "error");
+        }
+
+        const targetUser = activeAccounts[0];
+        window.appState.currentUser = targetUser;
+        window.saveUserSession(targetUser);
+        window.openPortal();
+      } catch (err) {
+        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        if (el("pinLoginBtn")) el("pinLoginBtn").disabled = false;
+      }
+    };
+
+    el("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const l = window.appState.lang;
+      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+
+      const name = el("regName").value.trim();
+      const phone = window.normalizePhone(el("regPhone").value);
+      const password = el("regPass").value;
+      const role = el("regRole").value;
+
+      if (!name) return window.showAuthMsg(l === "en" ? "Please enter your full name." : "براہِ کرم پورا نام لکھیں۔", "error");
+      if (!window.isValidPhone(phone)) return window.showAuthMsg(l === "en" ? "Enter a valid phone number (e.g. 03001234567)." : "درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
+      if (phone === BUILT_IN_ADMIN.phone) return window.showAuthMsg(l === "en" ? "This number is reserved for Admin." : "یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
+      if (password.length < 6) return window.showAuthMsg(l === "en" ? "Password must be at least 6 characters." : "پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
+      if (!role) return window.showAuthMsg(l === "en" ? "Please select an account type." : "براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
+
+      el("registerBtn").disabled = true;
+      try {
+        const existingAccounts = await getAccountsForPhone(phone);
+
+        if (role === "public" && existingAccounts.length > 0) {
+          return window.showAuthMsg(window.t("publicNotAllowedExisting"), "error");
+        }
+
+        if (existingAccounts.some((acc) => acc.role === role)) {
+          return window.showAuthMsg(window.t("roleAlreadyExists"), "error");
+        }
+
+        const docId = `${phone}_${role}`;
+        const ref = doc(db, "users", docId);
+        const needsApproval = role === "management" || role === "abroad";
+
+        await setDoc(ref, {
+          name,
+          phone,
+          password,
+          role,
+          status: needsApproval ? "pending_approval" : "active",
+          createdAt: serverTimestamp()
+        });
+
+        el("registerForm").reset();
+        el("tabLogin").click();
+        el("loginPhone").value = phone;
+        el("multiAccountPicker").style.display = "none";
+        window.showAuthMsg(
+          needsApproval
+            ? (l === "en" ? "Account created! You can log in after Admin approval." : "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔")
+            : (l === "en" ? "Public account created! You can log in now." : "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔"),
+          "success"
+        );
+      } catch (err) {
+        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("registerBtn").disabled = false;
+      }
+    });
+
+    (async function restoreSessionOnRefresh() {
+      const saved = window.loadSavedSession ? window.loadSavedSession() : null;
+      if (!saved || !db) return;
+
+      if (saved.role === "admin" && saved.phone === BUILT_IN_ADMIN.phone) {
+        window.appState.currentUser = saved;
+        window.openPortal();
+        return;
+      }
+
+      try {
+        const accounts = await getAccountsForPhone(saved.phone);
+        const matchedAcc = accounts.find((acc) =>
+          acc.role === saved.role && acc.status === "active"
+        );
+
+        if (matchedAcc) {
+          window.appState.currentUser = matchedAcc;
+          window.saveUserSession(matchedAcc);
+          window.openPortal();
+        } else if (saved.role === "public" && saved.status === "active") {
+          const pubAcc = accounts.find((acc) => acc.role === "public" && acc.status !== "rejected");
+          if (pubAcc) {
+            window.appState.currentUser = pubAcc;
+            window.saveUserSession(pubAcc);
+            window.openPortal();
+          } else {
+            window.saveUserSession(null);
+          }
+        } else {
+          window.saveUserSession(null);
+        }
+      } catch (e) {
+        if (!window.appState.currentUser) {
+          window.appState.currentUser = saved;
+          window.openPortal();
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

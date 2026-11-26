@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -384,18 +384,30 @@
 
     const el = (id) => document.getElementById(id);
 
+    let authMsgTimer = null;
     window.showAuthMsg = (text, type) => {
       const box = el("authMsg");
       if (!box) return;
       box.textContent = text;
       box.className = "msg " + type;
+      if (authMsgTimer) clearTimeout(authMsgTimer);
+      authMsgTimer = setTimeout(() => {
+        box.className = "msg";
+        box.textContent = "";
+      }, 2000);
     };
 
+    let adminMsgTimer = null;
     window.showAdminMsg = (text, type) => {
       const box = el("adminMsg");
       if (!box) return;
       box.textContent = text;
       box.className = "msg " + type;
+      if (adminMsgTimer) clearTimeout(adminMsgTimer);
+      adminMsgTimer = setTimeout(() => {
+        box.className = "msg";
+        box.textContent = "";
+      }, 2000);
     };
 
     window.onerror = (msg, src, line) => {
@@ -852,6 +864,7 @@
       window.appState.dbReady = true;
     } catch (e) {
       db = null;
+      window.showAuthMsg(`Firebase init error: ${e && e.message ? e.message : e}`, "error");
     }
 
     function isAdminUser() {
@@ -1217,8 +1230,8 @@
     };
 
     window.appState.handlers.onAdminOpen = () => {
-      loadPendingRequests().catch(() => {});
-      loadMembersForFunds().then(() => loadAdminFundsTable()).catch(() => {});
+      loadPendingRequests().catch((e) => window.showAdminMsg(e.message, "error"));
+      loadMembersForFunds().then(() => loadAdminFundsTable()).catch((e) => window.showAdminMsg(e.message, "error"));
     };
 
     window.appState.handlers.loginUser = async (phone, password, selectedDocId = "") => {
@@ -1389,4 +1402,13 @@
         return window.showAdminMsg(l === "en" ? "Select date and enter title and link/photo." : "تاریخ منتخب کریں اور عنوان و لنک/تصویر درج کریں۔", "error");
       }
 
-      await addDoc(collection(db, "media"),
+      await addDoc(collection(db, "media"), { category, date, title, src, createdAt: serverTimestamp() });
+      el("mediaTitle").value = "";
+      el("mediaUrl").value = "";
+      el("mediaFile").value = "";
+      window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
+      if (window.appState.activeSection === category) window.appState.handlers.selectSection(category);
+    });
+  </script>
+</body>
+</html>

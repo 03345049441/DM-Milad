@@ -34,8 +34,7 @@
     .btn { padding: 7px 11px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
     .btn-sm { padding: 4px 8px; font-size: 12px; border-radius: 6px; }
     .btn-primary { background: #15803d; color: #fff; width: 100%; padding: 10px; font-size: 14px; }
-    .btn-bio { background: #0f766e; color: #fff; width: 100%; padding: 9px; font-size: 13px; margin-top: 8px; display: none; }
-    body.mobile-app .btn-bio { display: block; }
+    .btn-bio { background: #0f766e; color: #fff; width: 100%; padding: 9px; font-size: 13px; margin-top: 8px; }
     .btn-secondary { background: #334155; color: #fff; }
     .btn-danger { background: #b91c1c; color: #fff; }
     .btn-edit { background: #0369a1; color: #fff; }
@@ -241,23 +240,10 @@
     const LANG_STORAGE_KEY = "dm_milad_lang_v1";
     const BIO_CRED_STORAGE_KEY = "dm_milad_bio_cred_v1";
 
-    function isMobileAppEnvironment() {
-      const ua = navigator.userAgent || "";
-      const isMobileUa = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-      const isWebView = /\bwv\b|WebView|WebIntoApp/i.test(ua);
-      const isStandalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
-      const isIosStandalone = Boolean(navigator.standalone);
-      return isMobileUa && (isWebView || isStandalone || isIosStandalone);
-    }
-
-    if (isMobileAppEnvironment()) {
-      document.body.classList.add("mobile-app");
-    }
-
     const FUND_PURPOSES = [
       { id: "monthly", ur: "ماہانہ فنڈ", en: "Monthly Fund" },
       { id: "yearly", ur: "سالانہ فنڈ", en: "Yearly Fund" },
-      { id: "general_milad", ur: "جنرل میلاد فنڈ", en: "General Milad Fund" },
+      { id: "general_milad", ur: "عمومی میلاد فنڈ", en: "General Milad Fund" },
       { id: "shohda_karbala", ur: "برائے شہداء کربلا کانفرنس", en: "For Shohda Karbala Conference" },
       { id: "urs_ghous", ur: "برائے عرس غوث الورٰی", en: "For Urs e Ghous ul Waraa" }
     ];
@@ -302,10 +288,10 @@
         secApprovals: "زیرِ التوا درخواستیں",
         secMahafil: "محافل",
         secInformation: "معلومات",
-        roleAdminLabel: "ایڈمن (Admin)",
-        rolePublicLabel: "عام عوام (Public)",
-        roleMgmtLabel: "انتظامیہ (Management)",
-        roleAbroadLabel: "بیرونِ ملک (Abroad)",
+        roleAdminLabel: "ایڈمن",
+        rolePublicLabel: "عام عوام",
+        roleMgmtLabel: "انتظامیہ",
+        roleAbroadLabel: "بیرونِ ملک",
         publicNotAllowedExisting: "اس فون نمبر پر پہلے سے اکاؤنٹ موجود ہے، اس لیے عام عوام (Public) میں اکاؤنٹ نہیں بن سکتا۔",
         roleAlreadyExists: "اس نمبر پر اس کیٹیگری میں پہلے سے اکاؤنٹ موجود ہے۔",
         chooseAccountToLogin: "اس نمبر پر ایک سے زیادہ اکاؤنٹس موجود ہیں، براہِ کرم اکاؤنٹ منتخب کر کے دوبارہ لاگ ان دبائیں۔",
@@ -402,9 +388,9 @@
         secPhotos: "Photos",
         secVideos: "Videos",
         secFunds: "Funds Details",
-        secExpenses: "Expenses Details",
+        secExpenses: "Expenses Detail",
         secLangar: "Langar Details",
-        secFundsMembers: "Members Details",
+        secFundsMembers: "Members Detail",
         secApprovals: "Pending Approvals",
         secMahafil: "Mahafil",
         secInformation: "Information",
@@ -468,7 +454,7 @@
         openLink: "Open Link",
         openVideo: "Open / Watch Video",
         imgNotDirect: "This link could not render directly as an image. Click 'Open Link' below or upload an image file.",
-        expensesTitle: "Expenses Details",
+        expensesTitle: "Expenses Detail",
         langarTitle: "Langar Details",
         photosTitle: "Photos",
         videosTitle: "Videos",
@@ -886,6 +872,14 @@
       entryArea.innerHTML = "";
     };
 
+    async function waitForSectionHandler(maxMs = 3000) {
+      const start = Date.now();
+      while (!window.appState.handlers.selectSection && Date.now() - start < maxMs) {
+        await new Promise((r) => setTimeout(r, 80));
+      }
+      return window.appState.handlers.selectSection;
+    }
+
     window.renderRoleMenu = () => {
       const u = window.appState.currentUser;
       if (!u) return;
@@ -911,10 +905,23 @@
 
       window.renderAdminSectionEntry(window.appState.activeSection);
 
-      if (window.appState.handlers.selectSection && window.appState.activeSection) {
-        window.appState.handlers.selectSection(window.appState.activeSection);
+      const currentSec = window.appState.activeSection;
+      if (!currentSec) {
+        el("contentArea").innerHTML = "";
+        return;
+      }
+
+      if (window.appState.handlers.selectSection) {
+        window.appState.handlers.selectSection(currentSec);
       } else {
         el("contentArea").innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+        waitForSectionHandler().then((fn) => {
+          if (fn && window.appState.activeSection === currentSec) {
+            fn(currentSec);
+          } else if (window.appState.activeSection === currentSec) {
+            el("contentArea").innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Please refresh or check connection." : "براہِ کرم صفحہ ریفریش کریں یا انٹرنیٹ چیک کریں۔"}</div>`;
+          }
+        });
       }
     };
 
@@ -1072,7 +1079,6 @@
 
     if (el("bioLoginBtn")) {
       el("bioLoginBtn").addEventListener("click", async () => {
-        if (!isMobileAppEnvironment()) return;
         const l = window.appState.lang;
         if (!window.isSecureContext && location.hostname !== "localhost") {
           return window.showAuthMsg(window.t("bioNeedHttps"), "error");
@@ -1983,6 +1989,7 @@
 
     window.appState.handlers.selectSection = async (sectionKey) => {
       const area = el("contentArea");
+      if (!area) return;
       area.innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
       if (!db) {
         area.innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Database offline." : "ڈیٹا بیس دستیاب نہیں۔"}</div>`;
@@ -1998,8 +2005,9 @@
         else if (sectionKey === "information") await renderMediaSorted(area, "information", window.t("informationTitle"));
         else if (sectionKey === "funds_members") await renderFundsAndMembersDetails(area);
         else if (sectionKey === "approvals") await renderApprovalsSection(area);
+        else area.innerHTML = "";
       } catch (err) {
-        area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error"}</div>`;
+        area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error loading section."}</div>`;
       }
     };
 
@@ -2147,3 +2155,11 @@
         }
       } catch (e) {
         if (!window.appState.currentUser) {
+          window.appState.currentUser = saved;
+          window.openPortal();
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

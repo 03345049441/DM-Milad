@@ -189,10 +189,10 @@
         lblFundPurpose: "مقصد / دینے والے نے کیوں دی؟",
         selectPurposePlaceholder: "مقصد منتخب کریں",
         addFundBtn: "فنڈ محفوظ کریں",
-        admFundsTableTitle: "درج شدہ فنڈز کی تفصیل (تازہ تاریخ سب سے اوپر)",
+        admFundsTableTitle: "درج شدہ فنڈز کی تفصیل",
         admExpEntryTitle: "نئی اخراجات تصویر شامل کریں",
         admMediaEntryTitle: "نئی انٹری شامل کریں",
-        admH5: "رجسٹرڈ ممبران (ممبر ریموو کریں)",
+        admH5: "رجسٹرڈ ممبران ({count})",
         lblDate: "تاریخ منتخب کریں (دن / مہینہ / سال)",
         lblTitle: "عنوان",
         lblExpMedia: "تصویر کا ڈائریکٹ لنک یا تصویر فائل منتخب کریں",
@@ -231,10 +231,10 @@
         openLink: "لنک کھولیں",
         openVideo: "ویڈیو کھولیں / دیکھیں",
         imgNotDirect: "یہ لنک براہِ راست تصویر کے طور پر لوڈ نہیں ہو سکا۔ نیچے 'لنک کھولیں' دبا کر دیکھیں یا تصویر فائل اپلوڈ کریں۔",
-        expensesTitle: "اخراجات کی تفصیل (تازہ تاریخ سب سے اوپر)",
-        langarTitle: "لنگر کی تفصیل (تازہ تاریخ سب سے اوپر)",
-        photosTitle: "تصاویر (تازہ تاریخ سب سے اوپر)",
-        videosTitle: "ویڈیوز (تازہ تاریخ سب سے اوپر)"
+        expensesTitle: "اخراجات کی تفصیل",
+        langarTitle: "لنگر کی تفصیل",
+        photosTitle: "تصاویر",
+        videosTitle: "ویڈیوز"
       },
       en: {
         appHeading: "Milad Organization Dhoke Maken",
@@ -278,10 +278,10 @@
         lblFundPurpose: "Purpose / Why Given?",
         selectPurposePlaceholder: "Select Purpose",
         addFundBtn: "Save Fund",
-        admFundsTableTitle: "Recorded Funds Details (Latest Date First)",
+        admFundsTableTitle: "Recorded Funds Details",
         admExpEntryTitle: "Add New Expense Photo",
         admMediaEntryTitle: "Add New Entry",
-        admH5: "Registered Members (Remove Member)",
+        admH5: "Registered Members ({count})",
         lblDate: "Select Date (Day / Month / Year)",
         lblTitle: "Title",
         lblExpMedia: "Direct Photo URL or Image File",
@@ -320,10 +320,10 @@
         openLink: "Open Link",
         openVideo: "Open / Watch Video",
         imgNotDirect: "This link could not render directly as an image. Click 'Open Link' below or upload an image file.",
-        expensesTitle: "Expenses Details (Latest Date First)",
-        langarTitle: "Langar Details (Latest Date First)",
-        photosTitle: "Photos (Latest Date First)",
-        videosTitle: "Videos (Latest Date First)"
+        expensesTitle: "Expenses Details",
+        langarTitle: "Langar Details",
+        photosTitle: "Photos",
+        videosTitle: "Videos"
       }
     };
 
@@ -1229,7 +1229,7 @@
           ${fundsHtml}
         </div>
         <div class="sub-section">
-          <h4>${window.t("admH5")}</h4>
+          <h4>${window.t("admH5", { count: members.length })}</h4>
           ${membersHtml}
         </div>`;
 

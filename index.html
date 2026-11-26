@@ -39,6 +39,9 @@
     .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; margin: 12px 0 14px; }
     .menu-btn { padding: 12px 10px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #14532d; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; text-align: center; transition: 0.15s ease; }
     .menu-btn.active { background: #15803d; color: #fff; border-color: #15803d; box-shadow: 0 3px 8px rgba(21,128,61,0.22); }
+    .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 10px; }
+    .sub-tab-btn { flex: 1; min-width: 90px; padding: 7px 9px; border: 1px solid #15803d; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; text-align: center; }
+    .sub-tab-btn.active { background: #15803d; color: #fff; }
     .entry-box { border: 1px solid #bbf7d0; background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
     .item-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px; margin-bottom: 8px; background: #f8fafc; }
     .item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
@@ -141,7 +144,7 @@
     const FUND_PURPOSES = [
       { id: "monthly", ur: "ماہانہ فنڈ", en: "Monthly Fund" },
       { id: "yearly", ur: "سالانہ فنڈ", en: "Yearly Fund" },
-      { id: "general_milad", ur: "جنرل میلاد فنڈ", en: "General Milad Fund" },
+      { id: "general_milad", ur: "عمومی میلاد فنڈ", en: "General Milad Fund" },
       { id: "shohda_karbala", ur: "برائے شہداء کربلا کانفرنس", en: "For Shohda Karbala Conference" },
       { id: "urs_ghous", ur: "برائے عرس غوث الورٰی", en: "For Urs e Ghous ul Waraa" }
     ];
@@ -193,6 +196,9 @@
         admExpEntryTitle: "نئی اخراجات تصویر شامل کریں",
         admMediaEntryTitle: "نئی انٹری شامل کریں",
         admH5: "رجسٹرڈ ممبران ({count})",
+        subTabMgmt: "انتظامیہ ({count})",
+        subTabAbroad: "بیرونِ ملک ({count})",
+        subTabPublic: "عوام ({count})",
         lblDate: "تاریخ منتخب کریں (دن / مہینہ / سال)",
         lblTitle: "عنوان",
         lblExpMedia: "تصویر کا ڈائریکٹ لنک یا تصویر فائل منتخب کریں",
@@ -205,7 +211,7 @@
         removeMemberBtn: "ریموو کریں",
         confirmRemoveMember: "کیا آپ واقعی {name} کو تنظیم کی ایپ سے ریموو کرنا چاہتے ہیں؟ اس کے بعد وہ لاگ ان نہیں کر سکے گا۔",
         memberRemovedMsg: "ممبر کو کامیابی سے ریموو کر دیا گیا۔",
-        noMembersFound: "کوئی رجسٹرڈ ممبر موجود نہیں ہے۔",
+        noMembersFound: "اس کیٹیگری میں کوئی رجسٹرڈ ممبر موجود نہیں ہے۔",
         colPhone: "فون نمبر",
         colRole: "کیٹیگری",
         colStatus: "اسٹیٹس",
@@ -282,6 +288,9 @@
         admExpEntryTitle: "Add New Expense Photo",
         admMediaEntryTitle: "Add New Entry",
         admH5: "Registered Members ({count})",
+        subTabMgmt: "Management ({count})",
+        subTabAbroad: "Abroad ({count})",
+        subTabPublic: "Public ({count})",
         lblDate: "Select Date (Day / Month / Year)",
         lblTitle: "Title",
         lblExpMedia: "Direct Photo URL or Image File",
@@ -294,7 +303,7 @@
         removeMemberBtn: "Remove",
         confirmRemoveMember: "Are you sure you want to remove {name} from the app? They will no longer be able to log in.",
         memberRemovedMsg: "Member removed successfully.",
-        noMembersFound: "No registered members found.",
+        noMembersFound: "No registered members found in this category.",
         colPhone: "Phone",
         colRole: "Role",
         colStatus: "Status",
@@ -518,6 +527,7 @@
     window.appState = {
       currentUser: null,
       activeSection: null,
+      activeMemberGroup: "management",
       lang: "ur",
       dbReady: false,
       handlers: {}
@@ -1131,14 +1141,30 @@
     async function renderFundsAndMembersDetails(area) {
       const usersSnap = await getDocs(collection(db, "users"));
       memberNamesMap = {};
-      const members = [];
+      const allMembers = [];
       usersSnap.forEach((d) => {
         const u = d.data();
         memberNamesMap[u.phone] = u.name;
         if (u.phone !== BUILT_IN_ADMIN.phone) {
-          members.push({ id: d.id, ...u });
+          allMembers.push({ id: d.id, ...u });
         }
       });
+
+      const mgmtList = allMembers.filter((m) => m.role === "management");
+      const abroadList = allMembers.filter((m) => m.role === "abroad");
+      const publicList = allMembers.filter((m) => m.role === "public");
+
+      const validGroups = ["management", "abroad", "public"];
+      if (!validGroups.includes(window.appState.activeMemberGroup)) {
+        window.appState.activeMemberGroup = "management";
+      }
+
+      const activeGroup = window.appState.activeMemberGroup;
+      const groupMembers = activeGroup === "abroad"
+        ? abroadList
+        : activeGroup === "public"
+          ? publicList
+          : mgmtList;
 
       const fundsSnap = await getDocs(collection(db, "funds"));
       const fundItems = [];
@@ -1193,7 +1219,7 @@
           ? window.t("statusPending")
           : window.t("statusRejected");
 
-      const membersHtml = !members.length
+      const membersTableHtml = !groupMembers.length
         ? `<div class='item-box'>${window.t("noMembersFound")}</div>`
         : `
           <div class="table-wrap">
@@ -1208,7 +1234,7 @@
                 </tr>
               </thead>
               <tbody>
-                ${members.map((m) => `
+                ${groupMembers.map((m) => `
                   <tr>
                     <td><strong>${m.name || "-"}</strong></td>
                     <td dir="ltr">${m.phone || "-"}</td>
@@ -1229,9 +1255,21 @@
           ${fundsHtml}
         </div>
         <div class="sub-section">
-          <h4>${window.t("admH5", { count: members.length })}</h4>
-          ${membersHtml}
+          <h4>${window.t("admH5", { count: allMembers.length })}</h4>
+          <div class="sub-tabs">
+            <button type="button" class="sub-tab-btn ${activeGroup === "management" ? "active" : ""}" data-member-group="management">${window.t("subTabMgmt", { count: mgmtList.length })}</button>
+            <button type="button" class="sub-tab-btn ${activeGroup === "abroad" ? "active" : ""}" data-member-group="abroad">${window.t("subTabAbroad", { count: abroadList.length })}</button>
+            <button type="button" class="sub-tab-btn ${activeGroup === "public" ? "active" : ""}" data-member-group="public">${window.t("subTabPublic", { count: publicList.length })}</button>
+          </div>
+          ${membersTableHtml}
         </div>`;
+
+      area.querySelectorAll("[data-member-group]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          window.appState.activeMemberGroup = btn.dataset.memberGroup;
+          await renderFundsAndMembersDetails(area);
+        });
+      });
 
       area.querySelectorAll("[data-edit-id]").forEach((btn) => {
         btn.addEventListener("click", () => {

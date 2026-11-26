@@ -54,9 +54,10 @@
     .msg { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; display: none; }
     .msg.error { display: block; background: #fee2e2; color: #991b1b; }
     .msg.success { display: block; background: #dcfce7; color: #166534; }
-    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; margin: 12px 0 14px; }
-    .menu-btn { padding: 12px 10px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #14532d; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; text-align: center; transition: 0.15s ease; }
+    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0 6px; }
+    .menu-btn { padding: 13px 10px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #14532d; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; text-align: center; transition: 0.15s ease; }
     .menu-btn.active { background: #15803d; color: #fff; border-color: #15803d; box-shadow: 0 3px 8px rgba(21,128,61,0.22); }
+    .sub-window-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
     .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 10px; }
     .sub-tab-btn { flex: 1; min-width: 90px; padding: 7px 9px; border: 1px solid #15803d; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; text-align: center; }
     .sub-tab-btn.active { background: #15803d; color: #fff; }
@@ -272,8 +273,16 @@
       </div>
 
       <div id="roleMenu" class="menu-grid"></div>
-      <div id="adminEntryArea" style="display:none;"></div>
-      <div id="contentArea"></div>
+
+      <div id="sectionWindow" style="display:none;">
+        <div class="sub-window-bar">
+          <h3 id="activeSectionTitle"></h3>
+          <button type="button" id="backToMenuBtn" class="btn btn-sm btn-secondary">Back</button>
+        </div>
+        <div id="adminEntryArea" style="display:none;"></div>
+        <div id="contentArea"></div>
+      </div>
+
       <div id="adminMsg" class="msg"></div>
     </div>
   </div>
@@ -320,6 +329,7 @@
         loginPass: "پاس ورڈ",
         lblSelectAccountRole: "اکاؤنٹ منتخب کریں",
         loginBtn: "لاگ ان کریں",
+        backBtn: "واپس مینیو",
         pullToRefreshMsg: "ریفریش کرنے کے لیے مزید نیچے کھینچیں...",
         releaseToRefreshMsg: "چھوڑ دیں، ایپ ریفریش ہو رہی ہے...",
         regName: "پورا نام",
@@ -451,6 +461,7 @@
         loginPass: "Password",
         lblSelectAccountRole: "Select Account",
         loginBtn: "Login",
+        backBtn: "Back",
         pullToRefreshMsg: "Pull down to refresh...",
         releaseToRefreshMsg: "Release to refresh app...",
         regName: "Full Name",
@@ -1308,6 +1319,36 @@
       return window.appState.handlers.selectSection;
     }
 
+    function openSectionWindow(sectionKey) {
+      const u = window.appState.currentUser;
+      if (!u) return;
+      const sections = window.getSectionsForRole(u.role);
+      const matched = sections.find((s) => s.key === sectionKey);
+      if (!matched) return;
+
+      window.appState.activeSection = matched.key;
+      el("roleMenu").style.display = "none";
+      el("sectionWindow").style.display = "block";
+      el("activeSectionTitle").textContent = matched.label;
+      el("backToMenuBtn").textContent = window.t("backBtn");
+      window.scrollTo({ top: 0, behavior: "instant" });
+
+      window.renderAdminSectionEntry(matched.key);
+
+      if (window.appState.handlers.selectSection) {
+        window.appState.handlers.selectSection(matched.key);
+      } else {
+        el("contentArea").innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+        waitForSectionHandler().then((fn) => {
+          if (fn && window.appState.activeSection === matched.key) {
+            fn(matched.key);
+          } else if (window.appState.activeSection === matched.key) {
+            el("contentArea").innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Please refresh or check connection." : "براہِ کرم صفحہ ریفریش کریں یا انٹرنیٹ چیک کریں۔"}</div>`;
+          }
+        });
+      }
+    }
+
     window.renderRoleMenu = () => {
       const u = window.appState.currentUser;
       if (!u) return;
@@ -1315,50 +1356,49 @@
       const menu = el("roleMenu");
       menu.innerHTML = "";
 
-      if (!sections.some((s) => s.key === window.appState.activeSection)) {
-        window.appState.activeSection = sections[0] ? sections[0].key : null;
-      }
-
       sections.forEach((sec) => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "menu-btn" + (window.appState.activeSection === sec.key ? " active" : "");
         btn.textContent = sec.label;
         btn.addEventListener("click", () => {
-          window.appState.activeSection = sec.key;
-          window.renderRoleMenu();
+          openSectionWindow(sec.key);
         });
         menu.appendChild(btn);
       });
 
-      window.renderAdminSectionEntry(window.appState.activeSection);
-
-      const currentSec = window.appState.activeSection;
-      if (!currentSec) {
-        el("contentArea").innerHTML = "";
-        return;
-      }
-
-      if (window.appState.handlers.selectSection) {
-        window.appState.handlers.selectSection(currentSec);
+      if (window.appState.activeSection && sections.some((s) => s.key === window.appState.activeSection)) {
+        openSectionWindow(window.appState.activeSection);
       } else {
-        el("contentArea").innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
-        waitForSectionHandler().then((fn) => {
-          if (fn && window.appState.activeSection === currentSec) {
-            fn(currentSec);
-          } else if (window.appState.activeSection === currentSec) {
-            el("contentArea").innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Please refresh or check connection." : "براہِ کرم صفحہ ریفریش کریں یا انٹرنیٹ چیک کریں۔"}</div>`;
-          }
-        });
+        window.appState.activeSection = null;
+        menu.style.display = "grid";
+        el("sectionWindow").style.display = "none";
+        el("adminEntryArea").style.display = "none";
+        el("adminEntryArea").innerHTML = "";
+        el("contentArea").innerHTML = "";
       }
     };
+
+    el("backToMenuBtn").addEventListener("click", () => {
+      window.appState.activeSection = null;
+      el("sectionWindow").style.display = "none";
+      el("adminEntryArea").style.display = "none";
+      el("adminEntryArea").innerHTML = "";
+      el("contentArea").innerHTML = "";
+      el("roleMenu").style.display = "grid";
+      window.scrollTo({ top: 0, behavior: "instant" });
+      window.renderRoleMenu();
+    });
 
     window.openPortal = () => {
       const u = window.appState.currentUser;
       if (!u) return;
+      window.appState.activeSection = null;
       window.applySelectionRestriction();
       el("authCard").style.display = "none";
       el("portalCard").style.display = "block";
+      el("sectionWindow").style.display = "none";
+      el("roleMenu").style.display = "grid";
       window.updatePortalHeader();
       window.renderRoleMenu();
     };
@@ -1379,6 +1419,7 @@
       el("lblLoginPass").textContent = window.t("loginPass");
       el("lblSelectAccountRole").textContent = window.t("lblSelectAccountRole");
       el("loginBtn").textContent = window.t("loginBtn");
+      el("backToMenuBtn").textContent = window.t("backBtn");
 
       el("lblRegName").textContent = window.t("regName");
       el("lblRegPhone").textContent = window.t("regPhone");
@@ -1491,8 +1532,11 @@
       window.appState.activeSection = null;
       window.applySelectionRestriction();
       el("portalCard").style.display = "none";
+      el("sectionWindow").style.display = "none";
+      el("roleMenu").style.display = "grid";
       el("adminEntryArea").style.display = "none";
       el("adminEntryArea").innerHTML = "";
+      el("contentArea").innerHTML = "";
       if (el("portalUserAvatar")) {
         el("portalUserAvatar").src = "";
         el("portalUserAvatar").style.display = "none";
@@ -1516,14 +1560,14 @@
       );
     }
 
-    function isInitialMainInterfaceAtTop() {
+    function isFirstMenuInterfaceAtTop() {
       const hasUser = Boolean(window.appState.currentUser);
-      const authCard = el("authCard");
       const portalCard = el("portalCard");
-      const authVisible = Boolean(authCard && getComputedStyle(authCard).display !== "none");
-      const portalHidden = Boolean(!portalCard || getComputedStyle(portalCard).display === "none");
+      const portalVisible = Boolean(portalCard && getComputedStyle(portalCard).display !== "none");
+      const sectionWindowOpen = Boolean(el("sectionWindow") && getComputedStyle(el("sectionWindow")).display !== "none");
+      const noActiveSection = !window.appState.activeSection;
       const modalOpen = Boolean(el("imgPreviewModal") && el("imgPreviewModal").classList.contains("open"));
-      return !hasUser && authVisible && portalHidden && !modalOpen && getPageScrollTop() <= 0;
+      return hasUser && portalVisible && !sectionWindowOpen && noActiveSection && !modalOpen && getPageScrollTop() <= 0;
     }
 
     function resetPullToRefreshUi() {
@@ -1541,7 +1585,7 @@
         return;
       }
       ptrStartY = e.touches[0].clientY;
-      ptrPulling = isInitialMainInterfaceAtTop();
+      ptrPulling = isFirstMenuInterfaceAtTop();
       if (!ptrPulling && ptrBox) {
         ptrBox.style.display = "none";
       }
@@ -1553,7 +1597,7 @@
         return;
       }
       const dy = e.touches[0].clientY - ptrStartY;
-      const allowHere = isInitialMainInterfaceAtTop();
+      const allowHere = isFirstMenuInterfaceAtTop();
 
       if (!allowHere) {
         resetPullToRefreshUi();
@@ -1577,7 +1621,7 @@
         resetPullToRefreshUi();
         return;
       }
-      const canRefresh = isInitialMainInterfaceAtTop();
+      const canRefresh = isFirstMenuInterfaceAtTop();
       const endY = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : ptrStartY;
       const dy = endY - ptrStartY;
       resetPullToRefreshUi();

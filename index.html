@@ -90,14 +90,30 @@
       border-radius: 10px;
       text-align: center;
     }
+    .img-modal-viewport {
+      overflow: auto;
+      max-width: 90vw;
+      max-height: 74vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 8px;
+    }
     .img-modal-box img {
       max-width: 100%;
-      max-height: 78vh;
+      max-height: 72vh;
       border-radius: 8px;
       display: block;
       margin: 0 auto;
+      transform-origin: center center;
+      transition: transform 0.15s ease;
+      cursor: zoom-in;
     }
-    .img-modal-close {
+    .img-modal-controls {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
       margin-top: 10px;
     }
   </style>
@@ -180,9 +196,16 @@
 
   <div id="imgPreviewModal" class="img-modal">
     <div class="img-modal-box">
-      <img id="imgPreviewTag" src="" alt="Preview" />
+      <div id="imgModalViewport" class="img-modal-viewport">
+        <img id="imgPreviewTag" src="" alt="Preview" />
+      </div>
       <div id="imgPreviewTitle" style="color:#fff; font-size:13px; margin-top:8px;"></div>
-      <button type="button" id="closeImgModalBtn" class="btn btn-sm btn-danger img-modal-close">Close</button>
+      <div class="img-modal-controls">
+        <button type="button" id="zoomInBtn" class="btn btn-sm btn-primary" style="width:auto;">Zoom +</button>
+        <button type="button" id="zoomOutBtn" class="btn btn-sm btn-secondary">Zoom -</button>
+        <button type="button" id="zoomResetBtn" class="btn btn-sm btn-edit">Reset</button>
+        <button type="button" id="closeImgModalBtn" class="btn btn-sm btn-danger">Close</button>
+      </div>
     </div>
   </div>
 
@@ -982,16 +1005,60 @@
     });
 
     const imgModal = el("imgPreviewModal");
+    const imgModalViewport = el("imgModalViewport");
     const imgModalTag = el("imgPreviewTag");
     const imgModalTitle = el("imgPreviewTitle");
+    const zoomInBtn = el("zoomInBtn");
+    const zoomOutBtn = el("zoomOutBtn");
+    const zoomResetBtn = el("zoomResetBtn");
     const closeImgModalBtn = el("closeImgModalBtn");
+    let currentZoom = 1;
+
+    function applyImageZoom(nextZoom) {
+      currentZoom = Math.min(4, Math.max(1, Number(nextZoom.toFixed(2))));
+      if (!imgModalTag) return;
+      imgModalTag.style.transform = `scale(${currentZoom})`;
+      imgModalTag.style.cursor = currentZoom > 1 ? "zoom-out" : "zoom-in";
+    }
 
     function closeImageModal() {
       if (!imgModal) return;
+      currentZoom = 1;
+      if (imgModalTag) {
+        imgModalTag.style.transform = "scale(1)";
+        imgModalTag.style.cursor = "zoom-in";
+        imgModalTag.src = "";
+      }
+      if (imgModalViewport) {
+        imgModalViewport.scrollTop = 0;
+        imgModalViewport.scrollLeft = 0;
+      }
       imgModal.classList.remove("open");
-      if (imgModalTag) imgModalTag.src = "";
     }
 
+    if (zoomInBtn) {
+      zoomInBtn.addEventListener("click", () => applyImageZoom(currentZoom + 0.5));
+    }
+    if (zoomOutBtn) {
+      zoomOutBtn.addEventListener("click", () => applyImageZoom(currentZoom - 0.5));
+    }
+    if (zoomResetBtn) {
+      zoomResetBtn.addEventListener("click", () => applyImageZoom(1));
+    }
+    if (imgModalTag) {
+      imgModalTag.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (currentZoom >= 2) applyImageZoom(1);
+        else applyImageZoom(currentZoom + 0.75);
+      });
+    }
+    if (imgModalViewport) {
+      imgModalViewport.addEventListener("wheel", (e) => {
+        if (!imgModal || !imgModal.classList.contains("open")) return;
+        e.preventDefault();
+        applyImageZoom(e.deltaY < 0 ? currentZoom + 0.25 : currentZoom - 0.25);
+      }, { passive: false });
+    }
     if (closeImgModalBtn) {
       closeImgModalBtn.addEventListener("click", closeImageModal);
     }
@@ -1005,6 +1072,9 @@
       const clickedImg = e.target.closest("img");
       if (!clickedImg || clickedImg.id === "imgPreviewTag" || !clickedImg.src) return;
       if (imgModal && imgModalTag) {
+        currentZoom = 1;
+        imgModalTag.style.transform = "scale(1)";
+        imgModalTag.style.cursor = "zoom-in";
         imgModalTag.src = clickedImg.src;
         if (imgModalTitle) {
           imgModalTitle.textContent = clickedImg.alt || "";

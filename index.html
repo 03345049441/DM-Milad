@@ -72,13 +72,12 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.92);
       z-index: 9999;
       justify-content: center;
       align-items: center;
       padding: 12px;
-      overflow: auto;
-      touch-action: manipulation;
+      touch-action: none;
     }
     .img-modal.open {
       display: flex;
@@ -91,15 +90,18 @@
       padding: 10px;
       border-radius: 10px;
       text-align: center;
-      touch-action: manipulation;
+      touch-action: none;
     }
     .img-modal-viewport {
       overflow: auto;
       max-width: 92vw;
       max-height: 76vh;
       border-radius: 8px;
-      touch-action: manipulation;
+      touch-action: none;
       -webkit-overflow-scrolling: touch;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .img-modal-box img {
       max-width: 100%;
@@ -109,7 +111,9 @@
       border-radius: 8px;
       display: block;
       margin: 0 auto;
-      touch-action: manipulation;
+      transform-origin: center center;
+      transition: transform 0.06s ease-out;
+      touch-action: none;
     }
     .img-modal-close {
       margin-top: 10px;
@@ -215,7 +219,7 @@
     const FUND_PURPOSES = [
       { id: "monthly", ur: "ماہانہ فنڈ", en: "Monthly Fund" },
       { id: "yearly", ur: "سالانہ فنڈ", en: "Yearly Fund" },
-      { id: "general_milad", ur: "عمومی میلاد فنڈ", en: "General Milad Fund" },
+      { id: "general_milad", ur: "جنرل میلاد فنڈ", en: "General Milad Fund" },
       { id: "shohda_karbala", ur: "برائے شہداء کربلا کانفرنس", en: "For Shohda Karbala Conference" },
       { id: "urs_ghous", ur: "برائے عرس غوث الورٰی", en: "For Urs e Ghous ul Waraa" }
     ];
@@ -252,10 +256,10 @@
         secApprovals: "زیرِ التوا درخواستیں",
         secMahafil: "محافل",
         secInformation: "معلومات",
-        roleAdminLabel: "ایڈمن",
-        rolePublicLabel: "عام عوام",
-        roleMgmtLabel: "انتظامیہ",
-        roleAbroadLabel: "بیرونِ ملک",
+        roleAdminLabel: "ایڈمن (Admin)",
+        rolePublicLabel: "عام عوام (Public)",
+        roleMgmtLabel: "انتظامیہ (Management)",
+        roleAbroadLabel: "بیرونِ ملک (Abroad)",
         publicNotAllowedExisting: "اس فون نمبر پر پہلے سے اکاؤنٹ موجود ہے، اس لیے عام عوام (Public) میں اکاؤنٹ نہیں بن سکتا۔",
         roleAlreadyExists: "اس نمبر پر اس کیٹیگری میں پہلے سے اکاؤنٹ موجود ہے۔",
         chooseAccountToLogin: "اس نمبر پر ایک سے زیادہ اکاؤنٹس موجود ہیں، براہِ کرم اکاؤنٹ منتخب کر کے دوبارہ لاگ ان دبائیں۔",
@@ -344,9 +348,9 @@
         secPhotos: "Photos",
         secVideos: "Videos",
         secFunds: "Funds Details",
-        secExpenses: "Expenses Detail",
+        secExpenses: "Expenses Details",
         secLangar: "Langar Details",
-        secFundsMembers: "Members Detail",
+        secFundsMembers: "Members Details",
         secApprovals: "Pending Approvals",
         secMahafil: "Mahafil",
         secInformation: "Information",
@@ -1003,9 +1007,30 @@
     const imgModalTitle = el("imgPreviewTitle");
     const closeImgModalBtn = el("closeImgModalBtn");
 
+    let pinchScale = 1;
+    let pinchStartDist = 0;
+    let pinchStartScale = 1;
+    let lastTapTime = 0;
+
+    function applyPinchTransform(nextScale) {
+      pinchScale = Math.min(4, Math.max(1, Number(nextScale.toFixed(2))));
+      if (!imgModalTag) return;
+      imgModalTag.style.transform = `scale(${pinchScale})`;
+    }
+
+    function getTouchDistance(t1, t2) {
+      const dx = t1.clientX - t2.clientX;
+      const dy = t1.clientY - t2.clientY;
+      return Math.hypot(dx, dy);
+    }
+
     function closeImageModal() {
       if (!imgModal) return;
+      pinchScale = 1;
+      pinchStartDist = 0;
+      pinchStartScale = 1;
       if (imgModalTag) {
+        imgModalTag.style.transform = "scale(1)";
         imgModalTag.src = "";
       }
       if (imgModalViewport) {
@@ -1013,6 +1038,39 @@
         imgModalViewport.scrollLeft = 0;
       }
       imgModal.classList.remove("open");
+    }
+
+    if (imgModalTag) {
+      imgModalTag.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 2) {
+          e.preventDefault();
+          pinchStartDist = getTouchDistance(e.touches[0], e.touches[1]);
+          pinchStartScale = pinchScale;
+        } else if (e.touches.length === 1) {
+          const now = Date.now();
+          if (now - lastTapTime < 300) {
+            e.preventDefault();
+            applyPinchTransform(pinchScale > 1 ? 1 : 2);
+          }
+          lastTapTime = now;
+        }
+      }, { passive: false });
+
+      imgModalTag.addEventListener("touchmove", (e) => {
+        if (e.touches.length === 2 && pinchStartDist > 0) {
+          e.preventDefault();
+          const currentDist = getTouchDistance(e.touches[0], e.touches[1]);
+          const ratio = currentDist / pinchStartDist;
+          applyPinchTransform(pinchStartScale * ratio);
+        }
+      }, { passive: false });
+
+      imgModalTag.addEventListener("touchend", (e) => {
+        if (e.touches.length < 2) {
+          pinchStartDist = 0;
+          pinchStartScale = pinchScale;
+        }
+      });
     }
 
     if (closeImgModalBtn) {
@@ -1028,6 +1086,10 @@
       const clickedImg = e.target.closest("img");
       if (!clickedImg || clickedImg.id === "imgPreviewTag" || !clickedImg.src) return;
       if (imgModal && imgModalTag) {
+        pinchScale = 1;
+        pinchStartDist = 0;
+        pinchStartScale = 1;
+        imgModalTag.style.transform = "scale(1)";
         imgModalTag.src = clickedImg.src;
         if (imgModalTitle) {
           imgModalTitle.textContent = clickedImg.alt || "";

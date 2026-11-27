@@ -12,7 +12,7 @@
       overscroll-behavior-x: none;
       touch-action: pan-x pan-y;
     }
-    body { margin: 0; padding: 12px; background: #f1f5f9; color: #0f172a; line-height: 1.6; }
+    body { margin: 0; padding: 12px 12px 76px; background: #f1f5f9; color: #0f172a; line-height: 1.6; }
     body.no-select { -webkit-user-select: none; user-select: none; }
     body.admin-select { -webkit-user-select: text; user-select: text; }
     .container { max-width: 720px; margin: 0 auto; }
@@ -78,6 +78,30 @@
     .btn-approve { background: #15803d; color: #fff; flex: 1; }
     .btn-reject { background: #b91c1c; color: #fff; flex: 1; }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .floating-back-btn {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9500;
+      background: #14532d;
+      color: #ffffff;
+      border: 2px solid #86efac;
+      border-radius: 999px;
+      padding: 9px 22px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.32);
+      display: none;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .floating-back-btn:active {
+      background: #15803d;
+      transform: translateX(-50%) scale(0.97);
+    }
     .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
     .tab-btn { flex: 1; padding: 9px; border: 1px solid #15803d; background: #fff; color: #15803d; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .tab-btn.active { background: #15803d; color: #fff; }
@@ -419,6 +443,8 @@
     </div>
   </div>
 
+  <button type="button" id="floatingBackBtn" class="floating-back-btn">← Back</button>
+
   <div id="imgPreviewModal" class="img-modal">
     <div class="img-modal-box">
       <div id="imgModalViewport" class="img-modal-viewport">
@@ -460,6 +486,7 @@
         toggleBtn: "English",
         refreshBtn: "ریفریش",
         addBtn: "+ ایڈ کریں",
+        backNavBtn: "← واپس / Back",
         exitBtn: "ایگزٹ",
         exitNotice: "ایپ بند کرنے کے لیے موبائل کا Back بٹن یا ٹیب بند کریں۔",
         refreshedMsg: "ڈیٹا ریفریش ہو گیا۔",
@@ -597,6 +624,7 @@
         toggleBtn: "اردو",
         refreshBtn: "Refresh",
         addBtn: "+ Add",
+        backNavBtn: "← Back",
         exitBtn: "Exit",
         exitNotice: "Use device Back or close the app tab to exit.",
         refreshedMsg: "Refreshed.",
@@ -1271,11 +1299,15 @@
       handlers: {}
     };
 
-    function armBackTrap() {
-      try {
-        history.replaceState({ guard: "menu" }, "", "#menu");
-        history.pushState({ guard: "sub" }, "", "#sub");
-      } catch (e) {}
+    function syncFloatingBackBtn() {
+      const btn = el("floatingBackBtn");
+      if (!btn) return;
+      const shouldShow = Boolean(
+        window.appState.currentUser &&
+        (window.appState.activeSection || window.appState.addWindowOpen)
+      );
+      btn.textContent = window.t("backNavBtn");
+      btn.style.display = shouldShow ? "inline-flex" : "none";
     }
 
     window.saveUserSession = (user) => {
@@ -1400,6 +1432,7 @@
       if (el("mainMenuControls")) {
         el("mainMenuControls").style.display = isOnMainMenu ? "flex" : "none";
       }
+      syncFloatingBackBtn();
     };
 
     function syncAddWindowVisibility(sectionKey) {
@@ -1423,6 +1456,7 @@
           entryArea.innerHTML = "";
         }
         if (contentArea) contentArea.style.display = "block";
+        syncFloatingBackBtn();
         return;
       }
 
@@ -1441,6 +1475,7 @@
         }
         if (contentArea) contentArea.style.display = "block";
       }
+      syncFloatingBackBtn();
     }
 
     window.renderAdminSectionEntry = (sectionKey) => {
@@ -1565,9 +1600,6 @@
       }
 
       window.appState.activeSection = matched.key;
-      if (isNewSection) {
-        armBackTrap();
-      }
 
       el("roleMenu").style.display = "none";
       el("sectionWindow").style.display = "block";
@@ -1600,7 +1632,6 @@
     function closeAddWindow() {
       if (!window.appState.addWindowOpen) return;
       window.appState.addWindowOpen = false;
-      armBackTrap();
       const sec = window.appState.activeSection;
       syncAddWindowVisibility(sec);
       if (sec && window.appState.handlers.selectSection) {
@@ -1621,15 +1652,11 @@
       window.renderRoleMenu();
     }
 
-    function handleSystemBackStep() {
+    function handleBackButtonClick() {
       if (!window.appState.currentUser) return;
-      if (imgModal && imgModal.classList.contains("open")) {
-        closeImageModal();
-        armBackTrap();
-        return;
-      }
       if (window.appState.addWindowOpen) {
         closeAddWindow();
+        window.scrollTo({ top: 0, behavior: "instant" });
         return;
       }
       if (window.appState.activeSection) {
@@ -1641,20 +1668,11 @@
       const sec = window.appState.activeSection;
       if (!sec || !ADD_CAPABLE_SECTIONS.includes(sec)) return;
       window.appState.addWindowOpen = true;
-      armBackTrap();
       syncAddWindowVisibility(sec);
       window.scrollTo({ top: 0, behavior: "instant" });
     });
 
-    window.addEventListener("popstate", () => {
-      handleSystemBackStep();
-    });
-
-    window.addEventListener("hashchange", () => {
-      if (window.appState.currentUser && (window.appState.activeSection || window.appState.addWindowOpen)) {
-        handleSystemBackStep();
-      }
-    });
+    el("floatingBackBtn").addEventListener("click", handleBackButtonClick);
 
     window.renderRoleMenu = () => {
       const u = window.appState.currentUser;
@@ -1715,6 +1733,7 @@
       if (el("portalAppTitle")) el("portalAppTitle").textContent = window.t("appHeading");
       el("portalRefreshBtn").textContent = window.t("refreshBtn");
       el("openAddWindowBtn").textContent = window.t("addBtn");
+      if (el("floatingBackBtn")) el("floatingBackBtn").textContent = window.t("backNavBtn");
       el("exitBtn").textContent = window.t("exitBtn");
       el("langBtn").textContent = window.t("toggleBtn");
       el("portalLangBtn").textContent = window.t("toggleBtn");
@@ -1864,6 +1883,7 @@
       window.appState.currentUser = null;
       window.appState.activeSection = null;
       window.appState.addWindowOpen = false;
+      syncFloatingBackBtn();
       window.applySelectionRestriction();
       el("portalCard").style.display = "none";
       el("sectionWindow").style.display = "none";
@@ -3184,7 +3204,6 @@
           el("secMediaUrl").value = "";
           if (fileInp) fileInp.value = "";
           window.appState.addWindowOpen = false;
-          armBackTrap();
           syncAddWindowVisibility(category);
           window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
           await window.appState.handlers.selectSection(category);
@@ -3232,7 +3251,6 @@
           el("secExpUrl").value = "";
           if (fileInp) fileInp.value = "";
           window.appState.addWindowOpen = false;
-          armBackTrap();
           syncAddWindowVisibility("expenses");
           window.showAdminMsg(l === "en" ? "Expense photo saved." : "اخراجات کی تصویر محفوظ ہو گئی۔", "success");
           await window.appState.handlers.selectSection("expenses");
@@ -3286,7 +3304,6 @@
           el("fundAmount").value = "";
           el("fundPurpose").value = "";
           window.appState.addWindowOpen = false;
-          armBackTrap();
           syncAddWindowVisibility("funds_members");
           window.showAdminMsg(l === "en" ? "Fund record saved." : "فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
           await renderFundsAndMembersDetails(el("contentArea"));

@@ -437,8 +437,6 @@
     };
 
     const SESSION_STORAGE_KEY = "dm_milad_session_v1";
-    const SECTION_STORAGE_KEY = "dm_milad_active_section_v1";
-    const ADD_WINDOW_STORAGE_KEY = "dm_milad_add_window_v1";
     const LANG_STORAGE_KEY = "dm_milad_lang_v1";
     const ADMIN_PASS_OVERRIDE_KEY = "dm_milad_admin_pass_v1";
     const ADMIN_PHOTO_CACHE_KEY = "dm_milad_admin_photo_v1";
@@ -810,42 +808,6 @@
       try {
         if (dataUrl) localStorage.setItem(ADMIN_PHOTO_CACHE_KEY, dataUrl);
       } catch (e) {}
-    }
-
-    function saveSavedSection(secKey) {
-      try {
-        if (secKey) {
-          localStorage.setItem(SECTION_STORAGE_KEY, secKey);
-        } else {
-          localStorage.removeItem(SECTION_STORAGE_KEY);
-        }
-      } catch (e) {}
-    }
-
-    function loadSavedSection() {
-      try {
-        return localStorage.getItem(SECTION_STORAGE_KEY) || null;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function saveAddWindowOpen(isOpen) {
-      try {
-        if (isOpen) {
-          localStorage.setItem(ADD_WINDOW_STORAGE_KEY, "1");
-        } else {
-          localStorage.removeItem(ADD_WINDOW_STORAGE_KEY);
-        }
-      } catch (e) {}
-    }
-
-    function loadAddWindowOpen() {
-      try {
-        return localStorage.getItem(ADD_WINDOW_STORAGE_KEY) === "1";
-      } catch (e) {
-        return false;
-      }
     }
 
     function todayISO() {
@@ -1300,14 +1262,21 @@
 
     window.appState = {
       currentUser: null,
-      activeSection: loadSavedSection(),
-      addWindowOpen: loadAddWindowOpen(),
+      activeSection: null,
+      addWindowOpen: false,
       activeMemberGroup: "management",
       selectedFundMemberPhone: "",
       lang: readSavedLang(),
       dbReady: false,
       handlers: {}
     };
+
+    function armBackTrap() {
+      try {
+        history.replaceState({ guard: "menu" }, "", "#menu");
+        history.pushState({ guard: "sub" }, "", "#sub");
+      } catch (e) {}
+    }
 
     window.saveUserSession = (user) => {
       try {
@@ -1322,8 +1291,6 @@
           }));
         } else {
           localStorage.removeItem(SESSION_STORAGE_KEY);
-          saveSavedSection(null);
-          saveAddWindowOpen(false);
         }
       } catch (e) {}
     };
@@ -1450,7 +1417,6 @@
 
       if (!canAddHere) {
         window.appState.addWindowOpen = false;
-        saveAddWindowOpen(false);
         if (addBtn) addBtn.style.display = "none";
         if (entryArea) {
           entryArea.style.display = "none";
@@ -1578,12 +1544,6 @@
       entryArea.innerHTML = "";
     };
 
-    function pushNavState(secKey, addOpen) {
-      try {
-        history.pushState({ sec: secKey || null, addOpen: Boolean(addOpen) }, "");
-      } catch (e) {}
-    }
-
     async function waitForSectionHandler(maxMs = 4500) {
       const start = Date.now();
       while (!window.appState.handlers.selectSection && Date.now() - start < maxMs) {
@@ -1592,7 +1552,7 @@
       return window.appState.handlers.selectSection;
     }
 
-    function openSectionWindow(sectionKey, { silent = false, fromPop = false } = {}) {
+    function openSectionWindow(sectionKey, { silent = false } = {}) {
       const u = window.appState.currentUser;
       if (!u) return;
       const sections = window.getSectionsForRole(u.role);
@@ -1600,15 +1560,13 @@
       if (!matched) return;
 
       const isNewSection = window.appState.activeSection !== matched.key;
-      if (isNewSection && !fromPop) {
+      if (isNewSection) {
         window.appState.addWindowOpen = false;
-        saveAddWindowOpen(false);
       }
 
       window.appState.activeSection = matched.key;
-      saveSavedSection(matched.key);
-      if (!fromPop && isNewSection) {
-        pushNavState(matched.key, false);
+      if (isNewSection) {
+        armBackTrap();
       }
 
       el("roleMenu").style.display = "none";
@@ -1639,13 +1597,10 @@
       }
     }
 
-    function closeAddWindow({ fromPop = false } = {}) {
+    function closeAddWindow() {
       if (!window.appState.addWindowOpen) return;
       window.appState.addWindowOpen = false;
-      saveAddWindowOpen(false);
-      if (!fromPop) {
-        pushNavState(window.appState.activeSection, false);
-      }
+      armBackTrap();
       const sec = window.appState.activeSection;
       syncAddWindowVisibility(sec);
       if (sec && window.appState.handlers.selectSection) {
@@ -1653,53 +1608,51 @@
       }
     }
 
-    function returnToMainMenu({ fromPop = false } = {}) {
+    function returnToMainMenu() {
       window.appState.activeSection = null;
       window.appState.addWindowOpen = false;
-      saveSavedSection(null);
-      saveAddWindowOpen(false);
-      if (!fromPop) {
-        pushNavState(null, false);
-      }
       el("sectionWindow").style.display = "none";
       el("adminEntryArea").style.display = "none";
       el("adminEntryArea").innerHTML = "";
       el("contentArea").innerHTML = "";
       el("roleMenu").style.display = "grid";
       window.updatePortalHeader();
-      if (!fromPop) {
-        window.scrollTo({ top: 0, behavior: "instant" });
-      }
+      window.scrollTo({ top: 0, behavior: "instant" });
       window.renderRoleMenu();
+    }
+
+    function handleSystemBackStep() {
+      if (!window.appState.currentUser) return;
+      if (imgModal && imgModal.classList.contains("open")) {
+        closeImageModal();
+        armBackTrap();
+        return;
+      }
+      if (window.appState.addWindowOpen) {
+        closeAddWindow();
+        return;
+      }
+      if (window.appState.activeSection) {
+        returnToMainMenu();
+      }
     }
 
     el("openAddWindowBtn").addEventListener("click", () => {
       const sec = window.appState.activeSection;
       if (!sec || !ADD_CAPABLE_SECTIONS.includes(sec)) return;
       window.appState.addWindowOpen = true;
-      saveAddWindowOpen(true);
-      pushNavState(sec, true);
+      armBackTrap();
       syncAddWindowVisibility(sec);
       window.scrollTo({ top: 0, behavior: "instant" });
     });
 
-    window.addEventListener("popstate", (e) => {
-      if (!window.appState.currentUser) return;
-      const st = e.state;
-      if (st && st.sec) {
-        window.appState.activeSection = st.sec;
-        window.appState.addWindowOpen = Boolean(st.addOpen);
-        saveSavedSection(st.sec);
-        saveAddWindowOpen(Boolean(st.addOpen));
-        openSectionWindow(st.sec, { silent: false, fromPop: true });
-        return;
-      }
-      if (window.appState.addWindowOpen) {
-        closeAddWindow({ fromPop: true });
-        return;
-      }
-      if (window.appState.activeSection) {
-        returnToMainMenu({ fromPop: true });
+    window.addEventListener("popstate", () => {
+      handleSystemBackStep();
+    });
+
+    window.addEventListener("hashchange", () => {
+      if (window.appState.currentUser && (window.appState.activeSection || window.appState.addWindowOpen)) {
+        handleSystemBackStep();
       }
     });
 
@@ -1722,12 +1675,10 @@
       });
 
       if (window.appState.activeSection && sections.some((s) => s.key === window.appState.activeSection)) {
-        openSectionWindow(window.appState.activeSection, { fromPop: true });
+        openSectionWindow(window.appState.activeSection);
       } else {
         window.appState.activeSection = null;
         window.appState.addWindowOpen = false;
-        saveSavedSection(null);
-        saveAddWindowOpen(false);
         menu.style.display = "grid";
         el("sectionWindow").style.display = "none";
         el("adminEntryArea").style.display = "none";
@@ -1743,8 +1694,6 @@
       if (!preserveSection) {
         window.appState.activeSection = null;
         window.appState.addWindowOpen = false;
-        saveSavedSection(null);
-        saveAddWindowOpen(false);
       }
       window.applySelectionRestriction();
       el("authCard").style.display = "none";
@@ -1809,11 +1758,8 @@
       if (isPortal && window.appState.currentUser) {
         window.saveUserSession(window.appState.currentUser);
       }
-      if (window.appState.activeSection) {
-        saveSavedSection(window.appState.activeSection);
-      }
-      saveAddWindowOpen(Boolean(window.appState.addWindowOpen));
       const url = new URL(window.location.href);
+      url.hash = "";
       url.searchParams.set("v", String(Date.now()));
       try {
         window.location.replace(url.toString());
@@ -2185,7 +2131,7 @@
     window.applySelectionRestriction();
     window.applyTranslations();
     if (window.appState.currentUser) {
-      window.openPortal({ preserveSection: true });
+      window.openPortal({ preserveSection: false });
     }
   </script>
 
@@ -3238,8 +3184,7 @@
           el("secMediaUrl").value = "";
           if (fileInp) fileInp.value = "";
           window.appState.addWindowOpen = false;
-          saveAddWindowOpen(false);
-          pushNavState(category, false);
+          armBackTrap();
           syncAddWindowVisibility(category);
           window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
           await window.appState.handlers.selectSection(category);
@@ -3287,8 +3232,7 @@
           el("secExpUrl").value = "";
           if (fileInp) fileInp.value = "";
           window.appState.addWindowOpen = false;
-          saveAddWindowOpen(false);
-          pushNavState("expenses", false);
+          armBackTrap();
           syncAddWindowVisibility("expenses");
           window.showAdminMsg(l === "en" ? "Expense photo saved." : "اخراجات کی تصویر محفوظ ہو گئی۔", "success");
           await window.appState.handlers.selectSection("expenses");
@@ -3342,8 +3286,7 @@
           el("fundAmount").value = "";
           el("fundPurpose").value = "";
           window.appState.addWindowOpen = false;
-          saveAddWindowOpen(false);
-          pushNavState("funds_members", false);
+          armBackTrap();
           syncAddWindowVisibility("funds_members");
           window.showAdminMsg(l === "en" ? "Fund record saved." : "فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
           await renderFundsAndMembersDetails(el("contentArea"));
@@ -3522,20 +3465,16 @@
 
       if (saved.role === "admin" && saved.phone === BUILT_IN_ADMIN.phone) {
         const wasAlreadyOpen = Boolean(window.appState.currentUser);
-        const prevSection = window.appState.activeSection || loadSavedSection();
         window.appState.currentUser = {
           ...saved,
           photoUrl: saved.photoUrl || getCachedAdminPhoto()
         };
-        if (prevSection && !window.appState.activeSection) {
-          window.appState.activeSection = prevSection;
-        }
         if (!wasAlreadyOpen || forceOpenPortal) {
-          window.openPortal({ preserveSection: true });
+          window.openPortal({ preserveSection: false });
         } else {
           window.updatePortalHeader();
-          if (prevSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
-            await window.appState.handlers.selectSection(prevSection, { silent: true });
+          if (window.appState.activeSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
+            await window.appState.handlers.selectSection(window.appState.activeSection, { silent: true });
           }
         }
         if (window.appState.handlers.syncAdminProfile) {
@@ -3552,36 +3491,28 @@
 
         if (matchedAcc) {
           const wasAlreadyOpen = Boolean(window.appState.currentUser);
-          const prevSection = window.appState.activeSection || loadSavedSection();
           window.appState.currentUser = matchedAcc;
-          if (prevSection && !window.appState.activeSection) {
-            window.appState.activeSection = prevSection;
-          }
           window.saveUserSession(matchedAcc);
           if (!wasAlreadyOpen || forceOpenPortal) {
-            window.openPortal({ preserveSection: true });
+            window.openPortal({ preserveSection: false });
           } else {
             window.updatePortalHeader();
-            if (prevSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
-              await window.appState.handlers.selectSection(prevSection, { silent: true });
+            if (window.appState.activeSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
+              await window.appState.handlers.selectSection(window.appState.activeSection, { silent: true });
             }
           }
         } else if (saved.role === "public" && saved.status === "active") {
           const pubAcc = accounts.find((acc) => acc.role === "public" && acc.status !== "rejected");
           if (pubAcc) {
             const wasAlreadyOpen = Boolean(window.appState.currentUser);
-            const prevSection = window.appState.activeSection || loadSavedSection();
             window.appState.currentUser = pubAcc;
-            if (prevSection && !window.appState.activeSection) {
-              window.appState.activeSection = prevSection;
-            }
             window.saveUserSession(pubAcc);
             if (!wasAlreadyOpen || forceOpenPortal) {
-              window.openPortal({ preserveSection: true });
+              window.openPortal({ preserveSection: false });
             } else {
               window.updatePortalHeader();
-              if (prevSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
-                await window.appState.handlers.selectSection(prevSection, { silent: true });
+              if (window.appState.activeSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
+                await window.appState.handlers.selectSection(window.appState.activeSection, { silent: true });
               }
             }
           } else {
@@ -3593,7 +3524,7 @@
       } catch (e) {
         if (!window.appState.currentUser) {
           window.appState.currentUser = saved;
-          window.openPortal({ preserveSection: true });
+          window.openPortal({ preserveSection: false });
         }
       }
     }

@@ -17,7 +17,7 @@
     body.admin-select { -webkit-user-select: text; user-select: text; }
     .container { max-width: 720px; margin: 0 auto; }
     .card { background: #fff; padding: 16px; border-radius: 14px; box-shadow: 0 2px 12px rgba(15,23,42,0.08); margin-bottom: 14px; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; flex-wrap: wrap; }
+    .top-bar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; }
     .brand-hero {
       width: 100%;
       text-align: center;
@@ -47,7 +47,26 @@
       border-bottom: 1px solid #e2e8f0;
       flex-wrap: wrap;
     }
-    .header-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+      width: 100%;
+    }
+    .header-actions .btn {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 9px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 8px;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      line-height: 1.3;
+    }
     .user-header-wrap { display: flex; align-items: center; gap: 10px; }
     .avatar-sm { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; object-position: center center; border: 2px solid #15803d; background: #dcfce7; flex-shrink: 0; cursor: pointer; }
     .avatar-md { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; object-position: center center; border: 2px solid #15803d; background: #dcfce7; flex-shrink: 0; cursor: pointer; }
@@ -72,7 +91,6 @@
     .btn-primary { background: #15803d; color: #fff; width: 100%; padding: 10px; font-size: 14px; }
     .btn-secondary { background: #334155; color: #fff; }
     .btn-refresh { background: #0f766e; color: #fff; }
-    .btn-exit { background: #475569; color: #fff; }
     .btn-danger { background: #b91c1c; color: #fff; }
     .btn-edit { background: #0369a1; color: #fff; }
     .btn-approve { background: #15803d; color: #fff; flex: 1; }
@@ -418,7 +436,6 @@
           <button type="button" id="portalRefreshBtn" class="btn btn-refresh">Refresh</button>
           <button type="button" id="portalLangBtn" class="btn btn-secondary">اردو</button>
           <button type="button" id="logoutBtn" class="btn btn-danger">Logout</button>
-          <button type="button" id="exitBtn" class="btn btn-exit">Exit</button>
         </div>
       </div>
 
@@ -487,8 +504,6 @@
         refreshBtn: "ریفریش",
         addBtn: "+ ایڈ کریں",
         backNavBtn: "← واپس / Back",
-        exitBtn: "ایگزٹ",
-        exitNotice: "ایپ بند کرنے کے لیے موبائل کا Back بٹن یا ٹیب بند کریں۔",
         refreshedMsg: "ڈیٹا ریفریش ہو گیا۔",
         tabLogin: "لاگ ان",
         tabRegister: "نیا اکاؤنٹ",
@@ -625,8 +640,6 @@
         refreshBtn: "Refresh",
         addBtn: "+ Add",
         backNavBtn: "← Back",
-        exitBtn: "Exit",
-        exitNotice: "Use device Back or close the app tab to exit.",
         refreshedMsg: "Refreshed.",
         tabLogin: "Login",
         tabRegister: "Create Account",
@@ -1734,7 +1747,6 @@
       el("portalRefreshBtn").textContent = window.t("refreshBtn");
       el("openAddWindowBtn").textContent = window.t("addBtn");
       if (el("floatingBackBtn")) el("floatingBackBtn").textContent = window.t("backNavBtn");
-      el("exitBtn").textContent = window.t("exitBtn");
       el("langBtn").textContent = window.t("toggleBtn");
       el("portalLangBtn").textContent = window.t("toggleBtn");
       el("tabLogin").textContent = window.t("tabLogin");
@@ -1794,13 +1806,6 @@
     }
 
     el("portalRefreshBtn").addEventListener("click", () => handleManualRefresh(true));
-
-    el("exitBtn").addEventListener("click", () => {
-      try {
-        window.close();
-      } catch (e) {}
-      window.showAdminMsg(window.t("exitNotice"), "error");
-    });
 
     el("tabLogin").addEventListener("click", () => {
       el("tabLogin").classList.add("active");

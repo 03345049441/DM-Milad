@@ -39,7 +39,7 @@
       border-right: 4px solid #15803d;
     }
     .btn { padding: 7px 11px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
-    .btn-sm { padding: 4px 8px; font-size: 12px; border-radius: 6px; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 6px; }
     .btn-primary { background: #15803d; color: #fff; width: 100%; padding: 10px; font-size: 14px; }
     .btn-secondary { background: #334155; color: #fff; }
     .btn-refresh { background: #0f766e; color: #fff; }
@@ -66,7 +66,8 @@
     .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 10px; }
     .sub-tab-btn { flex: 1; min-width: 90px; padding: 7px 9px; border: 1px solid #15803d; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; text-align: center; }
     .sub-tab-btn.active { background: #15803d; color: #fff; }
-    .entry-box { border: 1px solid #bbf7d0; background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
+    .entry-box, .edit-box { border: 1px solid #bbf7d0; background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
+    .edit-box { border-color: #7dd3fc; background: #f0f9ff; margin-top: 10px; margin-bottom: 4px; }
     .confirm-inline-box {
       margin-top: 8px;
       padding: 9px 11px;
@@ -92,9 +93,51 @@
       font-weight: bold;
       margin-bottom: 10px;
     }
+    .record-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #ffffff;
+      box-shadow: 0 1px 4px rgba(15,23,42,0.04);
+    }
+    .record-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .date-badge {
+      display: inline-block;
+      background: #dcfce7;
+      color: #15803d;
+      padding: 3px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .card-action-btns {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .record-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .record-card img.content-img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      display: block;
+      margin-top: 6px;
+      cursor: pointer;
+    }
     .item-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px; margin-bottom: 8px; background: #f8fafc; }
     .item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
-    .item-box img.content-img { max-width: 100%; max-height: 260px; border-radius: 8px; display: block; margin-top: 8px; cursor: pointer; }
     .img-fallback { margin-top: 6px; padding: 8px; background: #fef3c7; color: #92400e; border-radius: 6px; font-size: 12px; }
     .folder-tag { display: inline-block; background: #dcfce7; color: #166534; padding: 2px 9px; border-radius: 12px; font-size: 12px; font-weight: bold; }
     .reply-box { margin-top: 8px; padding: 9px 11px; border-radius: 8px; background: #eff6ff; border: 1px solid #bfdbfe; font-size: 13px; color: #1e3a8a; }
@@ -428,10 +471,11 @@
         colAmount: "رقم",
         colPurpose: "مقصد / وجہ",
         colActions: "ترمیم / حذف",
-        editBtn: "ایڈٹ",
-        deleteBtn: "ڈیلیٹ",
+        editBtn: "Edit",
+        deleteBtn: "Delete",
         saveEditBtn: "تبدیلی محفوظ کریں",
         cancelEditBtn: "منسوخ",
+        updatedMsg: "انٹری کامیابی سے اپ ڈیٹ ہو گئی۔",
         confirmDelete: "کیا آپ واقعی یہ ریکارڈ ڈیلیٹ کرنا چاہتے ہیں؟",
         confirmDeleteYes: "ہاں، ڈیلیٹ کریں",
         deletedMsg: "ریکارڈ ڈیلیٹ ہو گیا۔",
@@ -566,6 +610,7 @@
         deleteBtn: "Delete",
         saveEditBtn: "Save Changes",
         cancelEditBtn: "Cancel",
+        updatedMsg: "Entry updated successfully.",
         confirmDelete: "Delete this record?",
         confirmDeleteYes: "Confirm Delete",
         deletedMsg: "Record deleted.",
@@ -1997,14 +2042,14 @@
       return results;
     }
 
-    function bindDeleteButtons(container, colName, refreshFn) {
+    function bindDeleteButtons(container, refreshFn) {
       if (!isAdminUser()) return;
       container.querySelectorAll("[data-del-col]").forEach((btn) => {
         btn.addEventListener("click", () => {
           if (!isAdminUser()) {
             return window.showAdminMsg(window.t("adminOnlyActionError"), "error");
           }
-          const host = btn.closest(".item-box") || btn.parentElement;
+          const host = btn.closest(".record-card") || btn.closest(".item-box") || btn.parentElement;
           window.showInlineConfirm(host, window.t("confirmDelete"), async () => {
             try {
               await deleteDoc(doc(db, btn.dataset.delCol, btn.dataset.delId));
@@ -2012,6 +2057,90 @@
               if (refreshFn) await refreshFn();
             } catch (err) {
               window.showAdminMsg(err && err.message ? err.message : "Delete failed", "error");
+            }
+          });
+        });
+      });
+    }
+
+    function bindMediaEditButtons(container, colName, itemsList, isVideo, refreshFn) {
+      if (!isAdminUser()) return;
+      const l = window.appState.lang;
+      container.querySelectorAll("[data-edit-media-id]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (!isAdminUser()) {
+            return window.showAdminMsg(window.t("adminOnlyActionError"), "error");
+          }
+          const item = itemsList.find((x) => x.id === btn.dataset.editMediaId);
+          const card = btn.closest(".record-card") || btn.closest(".item-box");
+          if (!item || !card) return;
+
+          const existingBox = card.querySelector(".edit-box");
+          if (existingBox) {
+            existingBox.remove();
+            return;
+          }
+
+          const parsedDate = parseDateParts(item.date || item.folder);
+          const dateVal = parsedDate ? parsedDate.iso : todayISO();
+
+          const editBox = document.createElement("div");
+          editBox.className = "edit-box";
+          editBox.innerHTML = `
+            <div class="field">
+              <label>${window.t("lblDate")}</label>
+              <input type="date" class="date-ltr" data-edit-date value="${dateVal}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblTitle")}</label>
+              <input type="text" data-edit-title value="${(item.title || "").replace(/"/g, "&quot;")}" />
+            </div>
+            <div class="field">
+              <label>${isVideo ? window.t("lblMediaUrl") : window.t("lblExpMedia")}</label>
+              <input type="text" data-edit-url value="${(item.src || "").replace(/"/g, "&quot;")}" />
+              ${!isVideo ? `<input type="file" accept="image/*" data-edit-file style="margin-top:6px;" />` : ""}
+            </div>
+            <div class="row-actions">
+              <button type="button" class="btn btn-sm btn-approve" data-save-media-edit>${window.t("saveEditBtn")}</button>
+              <button type="button" class="btn btn-sm btn-secondary" data-cancel-media-edit>${window.t("cancelEditBtn")}</button>
+            </div>`;
+
+          card.appendChild(editBox);
+
+          editBox.querySelector("[data-cancel-media-edit]").addEventListener("click", () => {
+            editBox.remove();
+          });
+
+          editBox.querySelector("[data-save-media-edit]").addEventListener("click", async () => {
+            const nextDate = editBox.querySelector("[data-edit-date]").value;
+            const nextTitle = editBox.querySelector("[data-edit-title]").value.trim();
+            let nextSrc = editBox.querySelector("[data-edit-url]").value.trim();
+            const fileInp = editBox.querySelector("[data-edit-file]");
+            const file = fileInp && fileInp.files ? fileInp.files[0] : null;
+
+            const saveBtn = editBox.querySelector("[data-save-media-edit]");
+            saveBtn.disabled = true;
+            try {
+              if (file && !isVideo) {
+                nextSrc = await fileToDataUrl(file);
+              }
+              if (!nextDate || !nextTitle || !nextSrc) {
+                return window.showAdminMsg(
+                  l === "en" ? "Select date and enter title and link/photo." : "تاریخ منتخب کریں اور عنوان و لنک/تصویر درج کریں۔",
+                  "error"
+                );
+              }
+              const payload = { date: nextDate, title: nextTitle, src: nextSrc };
+              if (Object.prototype.hasOwnProperty.call(item, "folder")) {
+                payload.folder = nextDate;
+              }
+              await updateDoc(doc(db, colName, item.id), payload);
+              window.showAdminMsg(window.t("updatedMsg"), "success");
+              if (refreshFn) await refreshFn();
+            } catch (err) {
+              window.showAdminMsg(err && err.message ? err.message : "Update failed", "error");
+            } finally {
+              if (saveBtn) saveBtn.disabled = false;
             }
           });
         });
@@ -2113,21 +2242,25 @@
 
       let html = `<h4>${title}</h4>`;
       items.forEach((item) => {
-        const delBtn = isAdminUser()
-          ? `<button type="button" class="btn btn-sm btn-danger" data-del-col="${colName}" data-del-id="${item.id}">${window.t("deleteBtn")}</button>`
+        const actionBtns = isAdminUser()
+          ? `<div class="card-action-btns">
+              <button type="button" class="btn btn-sm btn-edit" data-edit-media-id="${item.id}">${window.t("editBtn")}</button>
+              <button type="button" class="btn btn-sm btn-danger" data-del-col="${colName}" data-del-id="${item.id}">${window.t("deleteBtn")}</button>
+            </div>`
           : "";
-        html += `<div class="item-box">
-          <div class="item-top">
-            <span class="folder-tag">${window.formatDDMMYYYY(item.date)}</span>
-            ${delBtn}
+        html += `<div class="record-card">
+          <div class="record-card-top">
+            <span class="date-badge">${window.formatDDMMYYYY(item.date)}</span>
+            ${actionBtns}
           </div>
-          <div><strong>${item.title || ""}</strong></div>
+          <div class="record-title">${item.title || ""}</div>
           ${renderMediaBlock(item, false)}
         </div>`;
       });
       area.innerHTML = html;
       bindImageFallbacks(area);
-      bindDeleteButtons(area, colName, () => renderImageList(area, colName, title));
+      bindMediaEditButtons(area, colName, items, false, () => renderImageList(area, colName, title));
+      bindDeleteButtons(area, () => renderImageList(area, colName, title));
     }
 
     async function renderMediaSorted(area, category, title) {
@@ -2144,21 +2277,25 @@
 
       let html = `<h4>${title}</h4>`;
       items.forEach((m) => {
-        const delBtn = isAdminUser()
-          ? `<button type="button" class="btn btn-sm btn-danger" data-del-col="media" data-del-id="${m.id}">${window.t("deleteBtn")}</button>`
+        const actionBtns = isAdminUser()
+          ? `<div class="card-action-btns">
+              <button type="button" class="btn btn-sm btn-edit" data-edit-media-id="${m.id}">${window.t("editBtn")}</button>
+              <button type="button" class="btn btn-sm btn-danger" data-del-col="media" data-del-id="${m.id}">${window.t("deleteBtn")}</button>
+            </div>`
           : "";
-        html += `<div class="item-box">
-          <div class="item-top">
-            <span class="folder-tag">${window.formatDDMMYYYY(m.date || m.folder)}</span>
-            ${delBtn}
+        html += `<div class="record-card">
+          <div class="record-card-top">
+            <span class="date-badge">${window.formatDDMMYYYY(m.date || m.folder)}</span>
+            ${actionBtns}
           </div>
-          <div><strong>${m.title || ""}</strong></div>
+          <div class="record-title">${m.title || ""}</div>
           ${renderMediaBlock(m, category === "videos")}
         </div>`;
       });
       area.innerHTML = html;
       bindImageFallbacks(area);
-      bindDeleteButtons(area, "media", () => renderMediaSorted(area, category, title));
+      bindMediaEditButtons(area, "media", items, category === "videos", () => renderMediaSorted(area, category, title));
+      bindDeleteButtons(area, () => renderMediaSorted(area, category, title));
     }
 
     async function renderApprovalsSection(area) {
@@ -2803,7 +2940,7 @@
         });
       });
 
-      bindDeleteButtons(area, "complaints", () => renderComplaintsSection(area));
+      bindDeleteButtons(area, () => renderComplaintsSection(area));
     }
 
     window.appState.handlers.bindSectionMediaAdd = (category) => {
@@ -3118,71 +3255,3 @@
         if (!wasAlreadyOpen || forceOpenPortal) {
           window.openPortal();
         } else {
-          window.updatePortalHeader();
-          if (prevSection && window.appState.handlers.selectSection) {
-            await window.appState.handlers.selectSection(prevSection, { silent: true });
-          }
-        }
-        if (window.appState.handlers.syncAdminProfile) {
-          await window.appState.handlers.syncAdminProfile();
-        }
-        return;
-      }
-
-      try {
-        const accounts = await getAccountsForPhone(saved.phone);
-        const matchedAcc = accounts.find((acc) =>
-          acc.role === saved.role && acc.status === "active"
-        );
-
-        if (matchedAcc) {
-          const wasAlreadyOpen = Boolean(window.appState.currentUser);
-          const prevSection = window.appState.activeSection;
-          window.appState.currentUser = matchedAcc;
-          window.saveUserSession(matchedAcc);
-          if (!wasAlreadyOpen || forceOpenPortal) {
-            window.openPortal();
-          } else {
-            window.updatePortalHeader();
-            if (prevSection && window.appState.handlers.selectSection) {
-              await window.appState.handlers.selectSection(prevSection, { silent: true });
-            }
-          }
-        } else if (saved.role === "public" && saved.status === "active") {
-          const pubAcc = accounts.find((acc) => acc.role === "public" && acc.status !== "rejected");
-          if (pubAcc) {
-            const wasAlreadyOpen = Boolean(window.appState.currentUser);
-            const prevSection = window.appState.activeSection;
-            window.appState.currentUser = pubAcc;
-            window.saveUserSession(pubAcc);
-            if (!wasAlreadyOpen || forceOpenPortal) {
-              window.openPortal();
-            } else {
-              window.updatePortalHeader();
-              if (prevSection && window.appState.handlers.selectSection) {
-                await window.appState.handlers.selectSection(prevSection, { silent: true });
-              }
-            }
-          } else {
-            window.saveUserSession(null);
-          }
-        } else {
-          window.saveUserSession(null);
-        }
-      } catch (e) {
-        if (!window.appState.currentUser) {
-          window.appState.currentUser = saved;
-          window.openPortal();
-        }
-      }
-    }
-
-    window.appState.handlers.refreshOnReopen = async () => {
-      if (!window.loadSavedSession || !window.loadSavedSession()) return;
-      await restoreOrRefreshSession({ forceOpenPortal: false });
-    };
-
-    restoreOrRefreshSession({ forceOpenPortal: false });
-  </script>
-</body>
-</html>

@@ -25,12 +25,12 @@
       border: 1px solid #86efac;
       border-bottom: 3px solid #15803d;
       border-radius: 12px;
-      padding: 14px 12px;
+      padding: 13px 12px;
       margin-bottom: 10px;
       box-shadow: 0 2px 6px rgba(21,128,61,0.08);
     }
     .brand-hero h2 {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 800;
       color: #14532d;
       letter-spacing: 0.3px;
@@ -379,6 +379,9 @@
     </div>
 
     <div id="portalCard" class="card" style="display:none;">
+      <div class="brand-hero">
+        <h2 id="portalAppTitle">Milad Organization Dhoke Maken</h2>
+      </div>
       <div class="top-bar">
         <div class="user-header-wrap">
           <img id="portalUserAvatar" class="avatar-sm" src="" alt="Profile" style="display:none;" />
@@ -406,6 +409,12 @@
       </div>
 
       <div id="adminMsg" class="msg"></div>
+
+      <footer class="app-footer">
+        <div class="footer-powered">Powered by</div>
+        <div class="footer-name">Qasim Nawaz</div>
+        <div class="footer-phone">03345049441</div>
+      </footer>
     </div>
   </div>
 
@@ -1606,6 +1615,7 @@
       document.body.dir = isUr ? "rtl" : "ltr";
 
       el("appTitle").textContent = window.t("appHeading");
+      if (el("portalAppTitle")) el("portalAppTitle").textContent = window.t("appHeading");
       el("authRefreshBtn").textContent = window.t("refreshBtn");
       el("portalRefreshBtn").textContent = window.t("refreshBtn");
       el("langBtn").textContent = window.t("toggleBtn");

@@ -143,6 +143,54 @@
     input, select, textarea { width: 100%; padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; }
     .date-ltr { direction: ltr; text-align: left; }
     .date-preview { margin-top: 4px; font-size: 12px; color: #166534; font-weight: bold; direction: rtl; }
+    .monthly-picker-box {
+      border: 1px solid #86efac;
+      background: #f0fdf4;
+      border-radius: 9px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .months-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .month-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      background: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+    }
+    .month-chip input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      margin: 0;
+      accent-color: #15803d;
+      flex-shrink: 0;
+    }
+    .month-chip.checked {
+      background: #dcfce7;
+      border-color: #15803d;
+      color: #14532d;
+    }
+    .purpose-sub-tag {
+      display: inline-block;
+      margin-top: 3px;
+      padding: 2px 7px;
+      background: #dcfce7;
+      color: #14532d;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+    }
     .msg { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; display: none; }
     .msg.error { display: block; background: #fee2e2; color: #991b1b; }
     .msg.success { display: block; background: #dcfce7; color: #166534; }
@@ -253,6 +301,21 @@
     .sub-tab-btn.active { background: #15803d; color: #fff; }
     .entry-box, .edit-box { border: 1px solid #bbf7d0; background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
     .edit-box { border-color: #7dd3fc; background: #f0f9ff; margin-top: 10px; margin-bottom: 4px; }
+    .filter-panel-box {
+      border: 1px solid #bbf7d0;
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    .filter-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    @media (max-width: 540px) {
+      .filter-grid-2 { grid-template-columns: 1fr; }
+    }
     .confirm-inline-box {
       margin-top: 8px;
       padding: 9px 11px;
@@ -597,6 +660,21 @@
       { id: "urs_ghous", ur: "برائے عرس غوث الورٰی", en: "For Urs e Ghous ul Waraa" }
     ];
 
+    const FUND_MONTHS = [
+      { num: 1, ur: "جنوری", en: "Jan" },
+      { num: 2, ur: "فروری", en: "Feb" },
+      { num: 3, ur: "مارچ", en: "Mar" },
+      { num: 4, ur: "اپریل", en: "Apr" },
+      { num: 5, ur: "مئی", en: "May" },
+      { num: 6, ur: "جون", en: "Jun" },
+      { num: 7, ur: "جولائی", en: "Jul" },
+      { num: 8, ur: "اگست", en: "Aug" },
+      { num: 9, ur: "ستمبر", en: "Sep" },
+      { num: 10, ur: "اکتوبر", en: "Oct" },
+      { num: 11, ur: "نومبر", en: "Nov" },
+      { num: 12, ur: "دسمبر", en: "Dec" }
+    ];
+
     const PUBLIC_VIEW_CATEGORIES = ["photos", "videos", "mahafil", "information"];
 
     const I18N = {
@@ -652,14 +730,22 @@
         chooseAccountToLogin: "اس نمبر پر ایک سے زیادہ اکاؤنٹس موجود ہیں، براہِ کرم اکاؤنٹ منتخب کر کے دوبارہ لاگ ان دبائیں۔",
         admH1: "زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)",
         admH2: "ممبر کے جمع کروائے گئے فنڈز درج کریں",
+        lblFundSearch: "ممبر سرچ کریں (نام یا فون نمبر)",
+        fundSearchPlaceholder: "نام یا نمبر لکھیں...",
+        lblFundSelectFilter: "ممبر منتخب کریں",
+        allMembersOption: "تمام ممبران (All Members)",
         lblFundMember: "ممبر منتخب کریں",
         lblFundDate: "تاریخ منتخب کریں (دن / مہینہ / سال)",
         lblFundAmount: "رقم (مثلاً 5000)",
         lblFundPurpose: "مقصد / دینے والے نے کیوں دی؟",
+        lblFundYear: "سال منتخب کریں",
+        lblFundMonths: "مہینہ یا ایک سے زیادہ مہینے منتخب کریں",
+        selectMonthRequired: "براہِ کرم ماہانہ فنڈ کے لیے کم از کم ایک مہینہ اور سال منتخب کریں۔",
         selectPurposePlaceholder: "مقصد منتخب کریں",
         addFundBtn: "فنڈ محفوظ کریں",
         admFundsTableTitle: "درج شدہ فنڈز کی تفصیل",
         memberTotalLabel: "{name} Total",
+        allMembersTotalLabel: "تمام ممبران کا ٹوٹل (All Members Total)",
         admExpEntryTitle: "نئی اخراجات تصویر شامل کریں",
         admMediaEntryTitle: "نئی انٹری شامل کریں",
         admH5: "رجسٹرڈ ممبران ({count})",
@@ -794,14 +880,22 @@
         chooseAccountToLogin: "Multiple accounts exist for this number. Please select an account and click Login again.",
         admH1: "Pending Approvals (Management / Abroad)",
         admH2: "Add Member Funds",
+        lblFundSearch: "Search Member (Name or Phone)",
+        fundSearchPlaceholder: "Type name or phone...",
+        lblFundSelectFilter: "Select Member",
+        allMembersOption: "All Members",
         lblFundMember: "Select Member",
         lblFundDate: "Select Date (Day / Month / Year)",
         lblFundAmount: "Amount (e.g. 5000)",
         lblFundPurpose: "Purpose / Why Given?",
+        lblFundYear: "Select Year",
+        lblFundMonths: "Select Month(s)",
+        selectMonthRequired: "Please select at least one month and year for Monthly Fund.",
         selectPurposePlaceholder: "Select Purpose",
         addFundBtn: "Save Fund",
         admFundsTableTitle: "Recorded Funds Details",
         memberTotalLabel: "{name} Total",
+        allMembersTotalLabel: "All Members Total",
         admExpEntryTitle: "Add New Expense Photo",
         admMediaEntryTitle: "Add New Entry",
         admH5: "Registered Members ({count})",
@@ -1077,15 +1171,150 @@
       return null;
     }
 
-    window.formatPurposeLabel = (rawPurpose) => {
+    window.isMonthlyPurposeValue = (rawPurpose) => {
+      const val = String(rawPurpose || "").trim();
+      return val === "monthly" || val === "ماہانہ فنڈ" || val.toLowerCase() === "monthly fund";
+    };
+
+    window.formatFundMonthsPeriod = (fundMonths, fundYear) => {
+      const lang = window.appState.lang || "en";
+      const nums = Array.isArray(fundMonths)
+        ? fundMonths.map((n) => Number(n)).filter((n) => n >= 1 && n <= 12).sort((a, b) => a - b)
+        : [];
+      const yr = fundYear ? String(fundYear).trim() : "";
+      if (!nums.length && !yr) return "";
+      const names = nums.map((num) => {
+        const found = FUND_MONTHS.find((m) => m.num === num);
+        return found ? (found[lang] || found.en) : String(num);
+      });
+      const sep = lang === "ur" ? "، " : ", ";
+      const monthStr = names.join(sep);
+      if (monthStr && yr) return `${monthStr} ${yr}`;
+      return monthStr || yr;
+    };
+
+    window.formatPurposeLabel = (rawPurpose, fundMonths = null, fundYear = "") => {
       if (!rawPurpose) return "-";
       const lang = window.appState.lang || "en";
       const val = String(rawPurpose).trim();
       const matched = FUND_PURPOSES.find(
         (p) => p.id === val || p.ur === val || p.en.toLowerCase() === val.toLowerCase()
       );
-      if (matched) return matched[lang] || matched.en;
-      return val;
+      const baseLabel = matched ? (matched[lang] || matched.en) : val;
+      if (window.isMonthlyPurposeValue(val)) {
+        const periodStr = window.formatFundMonthsPeriod(fundMonths, fundYear);
+        if (periodStr) {
+          return `${baseLabel}<br><span class="purpose-sub-tag" dir="auto">${periodStr}</span>`;
+        }
+      }
+      return baseLabel;
+    };
+
+    window.buildMonthlyPeriodPickerHtml = (prefix, selectedMonths = [], selectedYear = "") => {
+      const lang = window.appState.lang || "en";
+      const currentYr = new Date().getFullYear();
+      const targetYr = Number(selectedYear) || currentYr;
+      const startYr = Math.min(2024, targetYr);
+      const endYr = Math.max(currentYr + 2, targetYr);
+
+      const yearOptions = [];
+      for (let y = startYr; y <= endYr; y += 1) {
+        yearOptions.push(`<option value="${y}" ${y === targetYr ? "selected" : ""}>${y}</option>`);
+      }
+
+      const selectedSet = new Set(
+        Array.isArray(selectedMonths) ? selectedMonths.map((m) => Number(m)) : []
+      );
+
+      const monthsHtml = FUND_MONTHS.map((m) => {
+        const checked = selectedSet.has(m.num);
+        return `
+          <label class="month-chip ${checked ? "checked" : ""}">
+            <input type="checkbox" data-${prefix}-month value="${m.num}" ${checked ? "checked" : ""} />
+            <span>${m[lang] || m.en}</span>
+          </label>`;
+      }).join("");
+
+      return `
+        <div class="monthly-picker-box">
+          <div class="field" style="margin-bottom:8px;">
+            <label for="${prefix}YearSelect">${window.t("lblFundYear")}</label>
+            <select id="${prefix}YearSelect" class="date-ltr">${yearOptions.join("")}</select>
+          </div>
+          <div>
+            <label>${window.t("lblFundMonths")}</label>
+            <div class="months-grid">${monthsHtml}</div>
+          </div>
+        </div>`;
+    };
+
+    window.setupMonthlyPurposeController = ({
+      purposeSelectId,
+      containerId,
+      prefix,
+      initialMonths = null,
+      initialYear = ""
+    }) => {
+      const purposeEl = el(purposeSelectId);
+      const boxEl = el(containerId);
+      if (!purposeEl || !boxEl) return { getSelection: () => ({ fundMonths: [], fundYear: "" }), reset: () => {} };
+
+      const defaultMonth = new Date().getMonth() + 1;
+      let savedMonths = Array.isArray(initialMonths) && initialMonths.length
+        ? initialMonths.map((n) => Number(n))
+        : [defaultMonth];
+      let savedYear = initialYear ? String(initialYear) : String(new Date().getFullYear());
+
+      const renderBox = () => {
+        if (!window.isMonthlyPurposeValue(purposeEl.value)) {
+          boxEl.style.display = "none";
+          boxEl.innerHTML = "";
+          return;
+        }
+        boxEl.style.display = "block";
+        boxEl.innerHTML = window.buildMonthlyPeriodPickerHtml(prefix, savedMonths, savedYear);
+
+        const yrEl = el(`${prefix}YearSelect`);
+        if (yrEl) {
+          yrEl.addEventListener("change", () => {
+            savedYear = yrEl.value;
+          });
+        }
+
+        boxEl.querySelectorAll(`[data-${prefix}-month]`).forEach((cb) => {
+          cb.addEventListener("change", () => {
+            const chip = cb.closest(".month-chip");
+            if (chip) chip.classList.toggle("checked", cb.checked);
+            savedMonths = Array.from(boxEl.querySelectorAll(`[data-${prefix}-month]:checked`))
+              .map((inp) => Number(inp.value))
+              .sort((a, b) => a - b);
+          });
+        });
+      };
+
+      purposeEl.addEventListener("change", renderBox);
+      renderBox();
+
+      return {
+        getSelection: () => {
+          if (!window.isMonthlyPurposeValue(purposeEl.value)) {
+            return { fundMonths: [], fundYear: "" };
+          }
+          const yrEl = el(`${prefix}YearSelect`);
+          const months = Array.from(boxEl.querySelectorAll(`[data-${prefix}-month]:checked`))
+            .map((inp) => Number(inp.value))
+            .sort((a, b) => a - b);
+          return {
+            fundMonths: months,
+            fundYear: yrEl ? String(yrEl.value) : savedYear
+          };
+        },
+        reset: () => {
+          savedMonths = [new Date().getMonth() + 1];
+          savedYear = String(new Date().getFullYear());
+          renderBox();
+        }
+      };
     };
 
     window.buildPurposeOptionsHtml = (selectedValue = "", includeEmpty = true) => {
@@ -1128,10 +1357,17 @@
       }
 
       const parsed = parseDateParts(rawDate);
+      const fundMonths = Array.isArray(f.fundMonths)
+        ? f.fundMonths.map((n) => Number(n)).filter((n) => n >= 1 && n <= 12).sort((a, b) => a - b)
+        : [];
+      const fundYear = f.fundYear ? String(f.fundYear) : "";
+
       return {
         ...f,
         date: parsed ? parsed.iso : rawDate,
         purpose,
+        fundMonths,
+        fundYear,
         _ts: parsed ? parsed.ts : 0
       };
     };
@@ -1500,6 +1736,7 @@
       addWindowOpen: false,
       activeMemberGroup: "management",
       selectedFundMemberPhone: "",
+      fundMemberSearchQuery: "",
       unreadSections: {},
       latestSignatures: {},
       lang: readSavedLang(),
@@ -1794,6 +2031,10 @@
           <div class="entry-box">
             <h4>${window.t("admH2")}</h4>
             <div class="field">
+              <label>${window.t("lblFundSearch")}</label>
+              <input id="addFundMemberSearch" type="search" placeholder="${window.t("fundSearchPlaceholder")}" />
+            </div>
+            <div class="field">
               <label>${window.t("lblFundMember")}</label>
               <select id="fundMemberSelect"></select>
             </div>
@@ -1810,6 +2051,7 @@
               <label>${window.t("lblFundPurpose")}</label>
               <select id="fundPurpose">${window.buildPurposeOptionsHtml("", true)}</select>
             </div>
+            <div id="addFundMonthlyContainer" style="display:none;"></div>
             <button type="button" id="addFundBtn" class="btn btn-primary">${window.t("addFundBtn")}</button>
           </div>`;
         bindDatePreview("fundDate", "fundDatePreview");
@@ -2425,6 +2667,9 @@
     const el = (id) => document.getElementById(id);
     let memberNamesMap = {};
     let memberPhotosMap = {};
+    let cachedFundMembers = [];
+    let cachedFundItems = [];
+    let cachedFundMemberOptions = [];
 
     function fileToDataUrl(file, maxW = 800, quality = 0.72) {
       return new Promise((resolve, reject) => {
@@ -2858,7 +3103,7 @@
         <tr>
           <td>${window.formatDDMMYYYY(f.date)}</td>
           <td>${f.amount}</td>
-          <td>${window.formatPurposeLabel(f.purpose)}</td>
+          <td>${window.formatPurposeLabel(f.purpose, f.fundMonths, f.fundYear)}</td>
         </tr>
       `).join("");
 
@@ -2996,36 +3241,64 @@
       });
     }
 
-    async function populateMemberDropdown() {
+    function fillAddFundMemberSelect(filterText = "") {
       const sel = el("fundMemberSelect");
-      if (!db || !sel) return;
+      if (!sel) return;
       const prevSelected = sel.value || window.appState.selectedFundMemberPhone || "";
-      const snap = await getDocs(collection(db, "users"));
-      sel.innerHTML = "";
-      memberNamesMap = {};
-      memberPhotosMap = {};
-      let firstActivePhone = "";
+      const q = String(filterText || "").trim().toLowerCase();
 
-      snap.forEach((d) => {
-        const u = d.data();
-        memberNamesMap[u.phone] = u.name;
-        if (u.photoUrl) memberPhotosMap[u.phone] = u.photoUrl;
-        if (u.role === "management" && u.status === "active") {
-          if (!firstActivePhone) firstActivePhone = u.phone;
-          const opt = document.createElement("option");
-          opt.value = u.phone;
-          opt.textContent = `${u.name} (${u.phone})`;
-          sel.appendChild(opt);
-        }
+      const activeMgmt = cachedFundMembers.filter((u) => {
+        if (u.role !== "management" || u.status !== "active") return false;
+        if (!q) return true;
+        const nameMatch = String(u.name || "").toLowerCase().includes(q);
+        const phoneMatch = String(u.phone || "").toLowerCase().includes(q);
+        return nameMatch || phoneMatch;
       });
 
-      const targetPhone = prevSelected || firstActivePhone;
-      if (targetPhone && Array.from(sel.options).some((o) => o.value === targetPhone)) {
-        sel.value = targetPhone;
-      }
-      window.appState.selectedFundMemberPhone = sel.value || "";
+      sel.innerHTML = "";
+      activeMgmt.forEach((u) => {
+        const opt = document.createElement("option");
+        opt.value = u.phone;
+        opt.textContent = `${u.name} (${u.phone})`;
+        sel.appendChild(opt);
+      });
 
-      if (!sel.dataset.boundFundMemberChange) {
+      if (prevSelected && Array.from(sel.options).some((o) => o.value === prevSelected)) {
+        sel.value = prevSelected;
+      } else if (sel.options.length > 0) {
+        sel.value = sel.options[0].value;
+      }
+      if (sel.value) {
+        window.appState.selectedFundMemberPhone = sel.value;
+      }
+    }
+
+    async function populateMemberDropdown() {
+      const sel = el("fundMemberSelect");
+      const searchInp = el("addFundMemberSearch");
+      if (!db) return;
+      const snap = await getDocs(collection(db, "users"));
+      cachedFundMembers = [];
+      memberNamesMap = {};
+      memberPhotosMap = {};
+
+      snap.forEach((d) => {
+        const u = { id: d.id, ...d.data() };
+        cachedFundMembers.push(u);
+        memberNamesMap[u.phone] = u.name;
+        if (u.photoUrl) memberPhotosMap[u.phone] = u.photoUrl;
+      });
+
+      fillAddFundMemberSelect(searchInp ? searchInp.value : "");
+
+      if (searchInp && !searchInp.dataset.boundAddSearch) {
+        searchInp.dataset.boundAddSearch = "1";
+        searchInp.addEventListener("input", () => {
+          fillAddFundMemberSelect(searchInp.value);
+        });
+      }
+
+      if (sel && !sel.dataset.boundFundMemberChange) {
         sel.dataset.boundFundMemberChange = "1";
         sel.addEventListener("change", async () => {
           window.appState.selectedFundMemberPhone = sel.value || "";
@@ -3037,6 +3310,177 @@
     }
 
     window.appState.handlers.refreshMemberDropdown = populateMemberDropdown;
+
+    function buildFundsTableHtml(filteredFundItems, totalAmount, totalBannerText, showMemberCol) {
+      const bannerHtml = `
+        <div class="member-total-banner">
+          <div>${totalBannerText}: ${totalAmount}</div>
+        </div>`;
+
+      if (!filteredFundItems.length) {
+        return `${bannerHtml}<div class='item-box'>${window.t("noFunds")}</div>`;
+      }
+
+      return `
+        ${bannerHtml}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>${window.t("colDate")}</th>
+                ${showMemberCol ? `<th>${window.t("colMember")}</th>` : ""}
+                <th>${window.t("colAmount")}</th>
+                <th>${window.t("colPurpose")}</th>
+                <th>${window.t("colActions")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredFundItems.map((f) => `
+                <tr>
+                  <td>${window.formatDDMMYYYY(f.date)}</td>
+                  ${showMemberCol ? `<td>${f.memberName}</td>` : ""}
+                  <td>${Number(f.amount || 0)}</td>
+                  <td>${window.formatPurposeLabel(f.purpose, f.fundMonths, f.fundYear)}</td>
+                  <td>
+                    <div class="row-actions" style="margin-top:0;">
+                      <button type="button" class="btn btn-sm btn-edit" data-edit-id="${f.id}">${window.t("editBtn")}</button>
+                      <button type="button" class="btn btn-sm btn-danger" data-del-id="${f.id}">${window.t("deleteBtn")}</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+        <div id="fundEditPanel" class="edit-box" style="display:none;"></div>`;
+    }
+
+    function bindFundsTableActions(area, allFundItems) {
+      area.querySelectorAll("[data-edit-id]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = allFundItems.find((x) => x.id === btn.dataset.editId);
+          if (!item) return;
+          const panel = el("fundEditPanel");
+          panel.style.display = "block";
+          panel.innerHTML = `
+            <div class="field">
+              <label>${window.t("lblFundDate")}</label>
+              <input id="editFundDate" type="date" class="date-ltr" value="${item.date || todayISO()}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundAmount")}</label>
+              <input id="editFundAmount" type="number" value="${Number(item.amount || 0)}" />
+            </div>
+            <div class="field">
+              <label>${window.t("lblFundPurpose")}</label>
+              <select id="editFundPurpose">${window.buildPurposeOptionsHtml(item.purpose || "", false)}</select>
+            </div>
+            <div id="editFundMonthlyContainer" style="display:none;"></div>
+            <div class="row-actions">
+              <button type="button" id="saveFundEditBtn" class="btn btn-sm btn-approve">${window.t("saveEditBtn")}</button>
+              <button type="button" id="cancelFundEditBtn" class="btn btn-sm btn-secondary">${window.t("cancelEditBtn")}</button>
+            </div>`;
+
+          const editMonthlyCtrl = window.setupMonthlyPurposeController({
+            purposeSelectId: "editFundPurpose",
+            containerId: "editFundMonthlyContainer",
+            prefix: "editFund",
+            initialMonths: item.fundMonths,
+            initialYear: item.fundYear
+          });
+
+          el("cancelFundEditBtn").addEventListener("click", () => {
+            panel.style.display = "none";
+          });
+
+          el("saveFundEditBtn").addEventListener("click", async () => {
+            const nextDate = el("editFundDate").value;
+            const nextAmount = Number(el("editFundAmount").value);
+            const nextPurpose = el("editFundPurpose").value.trim();
+            if (!nextDate || !nextAmount) return;
+
+            const monthlyData = editMonthlyCtrl.getSelection();
+            if (window.isMonthlyPurposeValue(nextPurpose) && (!monthlyData.fundMonths.length || !monthlyData.fundYear)) {
+              return window.showAdminMsg(window.t("selectMonthRequired"), "error");
+            }
+
+            await updateDoc(doc(db, "funds", item.id), {
+              date: nextDate,
+              amount: nextAmount,
+              purpose: nextPurpose,
+              fundMonths: window.isMonthlyPurposeValue(nextPurpose) ? monthlyData.fundMonths : [],
+              fundYear: window.isMonthlyPurposeValue(nextPurpose) ? monthlyData.fundYear : ""
+            });
+            window.showAdminMsg(window.appState.lang === "en" ? "Fund updated." : "فنڈ کی انٹری اپ ڈیٹ ہو گئی۔", "success");
+            await renderFundsAndMembersDetails(el("contentArea"));
+          });
+        });
+      });
+
+      area.querySelectorAll("[data-del-id]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const host = btn.closest("td") || btn.parentElement;
+          window.showInlineConfirm(host, window.t("confirmDelete"), async () => {
+            await deleteDoc(doc(db, "funds", btn.dataset.delId));
+            window.showAdminMsg(window.t("deletedMsg"), "success");
+            await renderFundsAndMembersDetails(el("contentArea"));
+          });
+        });
+      });
+    }
+
+    function refreshFundsFilterView(area) {
+      const resultsHost = el("fundsFilteredResultsHost");
+      if (!resultsHost) return;
+
+      const q = String(window.appState.fundMemberSearchQuery || "").trim().toLowerCase();
+      const matchingOptions = cachedFundMemberOptions.filter((opt) => {
+        if (!q) return true;
+        return (
+          String(opt.name || "").toLowerCase().includes(q) ||
+          String(opt.phone || "").toLowerCase().includes(q)
+        );
+      });
+
+      const selectEl = el("fundsViewMemberSelect");
+      let currentSel = window.appState.selectedFundMemberPhone || "__ALL__";
+      if (currentSel !== "__ALL__" && !matchingOptions.some((o) => o.phone === currentSel)) {
+        currentSel = matchingOptions.length > 0 ? matchingOptions[0].phone : "__ALL__";
+        window.appState.selectedFundMemberPhone = currentSel;
+      }
+
+      if (selectEl) {
+        selectEl.innerHTML =
+          `<option value="__ALL__" ${currentSel === "__ALL__" ? "selected" : ""}>${window.t("allMembersOption")}</option>` +
+          matchingOptions.map((o) =>
+            `<option value="${o.phone}" ${currentSel === o.phone ? "selected" : ""}>${o.name} (${o.phone})</option>`
+          ).join("");
+      }
+
+      let filteredItems = cachedFundItems;
+      let bannerText = window.t("allMembersTotalLabel");
+      let showMemberCol = true;
+
+      if (currentSel !== "__ALL__") {
+        filteredItems = cachedFundItems.filter((f) => f.memberPhone === currentSel);
+        const mName = memberNamesMap[currentSel] ||
+          (matchingOptions.find((o) => o.phone === currentSel)?.name) ||
+          currentSel;
+        bannerText = window.t("memberTotalLabel", { name: mName });
+        showMemberCol = false;
+      } else if (q) {
+        const matchedPhones = new Set(matchingOptions.map((o) => o.phone));
+        filteredItems = cachedFundItems.filter((f) =>
+          matchedPhones.has(f.memberPhone) ||
+          String(f.memberName || "").toLowerCase().includes(q) ||
+          String(f.memberPhone || "").toLowerCase().includes(q)
+        );
+      }
+
+      const totalAmount = filteredItems.reduce((sum, f) => sum + Number(f.amount || 0), 0);
+      resultsHost.innerHTML = buildFundsTableHtml(filteredItems, totalAmount, bannerText, showMemberCol);
+      bindFundsTableActions(resultsHost, cachedFundItems);
+    }
 
     async function renderFundsAndMembersDetails(area) {
       const usersSnap = await getDocs(collection(db, "users"));
@@ -3074,7 +3518,7 @@
 
       allMembers.forEach((m) => {
         if (m.phone) {
-          memberOptionsMap.set(m.phone, m.name || m.phone);
+          memberOptionsMap.set(m.phone, { phone: m.phone, name: m.name || m.phone });
         }
       });
 
@@ -3084,74 +3528,19 @@
         const mKey = norm.memberPhone || "";
         const mName = memberNamesMap[mKey] || mKey || "-";
         if (mKey && !memberOptionsMap.has(mKey)) {
-          memberOptionsMap.set(mKey, mName);
+          memberOptionsMap.set(mKey, { phone: mKey, name: mName });
         }
         allFundItems.push({ ...norm, memberPhone: mKey, memberName: mName, amount: amt });
       });
 
       allFundItems.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+      cachedFundItems = allFundItems;
+      cachedFundMemberOptions = Array.from(memberOptionsMap.values());
 
       const dropdownEl = el("fundMemberSelect");
-      let activeMemberPhone = window.appState.selectedFundMemberPhone || (dropdownEl ? dropdownEl.value : "");
-      if (!activeMemberPhone && allFundItems.length > 0) {
-        activeMemberPhone = allFundItems[0].memberPhone || "";
+      if (dropdownEl && window.appState.selectedFundMemberPhone && window.appState.selectedFundMemberPhone !== "__ALL__" && Array.from(dropdownEl.options).some((o) => o.value === window.appState.selectedFundMemberPhone)) {
+        dropdownEl.value = window.appState.selectedFundMemberPhone;
       }
-      if (!activeMemberPhone && memberOptionsMap.size > 0) {
-        activeMemberPhone = Array.from(memberOptionsMap.keys())[0];
-      }
-      window.appState.selectedFundMemberPhone = activeMemberPhone || "";
-      if (dropdownEl && activeMemberPhone && Array.from(dropdownEl.options).some((o) => o.value === activeMemberPhone)) {
-        dropdownEl.value = activeMemberPhone;
-      }
-
-      const selectedMemberName = memberNamesMap[activeMemberPhone] || memberOptionsMap.get(activeMemberPhone) || activeMemberPhone || "-";
-      const filteredFundItems = activeMemberPhone
-        ? allFundItems.filter((f) => f.memberPhone === activeMemberPhone)
-        : allFundItems;
-
-      const selectedMemberTotal = filteredFundItems.reduce((sum, f) => sum + Number(f.amount || 0), 0);
-
-      const memberTotalBannerHtml = activeMemberPhone
-        ? `
-          <div class="member-total-banner">
-            <div>${window.t("memberTotalLabel", { name: selectedMemberName })}: ${selectedMemberTotal}</div>
-          </div>`
-        : "";
-
-      const fundsHtml = !filteredFundItems.length
-        ? `${memberTotalBannerHtml}<div class='item-box'>${window.t("noFunds")}</div>`
-        : `
-          ${memberTotalBannerHtml}
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>${window.t("colDate")}</th>
-                  <th>${window.t("colMember")}</th>
-                  <th>${window.t("colAmount")}</th>
-                  <th>${window.t("colPurpose")}</th>
-                  <th>${window.t("colActions")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${filteredFundItems.map((f) => `
-                  <tr>
-                    <td>${window.formatDDMMYYYY(f.date)}</td>
-                    <td>${f.memberName}</td>
-                    <td>${Number(f.amount || 0)}</td>
-                    <td>${window.formatPurposeLabel(f.purpose)}</td>
-                    <td>
-                      <div class="row-actions" style="margin-top:0;">
-                        <button type="button" class="btn btn-sm btn-edit" data-edit-id="${f.id}">${window.t("editBtn")}</button>
-                        <button type="button" class="btn btn-sm btn-danger" data-del-id="${f.id}">${window.t("deleteBtn")}</button>
-                      </div>
-                    </td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          </div>
-          <div id="fundEditPanel" class="edit-box" style="display:none;"></div>`;
 
       const roleText = (r) => r === "abroad"
         ? window.t("roleAbroadLabel")
@@ -3207,7 +3596,19 @@
       area.innerHTML = `
         <div>
           <h4>${window.t("admFundsTableTitle")}</h4>
-          ${fundsHtml}
+          <div class="filter-panel-box">
+            <div class="filter-grid-2">
+              <div class="field" style="margin-bottom:0;">
+                <label for="fundsViewSearchInput">${window.t("lblFundSearch")}</label>
+                <input id="fundsViewSearchInput" type="search" value="${String(window.appState.fundMemberSearchQuery || "").replace(/"/g, "&quot;")}" placeholder="${window.t("fundSearchPlaceholder")}" />
+              </div>
+              <div class="field" style="margin-bottom:0;">
+                <label for="fundsViewMemberSelect">${window.t("lblFundSelectFilter")}</label>
+                <select id="fundsViewMemberSelect"></select>
+              </div>
+            </div>
+          </div>
+          <div id="fundsFilteredResultsHost"></div>
         </div>
         <div class="sub-section">
           <h4>${window.t("admH5", { count: allMembers.length })}</h4>
@@ -3219,65 +3620,30 @@
           ${membersTableHtml}
         </div>`;
 
+      refreshFundsFilterView(area);
+
+      const viewSearchInp = el("fundsViewSearchInput");
+      const viewMemberSel = el("fundsViewMemberSelect");
+      if (viewSearchInp) {
+        viewSearchInp.addEventListener("input", () => {
+          window.appState.fundMemberSearchQuery = viewSearchInp.value;
+          refreshFundsFilterView(area);
+        });
+      }
+      if (viewMemberSel) {
+        viewMemberSel.addEventListener("change", () => {
+          window.appState.selectedFundMemberPhone = viewMemberSel.value;
+          if (dropdownEl && viewMemberSel.value !== "__ALL__" && Array.from(dropdownEl.options).some((o) => o.value === viewMemberSel.value)) {
+            dropdownEl.value = viewMemberSel.value;
+          }
+          refreshFundsFilterView(area);
+        });
+      }
+
       area.querySelectorAll("[data-member-group]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           window.appState.activeMemberGroup = btn.dataset.memberGroup;
           await renderFundsAndMembersDetails(area);
-        });
-      });
-
-      area.querySelectorAll("[data-edit-id]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const item = filteredFundItems.find((x) => x.id === btn.dataset.editId) || allFundItems.find((x) => x.id === btn.dataset.editId);
-          if (!item) return;
-          const panel = el("fundEditPanel");
-          panel.style.display = "block";
-          panel.innerHTML = `
-            <div class="field">
-              <label>${window.t("lblFundDate")}</label>
-              <input id="editFundDate" type="date" class="date-ltr" value="${item.date || todayISO()}" />
-            </div>
-            <div class="field">
-              <label>${window.t("lblFundAmount")}</label>
-              <input id="editFundAmount" type="number" value="${Number(item.amount || 0)}" />
-            </div>
-            <div class="field">
-              <label>${window.t("lblFundPurpose")}</label>
-              <select id="editFundPurpose">${window.buildPurposeOptionsHtml(item.purpose || "", false)}</select>
-            </div>
-            <div class="row-actions">
-              <button type="button" id="saveFundEditBtn" class="btn btn-sm btn-approve">${window.t("saveEditBtn")}</button>
-              <button type="button" id="cancelFundEditBtn" class="btn btn-sm btn-secondary">${window.t("cancelEditBtn")}</button>
-            </div>`;
-
-          el("cancelFundEditBtn").addEventListener("click", () => {
-            panel.style.display = "none";
-          });
-
-          el("saveFundEditBtn").addEventListener("click", async () => {
-            const nextDate = el("editFundDate").value;
-            const nextAmount = Number(el("editFundAmount").value);
-            const nextPurpose = el("editFundPurpose").value.trim();
-            if (!nextDate || !nextAmount) return;
-            await updateDoc(doc(db, "funds", item.id), {
-              date: nextDate,
-              amount: nextAmount,
-              purpose: nextPurpose
-            });
-            window.showAdminMsg(window.appState.lang === "en" ? "Fund updated." : "فنڈ کی انٹری اپ ڈیٹ ہو گئی۔", "success");
-            await renderFundsAndMembersDetails(area);
-          });
-        });
-      });
-
-      area.querySelectorAll("[data-del-id]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const host = btn.closest("td") || btn.parentElement;
-          window.showInlineConfirm(host, window.t("confirmDelete"), async () => {
-            await deleteDoc(doc(db, "funds", btn.dataset.delId));
-            window.showAdminMsg(window.t("deletedMsg"), "success");
-            await renderFundsAndMembersDetails(area);
-          });
         });
       });
 
@@ -3690,6 +4056,12 @@
 
     window.appState.handlers.bindSectionFundAdd = () => {
       populateMemberDropdown().catch((e) => window.showAdminMsg(e.message, "error"));
+      const addMonthlyCtrl = window.setupMonthlyPurposeController({
+        purposeSelectId: "fundPurpose",
+        containerId: "addFundMonthlyContainer",
+        prefix: "addFund"
+      });
+
       const btn = el("addFundBtn");
       if (!btn) return;
       btn.addEventListener("click", async () => {
@@ -3715,6 +4087,11 @@
             );
           }
 
+          const monthlyData = addMonthlyCtrl.getSelection();
+          if (window.isMonthlyPurposeValue(purpose) && (!monthlyData.fundMonths.length || !monthlyData.fundYear)) {
+            return window.showAdminMsg(window.t("selectMonthRequired"), "error");
+          }
+
           window.appState.selectedFundMemberPhone = memberPhone;
 
           await addDoc(collection(db, "funds"), {
@@ -3722,10 +4099,13 @@
             date,
             amount,
             purpose,
+            fundMonths: window.isMonthlyPurposeValue(purpose) ? monthlyData.fundMonths : [],
+            fundYear: window.isMonthlyPurposeValue(purpose) ? monthlyData.fundYear : "",
             createdAt: serverTimestamp()
           });
           el("fundAmount").value = "";
           el("fundPurpose").value = "";
+          addMonthlyCtrl.reset();
           window.appState.addWindowOpen = false;
           syncAddWindowVisibility("funds_members");
           window.showAdminMsg(l === "en" ? "Fund record saved." : "فنڈ کی تفصیل محفوظ ہو گئی۔", "success");

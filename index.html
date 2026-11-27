@@ -1416,7 +1416,7 @@
       entryArea.innerHTML = "";
     };
 
-    async function waitForSectionHandler(maxMs = 3500) {
+    async function waitForSectionHandler(maxMs = 4500) {
       const start = Date.now();
       while (!window.appState.handlers.selectSection && Date.now() - start < maxMs) {
         await new Promise((r) => setTimeout(r, 80));
@@ -1614,7 +1614,7 @@
       el("loginAccountSelect").innerHTML = "";
     });
 
-    async function waitForLoginHandler(maxMs = 2500) {
+    async function waitForLoginHandler(maxMs = 3500) {
       const start = Date.now();
       while (!window.appState.handlers.loginUser && Date.now() - start < maxMs) {
         await new Promise((r) => setTimeout(r, 100));
@@ -2083,6 +2083,8 @@
 
           const parsedDate = parseDateParts(item.date || item.folder);
           const dateVal = parsedDate ? parsedDate.iso : todayISO();
+          const isBase64Src = /^data:image\//i.test(String(item.src || ""));
+          const urlInputVal = isBase64Src ? "" : (item.src || "");
 
           const editBox = document.createElement("div");
           editBox.className = "edit-box";
@@ -2090,6 +2092,7 @@
             <div class="field">
               <label>${window.t("lblDate")}</label>
               <input type="date" class="date-ltr" data-edit-date value="${dateVal}" />
+              <div class="date-preview" data-edit-date-prev>${window.t("selectedDatePrefix")}${window.formatDDMMYYYY(dateVal)}</div>
             </div>
             <div class="field">
               <label>${window.t("lblTitle")}</label>
@@ -2097,7 +2100,7 @@
             </div>
             <div class="field">
               <label>${isVideo ? window.t("lblMediaUrl") : window.t("lblExpMedia")}</label>
-              <input type="text" data-edit-url value="${(item.src || "").replace(/"/g, "&quot;")}" />
+              <input type="text" data-edit-url placeholder="${isBase64Src ? (l === "en" ? "Uploaded image saved (leave blank to keep or enter new URL/file)" : "اپلوڈ شدہ تصویر محفوظ ہے (نیا لنک یا فائل دیں)") : "https://..."}" value="${urlInputVal.replace(/"/g, "&quot;")}" />
               ${!isVideo ? `<input type="file" accept="image/*" data-edit-file style="margin-top:6px;" />` : ""}
             </div>
             <div class="row-actions">
@@ -2106,6 +2109,16 @@
             </div>`;
 
           card.appendChild(editBox);
+
+          const dateInp = editBox.querySelector("[data-edit-date]");
+          const datePrev = editBox.querySelector("[data-edit-date-prev]");
+          if (dateInp && datePrev) {
+            const updatePrev = () => {
+              datePrev.innerHTML = `${window.t("selectedDatePrefix")}${window.formatDDMMYYYY(dateInp.value)}`;
+            };
+            dateInp.addEventListener("change", updatePrev);
+            dateInp.addEventListener("input", updatePrev);
+          }
 
           editBox.querySelector("[data-cancel-media-edit]").addEventListener("click", () => {
             editBox.remove();
@@ -2123,6 +2136,8 @@
             try {
               if (file && !isVideo) {
                 nextSrc = await fileToDataUrl(file);
+              } else if (!nextSrc && item.src) {
+                nextSrc = item.src;
               }
               if (!nextDate || !nextTitle || !nextSrc) {
                 return window.showAdminMsg(
@@ -3255,3 +3270,71 @@
         if (!wasAlreadyOpen || forceOpenPortal) {
           window.openPortal();
         } else {
+          window.updatePortalHeader();
+          if (prevSection && window.appState.handlers.selectSection) {
+            await window.appState.handlers.selectSection(prevSection, { silent: true });
+          }
+        }
+        if (window.appState.handlers.syncAdminProfile) {
+          await window.appState.handlers.syncAdminProfile();
+        }
+        return;
+      }
+
+      try {
+        const accounts = await getAccountsForPhone(saved.phone);
+        const matchedAcc = accounts.find((acc) =>
+          acc.role === saved.role && acc.status === "active"
+        );
+
+        if (matchedAcc) {
+          const wasAlreadyOpen = Boolean(window.appState.currentUser);
+          const prevSection = window.appState.activeSection;
+          window.appState.currentUser = matchedAcc;
+          window.saveUserSession(matchedAcc);
+          if (!wasAlreadyOpen || forceOpenPortal) {
+            window.openPortal();
+          } else {
+            window.updatePortalHeader();
+            if (prevSection && window.appState.handlers.selectSection) {
+              await window.appState.handlers.selectSection(prevSection, { silent: true });
+            }
+          }
+        } else if (saved.role === "public" && saved.status === "active") {
+          const pubAcc = accounts.find((acc) => acc.role === "public" && acc.status !== "rejected");
+          if (pubAcc) {
+            const wasAlreadyOpen = Boolean(window.appState.currentUser);
+            const prevSection = window.appState.activeSection;
+            window.appState.currentUser = pubAcc;
+            window.saveUserSession(pubAcc);
+            if (!wasAlreadyOpen || forceOpenPortal) {
+              window.openPortal();
+            } else {
+              window.updatePortalHeader();
+              if (prevSection && window.appState.handlers.selectSection) {
+                await window.appState.handlers.selectSection(prevSection, { silent: true });
+              }
+            }
+          } else {
+            window.saveUserSession(null);
+          }
+        } else {
+          window.saveUserSession(null);
+        }
+      } catch (e) {
+        if (!window.appState.currentUser) {
+          window.appState.currentUser = saved;
+          window.openPortal();
+        }
+      }
+    }
+
+    window.appState.handlers.refreshOnReopen = async () => {
+      if (!window.loadSavedSession || !window.loadSavedSession()) return;
+      await restoreOrRefreshSession({ forceOpenPortal: false });
+    };
+
+    restoreOrRefreshSession({ forceOpenPortal: false });
+  </script>
+</body>
+</html>

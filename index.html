@@ -9,6 +9,7 @@
     html, body {
       overscroll-behavior: none;
       overscroll-behavior-y: none;
+      overscroll-behavior-x: none;
       touch-action: pan-x pan-y;
     }
     body { margin: 0; padding: 12px; background: #f1f5f9; color: #0f172a; line-height: 1.6; }
@@ -79,7 +80,6 @@
       font-weight: bold;
       margin-bottom: 10px;
     }
-    .total-row td { background: #f0fdf4; font-weight: bold; color: #14532d; }
     .item-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px; margin-bottom: 8px; background: #f8fafc; }
     .item-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
     .item-box img.content-img { max-width: 100%; max-height: 260px; border-radius: 8px; display: block; margin-top: 8px; cursor: pointer; }
@@ -2008,11 +2008,6 @@
             </thead>
             <tbody>
               ${rows}
-              <tr class="total-row">
-                <td>Total</td>
-                <td>${total}</td>
-                <td></td>
-              </tr>
             </tbody>
           </table>
         </div>`;

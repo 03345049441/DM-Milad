@@ -1559,34 +1559,6 @@
       el("authMsg").className = "msg";
     });
 
-    let blockPullStartY = 0;
-    let blockPullTracking = false;
-
-    function getCurrentScrollTop() {
-      return Math.max(
-        window.scrollY || 0,
-        document.documentElement ? document.documentElement.scrollTop || 0 : 0,
-        document.body ? document.body.scrollTop || 0 : 0
-      );
-    }
-
-    document.addEventListener("touchstart", (e) => {
-      if (e.touches && e.touches.length === 1) {
-        blockPullStartY = e.touches[0].clientY;
-        blockPullTracking = true;
-      } else {
-        blockPullTracking = false;
-      }
-    }, { passive: true, capture: true });
-
-    document.addEventListener("touchmove", (e) => {
-      if (!blockPullTracking || !e.touches || e.touches.length !== 1) return;
-      const dy = e.touches[0].clientY - blockPullStartY;
-      if (dy > 0 && getCurrentScrollTop() <= 0 && e.cancelable) {
-        e.preventDefault();
-      }
-    }, { passive: false, capture: true });
-
     function isUserActivelyTyping() {
       const active = document.activeElement;
       if (!active) return false;
@@ -1823,14 +1795,19 @@
       }
     });
 
+    const initialSession = window.loadSavedSession();
+    if (initialSession) {
+      el("authCard").style.display = "none";
+      el("portalCard").style.display = "block";
+      window.appState.currentUser = {
+        ...initialSession,
+        photoUrl: initialSession.photoUrl || (initialSession.role === "admin" ? getCachedAdminPhoto() : "")
+      };
+    }
+
     window.applySelectionRestriction();
     window.applyTranslations();
-    const savedSession = window.loadSavedSession();
-    if (savedSession && savedSession.role === "admin" && savedSession.phone === BUILT_IN_ADMIN.phone) {
-      window.appState.currentUser = {
-        ...savedSession,
-        photoUrl: savedSession.photoUrl || getCachedAdminPhoto()
-      };
+    if (window.appState.currentUser) {
       window.openPortal();
     }
   </script>

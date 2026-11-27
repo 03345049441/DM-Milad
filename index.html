@@ -341,6 +341,17 @@
       font-weight: bold;
       margin-bottom: 10px;
     }
+    .selected-member-pill {
+      display: inline-block;
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      color: #14532d;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
     .record-card {
       border: 1px solid #e2e8f0;
       border-radius: 12px;
@@ -650,7 +661,7 @@
     const SEEN_ALERTS_PREFIX = "dm_milad_seen_alerts_v1_";
     const AUTO_REFRESH_MS = 20000;
 
-    const ADD_CAPABLE_SECTIONS = ["funds_members", "expenses", "langar", "photos", "videos", "mahafil", "information"];
+    const ADD_CAPABLE_SECTIONS = ["expenses", "langar", "photos", "videos", "mahafil", "information"];
 
     const FUND_PURPOSES = [
       { id: "monthly", ur: "ماہانہ فنڈ", en: "Monthly Fund" },
@@ -730,6 +741,7 @@
         chooseAccountToLogin: "اس نمبر پر ایک سے زیادہ اکاؤنٹس موجود ہیں، براہِ کرم اکاؤنٹ منتخب کر کے دوبارہ لاگ ان دبائیں۔",
         admH1: "زیرِ التوا درخواستیں (انتظامیہ / بیرونِ ملک)",
         admH2: "ممبر کے جمع کروائے گئے فنڈز درج کریں",
+        selectedMemberLabel: "منتخب ممبر: {name}",
         lblFundSearch: "ممبر سرچ کریں (نام یا فون نمبر)",
         fundSearchPlaceholder: "نام یا نمبر لکھیں...",
         lblFundSelectFilter: "ممبر منتخب کریں",
@@ -880,6 +892,7 @@
         chooseAccountToLogin: "Multiple accounts exist for this number. Please select an account and click Login again.",
         admH1: "Pending Approvals (Management / Abroad)",
         admH2: "Add Member Funds",
+        selectedMemberLabel: "Selected Member: {name}",
         lblFundSearch: "Search Member (Name or Phone)",
         fundSearchPlaceholder: "Type name or phone...",
         lblFundSelectFilter: "Select Member",
@@ -1735,7 +1748,7 @@
       activeSection: null,
       addWindowOpen: false,
       activeMemberGroup: "management",
-      selectedFundMemberPhone: "",
+      selectedFundMemberPhone: "__ALL__",
       fundMemberSearchQuery: "",
       unreadSections: {},
       latestSignatures: {},
@@ -1930,26 +1943,18 @@
       );
 
       if (!canAddHere) {
-        window.appState.addWindowOpen = false;
         if (addBtn) addBtn.style.display = "none";
-        if (entryArea) {
-          entryArea.style.display = "none";
-          entryArea.innerHTML = "";
-        }
-        if (contentArea) contentArea.style.display = "block";
-        syncHeaderBackBtn();
-        return;
+      } else if (window.appState.addWindowOpen) {
+        if (addBtn) addBtn.style.display = "none";
+      } else if (addBtn) {
+        addBtn.textContent = window.t("addBtn");
+        addBtn.style.display = "inline-block";
       }
 
       if (window.appState.addWindowOpen) {
-        if (addBtn) addBtn.style.display = "none";
         if (contentArea) contentArea.style.display = "none";
         window.renderAdminSectionEntry(sectionKey);
       } else {
-        if (addBtn) {
-          addBtn.textContent = window.t("addBtn");
-          addBtn.style.display = "inline-block";
-        }
         if (entryArea) {
           entryArea.style.display = "none";
           entryArea.innerHTML = "";
@@ -1958,6 +1963,15 @@
       }
       syncHeaderBackBtn();
     }
+
+    window.openMemberFundAddWindow = () => {
+      if (!isAdminUser()) return;
+      const selPhone = window.appState.selectedFundMemberPhone;
+      if (!selPhone || selPhone === "__ALL__") return;
+      window.appState.addWindowOpen = true;
+      syncAddWindowVisibility("funds_members");
+      window.scrollTo({ top: 0, behavior: "instant" });
+    };
 
     window.renderAdminSectionEntry = (sectionKey) => {
       const u = window.appState.currentUser;
@@ -2027,17 +2041,22 @@
       }
 
       if (sectionKey === "funds_members") {
+        const selPhone = window.appState.selectedFundMemberPhone;
+        if (!selPhone || selPhone === "__ALL__") {
+          window.appState.addWindowOpen = false;
+          entryArea.style.display = "none";
+          entryArea.innerHTML = "";
+          if (el("contentArea")) el("contentArea").style.display = "block";
+          return;
+        }
+        const memberName = window.appState.handlers.getMemberDisplayName
+          ? window.appState.handlers.getMemberDisplayName(selPhone)
+          : selPhone;
+
         entryArea.innerHTML = `
           <div class="entry-box">
             <h4>${window.t("admH2")}</h4>
-            <div class="field">
-              <label>${window.t("lblFundSearch")}</label>
-              <input id="addFundMemberSearch" type="search" placeholder="${window.t("fundSearchPlaceholder")}" />
-            </div>
-            <div class="field">
-              <label>${window.t("lblFundMember")}</label>
-              <select id="fundMemberSelect"></select>
-            </div>
+            <div class="selected-member-pill">${window.t("selectedMemberLabel", { name: memberName })}</div>
             <div class="field">
               <label>${window.t("lblFundDate")}</label>
               <input id="fundDate" type="date" class="date-ltr" value="${todayISO()}" />
@@ -2056,7 +2075,7 @@
           </div>`;
         bindDatePreview("fundDate", "fundDatePreview");
         if (window.appState.handlers.bindSectionFundAdd) {
-          window.appState.handlers.bindSectionFundAdd();
+          window.appState.handlers.bindSectionFundAdd(selPhone);
         }
         return;
       }
@@ -2667,9 +2686,15 @@
     const el = (id) => document.getElementById(id);
     let memberNamesMap = {};
     let memberPhotosMap = {};
-    let cachedFundMembers = [];
     let cachedFundItems = [];
     let cachedFundMemberOptions = [];
+
+    window.appState.handlers.getMemberDisplayName = (phone) => {
+      if (!phone) return "";
+      const found = cachedFundMemberOptions.find((o) => o.phone === phone);
+      const name = memberNamesMap[phone] || (found ? found.name : phone);
+      return name && name !== phone ? `${name} (${phone})` : phone;
+    };
 
     function fileToDataUrl(file, maxW = 800, quality = 0.72) {
       return new Promise((resolve, reject) => {
@@ -3241,80 +3266,15 @@
       });
     }
 
-    function fillAddFundMemberSelect(filterText = "") {
-      const sel = el("fundMemberSelect");
-      if (!sel) return;
-      const prevSelected = sel.value || window.appState.selectedFundMemberPhone || "";
-      const q = String(filterText || "").trim().toLowerCase();
+    function buildFundsTableHtml(filteredFundItems, totalAmount, totalBannerText, showMemberCol, showAddInBanner) {
+      const addInBannerHtml = showAddInBanner
+        ? `<button type="button" id="bannerAddMemberFundBtn" class="btn btn-sm btn-primary" style="width:auto;">${window.t("addBtn")}</button>`
+        : "";
 
-      const activeMgmt = cachedFundMembers.filter((u) => {
-        if (u.role !== "management" || u.status !== "active") return false;
-        if (!q) return true;
-        const nameMatch = String(u.name || "").toLowerCase().includes(q);
-        const phoneMatch = String(u.phone || "").toLowerCase().includes(q);
-        return nameMatch || phoneMatch;
-      });
-
-      sel.innerHTML = "";
-      activeMgmt.forEach((u) => {
-        const opt = document.createElement("option");
-        opt.value = u.phone;
-        opt.textContent = `${u.name} (${u.phone})`;
-        sel.appendChild(opt);
-      });
-
-      if (prevSelected && Array.from(sel.options).some((o) => o.value === prevSelected)) {
-        sel.value = prevSelected;
-      } else if (sel.options.length > 0) {
-        sel.value = sel.options[0].value;
-      }
-      if (sel.value) {
-        window.appState.selectedFundMemberPhone = sel.value;
-      }
-    }
-
-    async function populateMemberDropdown() {
-      const sel = el("fundMemberSelect");
-      const searchInp = el("addFundMemberSearch");
-      if (!db) return;
-      const snap = await getDocs(collection(db, "users"));
-      cachedFundMembers = [];
-      memberNamesMap = {};
-      memberPhotosMap = {};
-
-      snap.forEach((d) => {
-        const u = { id: d.id, ...d.data() };
-        cachedFundMembers.push(u);
-        memberNamesMap[u.phone] = u.name;
-        if (u.photoUrl) memberPhotosMap[u.phone] = u.photoUrl;
-      });
-
-      fillAddFundMemberSelect(searchInp ? searchInp.value : "");
-
-      if (searchInp && !searchInp.dataset.boundAddSearch) {
-        searchInp.dataset.boundAddSearch = "1";
-        searchInp.addEventListener("input", () => {
-          fillAddFundMemberSelect(searchInp.value);
-        });
-      }
-
-      if (sel && !sel.dataset.boundFundMemberChange) {
-        sel.dataset.boundFundMemberChange = "1";
-        sel.addEventListener("change", async () => {
-          window.appState.selectedFundMemberPhone = sel.value || "";
-          if (window.appState.activeSection === "funds_members" && !window.appState.addWindowOpen && el("contentArea")) {
-            await renderFundsAndMembersDetails(el("contentArea"));
-          }
-        });
-      }
-    }
-
-    window.appState.handlers.refreshMemberDropdown = populateMemberDropdown;
-
-    function buildFundsTableHtml(filteredFundItems, totalAmount, totalBannerText, showMemberCol) {
       const bannerHtml = `
         <div class="member-total-banner">
           <div>${totalBannerText}: ${totalAmount}</div>
+          ${addInBannerHtml}
         </div>`;
 
       if (!filteredFundItems.length) {
@@ -3356,6 +3316,13 @@
     }
 
     function bindFundsTableActions(area, allFundItems) {
+      const addBannerBtn = area.querySelector("#bannerAddMemberFundBtn");
+      if (addBannerBtn) {
+        addBannerBtn.addEventListener("click", () => {
+          window.openMemberFundAddWindow();
+        });
+      }
+
       area.querySelectorAll("[data-edit-id]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const item = allFundItems.find((x) => x.id === btn.dataset.editId);
@@ -3445,8 +3412,8 @@
       const selectEl = el("fundsViewMemberSelect");
       let currentSel = window.appState.selectedFundMemberPhone || "__ALL__";
       if (currentSel !== "__ALL__" && !matchingOptions.some((o) => o.phone === currentSel)) {
-        currentSel = matchingOptions.length > 0 ? matchingOptions[0].phone : "__ALL__";
-        window.appState.selectedFundMemberPhone = currentSel;
+        currentSel = "__ALL__";
+        window.appState.selectedFundMemberPhone = "__ALL__";
       }
 
       if (selectEl) {
@@ -3460,6 +3427,7 @@
       let filteredItems = cachedFundItems;
       let bannerText = window.t("allMembersTotalLabel");
       let showMemberCol = true;
+      let showAddInBanner = false;
 
       if (currentSel !== "__ALL__") {
         filteredItems = cachedFundItems.filter((f) => f.memberPhone === currentSel);
@@ -3468,6 +3436,7 @@
           currentSel;
         bannerText = window.t("memberTotalLabel", { name: mName });
         showMemberCol = false;
+        showAddInBanner = isAdminUser();
       } else if (q) {
         const matchedPhones = new Set(matchingOptions.map((o) => o.phone));
         filteredItems = cachedFundItems.filter((f) =>
@@ -3478,7 +3447,7 @@
       }
 
       const totalAmount = filteredItems.reduce((sum, f) => sum + Number(f.amount || 0), 0);
-      resultsHost.innerHTML = buildFundsTableHtml(filteredItems, totalAmount, bannerText, showMemberCol);
+      resultsHost.innerHTML = buildFundsTableHtml(filteredItems, totalAmount, bannerText, showMemberCol, showAddInBanner);
       bindFundsTableActions(resultsHost, cachedFundItems);
     }
 
@@ -3536,11 +3505,6 @@
       allFundItems.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
       cachedFundItems = allFundItems;
       cachedFundMemberOptions = Array.from(memberOptionsMap.values());
-
-      const dropdownEl = el("fundMemberSelect");
-      if (dropdownEl && window.appState.selectedFundMemberPhone && window.appState.selectedFundMemberPhone !== "__ALL__" && Array.from(dropdownEl.options).some((o) => o.value === window.appState.selectedFundMemberPhone)) {
-        dropdownEl.value = window.appState.selectedFundMemberPhone;
-      }
 
       const roleText = (r) => r === "abroad"
         ? window.t("roleAbroadLabel")
@@ -3633,9 +3597,6 @@
       if (viewMemberSel) {
         viewMemberSel.addEventListener("change", () => {
           window.appState.selectedFundMemberPhone = viewMemberSel.value;
-          if (dropdownEl && viewMemberSel.value !== "__ALL__" && Array.from(dropdownEl.options).some((o) => o.value === viewMemberSel.value)) {
-            dropdownEl.value = viewMemberSel.value;
-          }
           refreshFundsFilterView(area);
         });
       }
@@ -3656,7 +3617,6 @@
             try {
               await deleteDoc(doc(db, "users", btn.dataset.removeUserId));
               window.showAdminMsg(window.t("memberRemovedMsg"), "success");
-              await populateMemberDropdown();
               await renderFundsAndMembersDetails(area);
             } catch (err) {
               btn.disabled = false;
@@ -4054,8 +4014,7 @@
       });
     };
 
-    window.appState.handlers.bindSectionFundAdd = () => {
-      populateMemberDropdown().catch((e) => window.showAdminMsg(e.message, "error"));
+    window.appState.handlers.bindSectionFundAdd = (selectedMemberPhone) => {
       const addMonthlyCtrl = window.setupMonthlyPurposeController({
         purposeSelectId: "fundPurpose",
         containerId: "addFundMonthlyContainer",
@@ -4075,14 +4034,14 @@
 
         btn.disabled = true;
         try {
-          const memberPhone = el("fundMemberSelect").value;
+          const memberPhone = selectedMemberPhone || window.appState.selectedFundMemberPhone;
           const date = el("fundDate").value;
           const amount = Number(el("fundAmount").value);
           const purpose = el("fundPurpose").value.trim();
 
-          if (!memberPhone || !date || !amount || !purpose) {
+          if (!memberPhone || memberPhone === "__ALL__" || !date || !amount || !purpose) {
             return window.showAdminMsg(
-              l === "en" ? "Select member, date, amount, and purpose." : "ممبر، تاریخ، رقم اور مقصد منتخب کریں۔",
+              l === "en" ? "Select date, amount, and purpose." : "تاریخ، رقم اور مقصد منتخب کریں۔",
               "error"
             );
           }

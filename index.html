@@ -139,39 +139,6 @@
       font-weight: bold;
       margin-bottom: 8px;
     }
-    .confirm-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.55);
-      z-index: 10000;
-      justify-content: center;
-      align-items: center;
-      padding: 16px;
-    }
-    .confirm-modal.open {
-      display: flex;
-    }
-    .confirm-box {
-      width: 100%;
-      max-width: 360px;
-      background: #fff;
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-      text-align: center;
-    }
-    .confirm-text {
-      font-size: 15px;
-      font-weight: bold;
-      color: #0f172a;
-      margin-bottom: 16px;
-    }
-    .confirm-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
     .img-modal {
       display: none;
       position: fixed;
@@ -322,16 +289,6 @@
       </div>
 
       <div id="adminMsg" class="msg"></div>
-    </div>
-  </div>
-
-  <div id="customConfirmModal" class="confirm-modal">
-    <div class="confirm-box">
-      <div id="customConfirmMessage" class="confirm-text"></div>
-      <div class="confirm-actions">
-        <button type="button" id="customConfirmCancelBtn" class="btn btn-sm btn-secondary">Cancel</button>
-        <button type="button" id="customConfirmOkBtn" class="btn btn-sm btn-danger">OK</button>
-      </div>
     </div>
   </div>
 
@@ -634,43 +591,6 @@
     };
 
     const el = (id) => document.getElementById(id);
-
-    window.askConfirm = (message) => {
-      return new Promise((resolve) => {
-        const modal = el("customConfirmModal");
-        const msgEl = el("customConfirmMessage");
-        const okBtn = el("customConfirmOkBtn");
-        const cancelBtn = el("customConfirmCancelBtn");
-
-        if (!modal || !msgEl || !okBtn || !cancelBtn) {
-          resolve(true);
-          return;
-        }
-
-        msgEl.textContent = message;
-        okBtn.textContent = window.appState.lang === "ur" ? "ٹھیک ہے" : "OK";
-        cancelBtn.textContent = window.appState.lang === "ur" ? "منسوخ" : "Cancel";
-        modal.classList.add("open");
-
-        const cleanup = (result) => {
-          modal.classList.remove("open");
-          okBtn.removeEventListener("click", onOk);
-          cancelBtn.removeEventListener("click", onCancel);
-          modal.removeEventListener("click", onBackdrop);
-          resolve(result);
-        };
-
-        const onOk = () => cleanup(true);
-        const onCancel = () => cleanup(false);
-        const onBackdrop = (e) => {
-          if (e.target === modal) cleanup(false);
-        };
-
-        okBtn.addEventListener("click", onOk);
-        cancelBtn.addEventListener("click", onCancel);
-        modal.addEventListener("click", onBackdrop);
-      });
-    };
 
     let authMsgTimer = null;
     window.showAuthMsg = (text, type) => {
@@ -1396,7 +1316,7 @@
       entryArea.innerHTML = "";
     };
 
-    async function waitForSectionHandler(maxMs = 3000) {
+    async function waitForSectionHandler(maxMs = 3500) {
       const start = Date.now();
       while (!window.appState.handlers.selectSection && Date.now() - start < maxMs) {
         await new Promise((r) => setTimeout(r, 80));
@@ -1999,8 +1919,7 @@
           if (!isAdminUser()) {
             return window.showAdminMsg(window.t("adminOnlyActionError"), "error");
           }
-          const confirmed = await window.askConfirm(window.t("confirmDelete"));
-          if (!confirmed) return;
+          if (!confirm(window.t("confirmDelete"))) return;
           try {
             await deleteDoc(doc(db, btn.dataset.delCol, btn.dataset.delId));
             window.showAdminMsg(window.t("deletedMsg"), "success");
@@ -2478,8 +2397,7 @@
 
       area.querySelectorAll("[data-del-id]").forEach((btn) => {
         btn.addEventListener("click", async () => {
-          const confirmed = await window.askConfirm(window.t("confirmDelete"));
-          if (!confirmed) return;
+          if (!confirm(window.t("confirmDelete"))) return;
           await deleteDoc(doc(db, "funds", btn.dataset.delId));
           window.showAdminMsg(window.t("deletedMsg"), "success");
           await renderFundsAndMembersDetails(area);
@@ -2489,8 +2407,7 @@
       area.querySelectorAll("[data-remove-user-id]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const userName = btn.dataset.removeUserName;
-          const confirmed = await window.askConfirm(window.t("confirmRemoveMember", { name: userName }));
-          if (!confirmed) return;
+          if (!confirm(window.t("confirmRemoveMember", { name: userName }))) return;
           btn.disabled = true;
           try {
             await deleteDoc(doc(db, "users", btn.dataset.removeUserId));
@@ -3024,3 +2941,157 @@
         el("loginBtn").disabled = false;
       }
     };
+
+    el("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const l = window.appState.lang;
+      if (!db) return window.showAuthMsg(l === "en" ? "Database connection unavailable." : "ڈیٹا بیس سے رابطہ ممکن نہیں۔", "error");
+
+      const name = el("regName").value.trim();
+      const phone = window.normalizePhone(el("regPhone").value);
+      const password = el("regPass").value;
+      const confirmPassword = el("regConfirmPass").value;
+      const role = el("regRole").value;
+
+      if (!name) return window.showAuthMsg(l === "en" ? "Please enter your full name." : "براہِ کرم پورا نام لکھیں۔", "error");
+      if (!window.isValidPhone(phone)) return window.showAuthMsg(l === "en" ? "Enter a valid phone number (e.g. 03001234567)." : "درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
+      if (phone === BUILT_IN_ADMIN.phone) return window.showAuthMsg(l === "en" ? "This number is reserved for Admin." : "یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
+      if (password.length < 6) return window.showAuthMsg(l === "en" ? "Password must be at least 6 characters." : "پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
+      if (!confirmPassword || password !== confirmPassword) return window.showAuthMsg(window.t("passMismatch"), "error");
+      if (!role) return window.showAuthMsg(l === "en" ? "Please select an account type." : "براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
+
+      el("registerBtn").disabled = true;
+      try {
+        const existingAccounts = await getAccountsForPhone(phone);
+
+        if (role === "public" && existingAccounts.length > 0) {
+          return window.showAuthMsg(window.t("publicNotAllowedExisting"), "error");
+        }
+
+        if (existingAccounts.some((acc) => acc.role === role)) {
+          return window.showAuthMsg(window.t("roleAlreadyExists"), "error");
+        }
+
+        let photoUrl = "";
+        if (regCropCtrl && regCropCtrl.hasImage()) {
+          photoUrl = regCropCtrl.exportCroppedDataUrl(360, 0.78);
+        } else {
+          const fileInp = el("regPhotoInput");
+          const file = fileInp && fileInp.files ? fileInp.files[0] : null;
+          if (file) photoUrl = await fileToDataUrl(file, 480, 0.72);
+        }
+
+        const docId = `${phone}_${role}`;
+        const ref = doc(db, "users", docId);
+        const needsApproval = role === "management" || role === "abroad";
+
+        await setDoc(ref, {
+          name,
+          phone,
+          password,
+          role,
+          photoUrl,
+          status: needsApproval ? "pending_approval" : "active",
+          createdAt: serverTimestamp()
+        });
+
+        el("registerForm").reset();
+        if (regCropCtrl) regCropCtrl.reset();
+        el("tabLogin").click();
+        el("loginPhone").value = phone;
+        el("multiAccountPicker").style.display = "none";
+        window.showAuthMsg(
+          needsApproval
+            ? (l === "en" ? "Account created! You can log in after Admin approval." : "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔")
+            : (l === "en" ? "Public account created! You can log in now." : "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔"),
+          "success"
+        );
+      } catch (err) {
+        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("registerBtn").disabled = false;
+      }
+    });
+
+    async function restoreOrRefreshSession({ forceOpenPortal = false } = {}) {
+      const saved = window.loadSavedSession ? window.loadSavedSession() : null;
+      if (!saved || !db) return;
+
+      if (saved.role === "admin" && saved.phone === BUILT_IN_ADMIN.phone) {
+        const wasAlreadyOpen = Boolean(window.appState.currentUser);
+        const prevSection = window.appState.activeSection;
+        window.appState.currentUser = {
+          ...saved,
+          photoUrl: saved.photoUrl || getCachedAdminPhoto()
+        };
+        if (!wasAlreadyOpen || forceOpenPortal) {
+          window.openPortal();
+        } else {
+          window.updatePortalHeader();
+          if (prevSection && window.appState.handlers.selectSection) {
+            await window.appState.handlers.selectSection(prevSection, { silent: true });
+          }
+        }
+        if (window.appState.handlers.syncAdminProfile) {
+          await window.appState.handlers.syncAdminProfile();
+        }
+        return;
+      }
+
+      try {
+        const accounts = await getAccountsForPhone(saved.phone);
+        const matchedAcc = accounts.find((acc) =>
+          acc.role === saved.role && acc.status === "active"
+        );
+
+        if (matchedAcc) {
+          const wasAlreadyOpen = Boolean(window.appState.currentUser);
+          const prevSection = window.appState.activeSection;
+          window.appState.currentUser = matchedAcc;
+          window.saveUserSession(matchedAcc);
+          if (!wasAlreadyOpen || forceOpenPortal) {
+            window.openPortal();
+          } else {
+            window.updatePortalHeader();
+            if (prevSection && window.appState.handlers.selectSection) {
+              await window.appState.handlers.selectSection(prevSection, { silent: true });
+            }
+          }
+        } else if (saved.role === "public" && saved.status === "active") {
+          const pubAcc = accounts.find((acc) => acc.role === "public" && acc.status !== "rejected");
+          if (pubAcc) {
+            const wasAlreadyOpen = Boolean(window.appState.currentUser);
+            const prevSection = window.appState.activeSection;
+            window.appState.currentUser = pubAcc;
+            window.saveUserSession(pubAcc);
+            if (!wasAlreadyOpen || forceOpenPortal) {
+              window.openPortal();
+            } else {
+              window.updatePortalHeader();
+              if (prevSection && window.appState.handlers.selectSection) {
+                await window.appState.handlers.selectSection(prevSection, { silent: true });
+              }
+            }
+          } else {
+            window.saveUserSession(null);
+          }
+        } else {
+          window.saveUserSession(null);
+        }
+      } catch (e) {
+        if (!window.appState.currentUser) {
+          window.appState.currentUser = saved;
+          window.openPortal();
+        }
+      }
+    }
+
+    window.appState.handlers.refreshOnReopen = async () => {
+      if (!window.loadSavedSession || !window.loadSavedSession()) return;
+      await restoreOrRefreshSession({ forceOpenPortal: false });
+    };
+
+    restoreOrRefreshSession({ forceOpenPortal: false });
+  </script>
+</body>
+</html>

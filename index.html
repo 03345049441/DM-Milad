@@ -369,6 +369,7 @@
     };
 
     const SESSION_STORAGE_KEY = "dm_milad_session_v1";
+    const SECTION_STORAGE_KEY = "dm_milad_active_section_v1";
     const LANG_STORAGE_KEY = "dm_milad_lang_v1";
     const ADMIN_PASS_OVERRIDE_KEY = "dm_milad_admin_pass_v1";
     const ADMIN_PHOTO_CACHE_KEY = "dm_milad_admin_photo_v1";
@@ -734,6 +735,24 @@
       try {
         if (dataUrl) localStorage.setItem(ADMIN_PHOTO_CACHE_KEY, dataUrl);
       } catch (e) {}
+    }
+
+    function saveSavedSection(secKey) {
+      try {
+        if (secKey) {
+          localStorage.setItem(SECTION_STORAGE_KEY, secKey);
+        } else {
+          localStorage.removeItem(SECTION_STORAGE_KEY);
+        }
+      } catch (e) {}
+    }
+
+    function loadSavedSection() {
+      try {
+        return localStorage.getItem(SECTION_STORAGE_KEY) || null;
+      } catch (e) {
+        return null;
+      }
     }
 
     function todayISO() {
@@ -1188,7 +1207,7 @@
 
     window.appState = {
       currentUser: null,
-      activeSection: null,
+      activeSection: loadSavedSection(),
       activeMemberGroup: "management",
       selectedFundMemberPhone: "",
       lang: readSavedLang(),
@@ -1209,6 +1228,7 @@
           }));
         } else {
           localStorage.removeItem(SESSION_STORAGE_KEY);
+          saveSavedSection(null);
         }
       } catch (e) {}
     };
@@ -1432,6 +1452,7 @@
       if (!matched) return;
 
       window.appState.activeSection = matched.key;
+      saveSavedSection(matched.key);
       el("roleMenu").style.display = "none";
       el("sectionWindow").style.display = "block";
       el("activeSectionTitle").textContent = matched.label;
@@ -1482,6 +1503,7 @@
         openSectionWindow(window.appState.activeSection);
       } else {
         window.appState.activeSection = null;
+        saveSavedSection(null);
         menu.style.display = "grid";
         el("sectionWindow").style.display = "none";
         el("adminEntryArea").style.display = "none";
@@ -1492,6 +1514,7 @@
 
     el("backToMenuBtn").addEventListener("click", () => {
       window.appState.activeSection = null;
+      saveSavedSection(null);
       el("sectionWindow").style.display = "none";
       el("adminEntryArea").style.display = "none";
       el("adminEntryArea").innerHTML = "";
@@ -1501,10 +1524,13 @@
       window.renderRoleMenu();
     });
 
-    window.openPortal = () => {
+    window.openPortal = ({ preserveSection = false } = {}) => {
       const u = window.appState.currentUser;
       if (!u) return;
-      window.appState.activeSection = null;
+      if (!preserveSection) {
+        window.appState.activeSection = null;
+        saveSavedSection(null);
+      }
       window.applySelectionRestriction();
       el("authCard").style.display = "none";
       el("portalCard").style.display = "block";
@@ -1563,29 +1589,26 @@
     el("langBtn").addEventListener("click", toggleLanguage);
     el("portalLangBtn").addEventListener("click", toggleLanguage);
 
+    function reloadAppBypassCache(isPortal = false) {
+      if (isPortal && window.appState.currentUser) {
+        window.saveUserSession(window.appState.currentUser);
+      }
+      if (window.appState.activeSection) {
+        saveSavedSection(window.appState.activeSection);
+      }
+      const url = new URL(window.location.href);
+      url.searchParams.set("v", String(Date.now()));
+      try {
+        window.location.replace(url.toString());
+      } catch (e) {
+        window.location.href = url.toString();
+      }
+    }
+
     async function handleManualRefresh(isPortal = false) {
       const btn = el(isPortal ? "portalRefreshBtn" : "authRefreshBtn");
       if (btn) btn.disabled = true;
-      try {
-        if (isPortal && window.appState.currentUser) {
-          if (window.appState.currentUser.role === "admin" && window.appState.handlers.syncAdminProfile) {
-            await window.appState.handlers.syncAdminProfile();
-          }
-          if (window.appState.activeSection && window.appState.handlers.selectSection) {
-            await window.appState.handlers.selectSection(window.appState.activeSection, { silent: false });
-          } else {
-            window.renderRoleMenu();
-          }
-          window.showAdminMsg(window.t("refreshedMsg"), "success");
-        } else {
-          if (window.appState.handlers.refreshOnReopen) {
-            await window.appState.handlers.refreshOnReopen();
-          }
-          window.showAuthMsg(window.t("refreshedMsg"), "success");
-        }
-      } finally {
-        if (btn) btn.disabled = false;
-      }
+      reloadAppBypassCache(isPortal);
     }
 
     el("authRefreshBtn").addEventListener("click", () => handleManualRefresh(false));
@@ -1649,7 +1672,7 @@
           photoUrl: adminPhoto
         };
         window.saveUserSession(window.appState.currentUser);
-        window.openPortal();
+        window.openPortal({ preserveSection: false });
         if (window.appState.handlers.syncAdminProfile) {
           window.appState.handlers.syncAdminProfile();
         }
@@ -1938,7 +1961,7 @@
     window.applySelectionRestriction();
     window.applyTranslations();
     if (window.appState.currentUser) {
-      window.openPortal();
+      window.openPortal({ preserveSection: true });
     }
   </script>
 
@@ -3177,7 +3200,7 @@
 
         window.appState.currentUser = targetUser;
         window.saveUserSession(targetUser);
-        window.openPortal();
+        window.openPortal({ preserveSection: false });
       } catch (err) {
         window.showAuthMsg(err && err.message ? err.message : "Error", "error");
       } finally {
@@ -3262,13 +3285,16 @@
 
       if (saved.role === "admin" && saved.phone === BUILT_IN_ADMIN.phone) {
         const wasAlreadyOpen = Boolean(window.appState.currentUser);
-        const prevSection = window.appState.activeSection;
+        const prevSection = window.appState.activeSection || loadSavedSection();
         window.appState.currentUser = {
           ...saved,
           photoUrl: saved.photoUrl || getCachedAdminPhoto()
         };
+        if (prevSection && !window.appState.activeSection) {
+          window.appState.activeSection = prevSection;
+        }
         if (!wasAlreadyOpen || forceOpenPortal) {
-          window.openPortal();
+          window.openPortal({ preserveSection: true });
         } else {
           window.updatePortalHeader();
           if (prevSection && window.appState.handlers.selectSection) {
@@ -3289,11 +3315,14 @@
 
         if (matchedAcc) {
           const wasAlreadyOpen = Boolean(window.appState.currentUser);
-          const prevSection = window.appState.activeSection;
+          const prevSection = window.appState.activeSection || loadSavedSection();
           window.appState.currentUser = matchedAcc;
+          if (prevSection && !window.appState.activeSection) {
+            window.appState.activeSection = prevSection;
+          }
           window.saveUserSession(matchedAcc);
           if (!wasAlreadyOpen || forceOpenPortal) {
-            window.openPortal();
+            window.openPortal({ preserveSection: true });
           } else {
             window.updatePortalHeader();
             if (prevSection && window.appState.handlers.selectSection) {
@@ -3304,11 +3333,14 @@
           const pubAcc = accounts.find((acc) => acc.role === "public" && acc.status !== "rejected");
           if (pubAcc) {
             const wasAlreadyOpen = Boolean(window.appState.currentUser);
-            const prevSection = window.appState.activeSection;
+            const prevSection = window.appState.activeSection || loadSavedSection();
             window.appState.currentUser = pubAcc;
+            if (prevSection && !window.appState.activeSection) {
+              window.appState.activeSection = prevSection;
+            }
             window.saveUserSession(pubAcc);
             if (!wasAlreadyOpen || forceOpenPortal) {
-              window.openPortal();
+              window.openPortal({ preserveSection: true });
             } else {
               window.updatePortalHeader();
               if (prevSection && window.appState.handlers.selectSection) {
@@ -3324,7 +3356,7 @@
       } catch (e) {
         if (!window.appState.currentUser) {
           window.appState.currentUser = saved;
-          window.openPortal();
+          window.openPortal({ preserveSection: true });
         }
       }
     }

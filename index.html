@@ -146,6 +146,35 @@
     .msg { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; display: none; }
     .msg.error { display: block; background: #fee2e2; color: #991b1b; }
     .msg.success { display: block; background: #dcfce7; color: #166534; }
+    .notif-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #fff7ed;
+      border: 1.5px solid #fb923c;
+      border-right: 5px solid #dc2626;
+      color: #7c2d12;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 3px 10px rgba(220, 38, 38, 0.12);
+    }
+    html[dir="ltr"] .notif-banner {
+      border-right: 1.5px solid #fb923c;
+      border-left: 5px solid #dc2626;
+    }
+    .notif-banner.show {
+      display: flex;
+    }
+    .notif-banner-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-shrink: 0;
+    }
     .app-footer {
       text-align: center;
       margin-top: 14px;
@@ -171,7 +200,8 @@
     }
     .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; margin: 12px 0 6px; }
     .menu-btn {
-      padding: 14px 10px;
+      position: relative;
+      padding: 14px 12px;
       border: 1.5px solid #4ade80;
       background: #f0fdf4;
       color: #052e16;
@@ -183,6 +213,10 @@
       text-align: center;
       transition: 0.15s ease;
       box-shadow: 0 2px 5px rgba(20, 83, 45, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
     }
     .menu-btn:hover {
       background: #dcfce7;
@@ -194,6 +228,24 @@
       border-color: #14532d;
       font-weight: 900;
       box-shadow: 0 3px 8px rgba(21,128,61,0.28);
+    }
+    .menu-btn.has-alert {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+    .menu-btn.has-alert.active {
+      background: #15803d;
+      border-color: #ef4444;
+    }
+    .red-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #dc2626;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px #dc2626;
+      flex-shrink: 0;
+      display: inline-block;
     }
     .sub-window-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
     .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 10px; }
@@ -482,6 +534,14 @@
         </div>
       </div>
 
+      <div id="notifBanner" class="notif-banner">
+        <span id="notifBannerText"></span>
+        <div class="notif-banner-actions">
+          <button type="button" id="notifOpenBtn" class="btn btn-sm btn-approve" style="display:none;">Open</button>
+          <button type="button" id="notifDismissBtn" class="btn btn-sm btn-secondary">×</button>
+        </div>
+      </div>
+
       <div id="roleMenu" class="menu-grid"></div>
 
       <div id="sectionWindow" style="display:none;">
@@ -524,7 +584,8 @@
     const LANG_STORAGE_KEY = "dm_milad_lang_v1";
     const ADMIN_PASS_OVERRIDE_KEY = "dm_milad_admin_pass_v1";
     const ADMIN_PHOTO_CACHE_KEY = "dm_milad_admin_photo_v1";
-    const AUTO_REFRESH_MS = 60000;
+    const SEEN_ALERTS_PREFIX = "dm_milad_seen_alerts_v1_";
+    const AUTO_REFRESH_MS = 20000;
 
     const ADD_CAPABLE_SECTIONS = ["funds_members", "expenses", "langar", "photos", "videos", "mahafil", "information"];
 
@@ -545,6 +606,7 @@
         refreshBtn: "ریفریش",
         addBtn: "+ ایڈ کریں",
         backNavBtn: "← واپس",
+        openAlertBtn: "دیکھیں",
         refreshedMsg: "ڈیٹا ریفریش ہو گیا۔",
         tabLogin: "لاگ ان",
         tabRegister: "نیا اکاؤنٹ",
@@ -580,6 +642,11 @@
         rolePublicLabel: "عام عوام",
         roleMgmtLabel: "انتظامیہ",
         roleAbroadLabel: "بیرونِ ملک",
+        adminNewComplaintAlert: "نئی شکایت موصول ہوئی ہے! متعلقہ خانے پر سرخ ڈاٹ موجود ہے۔",
+        adminNewApprovalAlert: "نئی اپروول ریکوئسٹ آئی ہے! متعلقہ خانے پر سرخ ڈاٹ موجود ہے۔",
+        adminBothAlerts: "نئی شکایت اور اپروول ریکوئسٹ موصول ہوئی ہیں!",
+        memberUpdateAlert: "{section} میں نئی اپڈیٹ آئی ہے! سرخ ڈاٹ والے خانے کو کھول کر دیکھیں۔",
+        memberMultipleUpdatesAlert: "{count} سیکشنز ({sections}) میں نئی اپڈیٹس آئی ہیں!",
         publicNotAllowedExisting: "اس فون نمبر پر پہلے سے اکاؤنٹ موجود ہے، اس لیے عام عوام (Public) میں اکاؤنٹ نہیں بن سکتا۔",
         roleAlreadyExists: "اس نمبر پر اس کیٹیگری میں پہلے سے اکاؤنٹ موجود ہے۔",
         chooseAccountToLogin: "اس نمبر پر ایک سے زیادہ اکاؤنٹس موجود ہیں، براہِ کرم اکاؤنٹ منتخب کر کے دوبارہ لاگ ان دبائیں۔",
@@ -681,6 +748,7 @@
         refreshBtn: "Refresh",
         addBtn: "+ Add",
         backNavBtn: "← Back",
+        openAlertBtn: "Open",
         refreshedMsg: "Refreshed.",
         tabLogin: "Login",
         tabRegister: "Create Account",
@@ -716,6 +784,11 @@
         rolePublicLabel: "Public",
         roleMgmtLabel: "Management",
         roleAbroadLabel: "Abroad",
+        adminNewComplaintAlert: "New complaint received! Red dot shown on Complaints.",
+        adminNewApprovalAlert: "New approval request received! Red dot shown on Pending Approvals.",
+        adminBothAlerts: "New complaint and approval request received!",
+        memberUpdateAlert: "New update in {section}! Open the section with the red dot.",
+        memberMultipleUpdatesAlert: "{count} sections ({sections}) have new updates!",
         publicNotAllowedExisting: "An account already exists for this phone number, so a Public account cannot be created.",
         roleAlreadyExists: "An account already exists for this number under this role.",
         chooseAccountToLogin: "Multiple accounts exist for this number. Please select an account and click Login again.",
@@ -890,6 +963,85 @@
       try {
         if (dataUrl) localStorage.setItem(ADMIN_PHOTO_CACHE_KEY, dataUrl);
       } catch (e) {}
+    }
+
+    function getUserAlertKey(user) {
+      if (!user) return "";
+      return `${SEEN_ALERTS_PREFIX}${user.phone || "guest"}_${user.role || "public"}`;
+    }
+
+    function loadSeenAlertMap(user) {
+      const key = getUserAlertKey(user);
+      if (!key) return {};
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveSeenAlertMap(user, map) {
+      const key = getUserAlertKey(user);
+      if (!key) return;
+      try {
+        localStorage.setItem(key, JSON.stringify(map || {}));
+      } catch (e) {}
+    }
+
+    function requestBrowserNotificationPermission() {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission().catch(() => {});
+      }
+    }
+
+    function triggerSystemNotification(title, body) {
+      if ("Notification" in window && Notification.permission === "granted") {
+        try {
+          new Notification(title, { body, silent: false });
+        } catch (e) {}
+      }
+    }
+
+    let pendingAlertTargetSection = null;
+
+    function showAlertBanner(messageText, targetSectionKey = null, pushSysNotif = false) {
+      const banner = el("notifBanner");
+      const textEl = el("notifBannerText");
+      const openBtn = el("notifOpenBtn");
+      if (!banner || !textEl) return;
+
+      pendingAlertTargetSection = targetSectionKey;
+      textEl.textContent = messageText;
+      if (openBtn) {
+        openBtn.textContent = window.t("openAlertBtn");
+        openBtn.style.display = targetSectionKey ? "inline-block" : "none";
+      }
+      banner.classList.add("show");
+
+      if (pushSysNotif) {
+        triggerSystemNotification(window.t("appHeading"), messageText);
+      }
+    }
+
+    function hideAlertBanner() {
+      const banner = el("notifBanner");
+      if (banner) banner.classList.remove("show");
+      pendingAlertTargetSection = null;
+    }
+
+    if (el("notifDismissBtn")) {
+      el("notifDismissBtn").addEventListener("click", hideAlertBanner);
+    }
+
+    if (el("notifOpenBtn")) {
+      el("notifOpenBtn").addEventListener("click", () => {
+        const target = pendingAlertTargetSection;
+        hideAlertBanner();
+        if (target && window.appState.currentUser) {
+          openSectionWindow(target);
+        }
+      });
     }
 
     function todayISO() {
@@ -1348,6 +1500,8 @@
       addWindowOpen: false,
       activeMemberGroup: "management",
       selectedFundMemberPhone: "",
+      unreadSections: {},
+      latestSignatures: {},
       lang: readSavedLang(),
       dbReady: false,
       handlers: {}
@@ -1456,6 +1610,42 @@
         { key: "profile", label: window.t("secProfile") }
       ];
     };
+
+    window.markSectionAsRead = (sectionKey) => {
+      const u = window.appState.currentUser;
+      if (!u || !sectionKey) return;
+      window.appState.unreadSections[sectionKey] = false;
+      const seenMap = loadSeenAlertMap(u);
+      if (window.appState.latestSignatures[sectionKey]) {
+        seenMap[sectionKey] = window.appState.latestSignatures[sectionKey];
+        saveSeenAlertMap(u, seenMap);
+      }
+      if (pendingAlertTargetSection === sectionKey) {
+        hideAlertBanner();
+      }
+      renderMenuButtonsOnly();
+    };
+
+    function renderMenuButtonsOnly() {
+      const u = window.appState.currentUser;
+      const menu = el("roleMenu");
+      if (!u || !menu) return;
+      const sections = window.getSectionsForRole(u.role);
+      menu.innerHTML = "";
+
+      sections.forEach((sec) => {
+        const hasDot = Boolean(window.appState.unreadSections && window.appState.unreadSections[sec.key]);
+        const isActive = window.appState.activeSection === sec.key;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "menu-btn" + (isActive ? " active" : "") + (hasDot ? " has-alert" : "");
+        btn.innerHTML = `${hasDot ? `<span class="red-dot" aria-hidden="true"></span>` : ""}<span>${sec.label}</span>`;
+        btn.addEventListener("click", () => {
+          openSectionWindow(sec.key);
+        });
+        menu.appendChild(btn);
+      });
+    }
 
     window.updatePortalHeader = () => {
       const u = window.appState.currentUser;
@@ -1648,6 +1838,8 @@
       const matched = sections.find((s) => s.key === sectionKey);
       if (!matched) return;
 
+      window.markSectionAsRead(matched.key);
+
       const isNewSection = window.appState.activeSection !== matched.key;
       if (isNewSection) {
         window.appState.addWindowOpen = false;
@@ -1712,6 +1904,9 @@
       window.updatePortalHeader();
       window.scrollTo({ top: 0, behavior: "instant" });
       window.renderRoleMenu();
+      if (window.appState.handlers.checkAlerts) {
+        window.appState.handlers.checkAlerts({ notifyNewOnly: false }).catch(() => {});
+      }
     }
 
     function handleBackButtonClick() {
@@ -1741,18 +1936,8 @@
       if (!u) return;
       const sections = window.getSectionsForRole(u.role);
       const menu = el("roleMenu");
-      menu.innerHTML = "";
 
-      sections.forEach((sec) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "menu-btn" + (window.appState.activeSection === sec.key ? " active" : "");
-        btn.textContent = sec.label;
-        btn.addEventListener("click", () => {
-          openSectionWindow(sec.key);
-        });
-        menu.appendChild(btn);
-      });
+      renderMenuButtonsOnly();
 
       if (window.appState.activeSection && sections.some((s) => s.key === window.appState.activeSection)) {
         openSectionWindow(window.appState.activeSection);
@@ -1771,6 +1956,7 @@
     window.openPortal = ({ preserveSection = false } = {}) => {
       const u = window.appState.currentUser;
       if (!u) return;
+      requestBrowserNotificationPermission();
       if (!preserveSection) {
         window.appState.activeSection = null;
         window.appState.addWindowOpen = false;
@@ -1782,6 +1968,9 @@
       el("roleMenu").style.display = "grid";
       window.updatePortalHeader();
       window.renderRoleMenu();
+      if (window.appState.handlers.checkAlerts) {
+        window.appState.handlers.checkAlerts({ notifyNewOnly: true }).catch(() => {});
+      }
     };
 
     window.applyTranslations = () => {
@@ -1796,6 +1985,7 @@
       el("portalRefreshBtn").textContent = window.t("refreshBtn");
       el("openAddWindowBtn").textContent = window.t("addBtn");
       if (el("headerBackBtn")) el("headerBackBtn").textContent = window.t("backNavBtn");
+      if (el("notifOpenBtn")) el("notifOpenBtn").textContent = window.t("openAlertBtn");
       el("langBtn").textContent = window.t("toggleBtn");
       el("portalLangBtn").textContent = window.t("toggleBtn");
       el("tabLogin").textContent = window.t("tabLogin");
@@ -1937,6 +2127,8 @@
       window.appState.currentUser = null;
       window.appState.activeSection = null;
       window.appState.addWindowOpen = false;
+      window.appState.unreadSections = {};
+      hideAlertBanner();
       syncHeaderBackBtn();
       window.applySelectionRestriction();
       el("portalCard").style.display = "none";
@@ -1977,6 +2169,10 @@
 
       if (window.appState.currentUser.role === "admin" && window.appState.handlers.syncAdminProfile) {
         window.appState.handlers.syncAdminProfile().catch(() => {});
+      }
+
+      if (window.appState.handlers.checkAlerts) {
+        window.appState.handlers.checkAlerts({ notifyNewOnly: true }).catch(() => {});
       }
 
       if (window.appState.activeSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
@@ -2265,6 +2461,179 @@
     function isAdminUser() {
       return Boolean(window.appState.currentUser && window.appState.currentUser.role === "admin");
     }
+
+    function tsVal(docData) {
+      if (!docData) return 0;
+      if (docData.repliedAt && typeof docData.repliedAt.toMillis === "function") return docData.repliedAt.toMillis();
+      if (docData.createdAt && typeof docData.createdAt.toMillis === "function") return docData.createdAt.toMillis();
+      return 0;
+    }
+
+    window.appState.handlers.checkAlerts = async ({ notifyNewOnly = true } = {}) => {
+      const u = window.appState.currentUser;
+      if (!db || !u) return;
+
+      const seenMap = loadSeenAlertMap(u);
+      const nextSignatures = {};
+      const nextUnread = {};
+      const newlyArrivedSections = [];
+
+      const registerSignature = (sectionKey, sig) => {
+        if (!sig) return;
+        nextSignatures[sectionKey] = sig;
+        if (window.appState.activeSection === sectionKey && !window.appState.addWindowOpen) {
+          seenMap[sectionKey] = sig;
+          nextUnread[sectionKey] = false;
+          return;
+        }
+        if (seenMap[sectionKey] && seenMap[sectionKey] !== sig) {
+          nextUnread[sectionKey] = true;
+          newlyArrivedSections.push(sectionKey);
+        } else if (!seenMap[sectionKey]) {
+          seenMap[sectionKey] = sig;
+          nextUnread[sectionKey] = false;
+        } else {
+          nextUnread[sectionKey] = Boolean(window.appState.unreadSections[sectionKey]);
+        }
+      };
+
+      try {
+        if (u.role === "admin") {
+          const [complaintsSnap, pendingSnap] = await Promise.all([
+            getDocs(collection(db, "complaints")),
+            getDocs(query(collection(db, "users"), where("status", "==", "pending_approval")))
+          ]);
+
+          let latestCompTs = 0;
+          let compCount = 0;
+          complaintsSnap.forEach((d) => {
+            compCount += 1;
+            const t = tsVal(d.data());
+            if (t > latestCompTs) latestCompTs = t;
+          });
+          if (compCount > 0) {
+            registerSignature("complaints", `${compCount}_${latestCompTs}`);
+          }
+
+          let pendingCount = 0;
+          const pendingIds = [];
+          pendingSnap.forEach((d) => {
+            pendingCount += 1;
+            pendingIds.push(d.id);
+          });
+          if (pendingCount > 0) {
+            registerSignature("approvals", `${pendingCount}_${pendingIds.sort().join(",")}`);
+          }
+        } else {
+          const [mediaSnap, expensesSnap, fundsSnap, complaintsSnap] = await Promise.all([
+            getDocs(collection(db, "media")),
+            getDocs(collection(db, "expenses")),
+            u.role === "management"
+              ? getDocs(query(collection(db, "funds"), where("memberPhone", "==", u.phone)))
+              : Promise.resolve(null),
+            getDocs(query(collection(db, "complaints"), where("memberPhone", "==", u.phone)))
+          ]);
+
+          const byCat = { photos: [], videos: [], mahafil: [], information: [], langar: [] };
+          mediaSnap.forEach((d) => {
+            const data = d.data();
+            const cat = data.category;
+            if (byCat[cat]) {
+              byCat[cat].push({ id: d.id, t: tsVal(data) });
+            }
+          });
+
+          Object.entries(byCat).forEach(([cat, arr]) => {
+            if (arr.length > 0) {
+              const maxT = Math.max(...arr.map((x) => x.t));
+              registerSignature(cat, `${arr.length}_${maxT}`);
+            }
+          });
+
+          if (!expensesSnap.empty) {
+            let maxExpT = 0;
+            expensesSnap.forEach((d) => {
+              const t = tsVal(d.data());
+              if (t > maxExpT) maxExpT = t;
+            });
+            registerSignature("expenses", `${expensesSnap.size}_${maxExpT}`);
+          }
+
+          if (fundsSnap && !fundsSnap.empty) {
+            let maxFundT = 0;
+            fundsSnap.forEach((d) => {
+              const t = tsVal(d.data());
+              if (t > maxFundT) maxFundT = t;
+            });
+            registerSignature("funds", `${fundsSnap.size}_${maxFundT}`);
+          }
+
+          if (!complaintsSnap.empty) {
+            let repliedCount = 0;
+            let maxReplyT = 0;
+            complaintsSnap.forEach((d) => {
+              const data = d.data();
+              if (data.adminReply && String(data.adminReply).trim()) {
+                repliedCount += 1;
+                const t = tsVal(data);
+                if (t > maxReplyT) maxReplyT = t;
+              }
+            });
+            if (repliedCount > 0) {
+              registerSignature("complaints", `${repliedCount}_${maxReplyT}`);
+            }
+          }
+        }
+
+        window.appState.latestSignatures = {
+          ...window.appState.latestSignatures,
+          ...nextSignatures
+        };
+        window.appState.unreadSections = {
+          ...window.appState.unreadSections,
+          ...nextUnread
+        };
+        saveSeenAlertMap(u, seenMap);
+        renderMenuButtonsOnly();
+
+        if (notifyNewOnly && newlyArrivedSections.length > 0) {
+          const uniqueNew = Array.from(new Set(newlyArrivedSections));
+          const roleSections = window.getSectionsForRole(u.role);
+          const labels = uniqueNew
+            .map((k) => {
+              const found = roleSections.find((s) => s.key === k);
+              return found ? found.label : k;
+            });
+
+          if (u.role === "admin") {
+            const hasComp = uniqueNew.includes("complaints");
+            const hasApp = uniqueNew.includes("approvals");
+            if (hasComp && hasApp) {
+              showAlertBanner(window.t("adminBothAlerts"), "complaints", true);
+            } else if (hasComp) {
+              showAlertBanner(window.t("adminNewComplaintAlert"), "complaints", true);
+            } else if (hasApp) {
+              showAlertBanner(window.t("adminNewApprovalAlert"), "approvals", true);
+            }
+          } else if (uniqueNew.length === 1) {
+            showAlertBanner(
+              window.t("memberUpdateAlert", { section: labels[0] }),
+              uniqueNew[0],
+              true
+            );
+          } else {
+            showAlertBanner(
+              window.t("memberMultipleUpdatesAlert", {
+                count: uniqueNew.length,
+                sections: labels.join(", ")
+              }),
+              uniqueNew[0],
+              true
+            );
+          }
+        }
+      } catch (e) {}
+    };
 
     async function loadAdminProfileDoc() {
       if (!db) return null;
@@ -3374,6 +3743,7 @@
 
     window.appState.handlers.selectSection = async (sectionKey, { silent = false } = {}) => {
       if (window.appState.addWindowOpen) return;
+      window.markSectionAsRead(sectionKey);
       const area = el("contentArea");
       if (!area) return;
       if (!silent) {
@@ -3544,6 +3914,9 @@
           window.openPortal({ preserveSection: false });
         } else {
           window.updatePortalHeader();
+          if (window.appState.handlers.checkAlerts) {
+            await window.appState.handlers.checkAlerts({ notifyNewOnly: true });
+          }
           if (window.appState.activeSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
             await window.appState.handlers.selectSection(window.appState.activeSection, { silent: true });
           }
@@ -3568,6 +3941,9 @@
             window.openPortal({ preserveSection: false });
           } else {
             window.updatePortalHeader();
+            if (window.appState.handlers.checkAlerts) {
+              await window.appState.handlers.checkAlerts({ notifyNewOnly: true });
+            }
             if (window.appState.activeSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
               await window.appState.handlers.selectSection(window.appState.activeSection, { silent: true });
             }
@@ -3582,6 +3958,9 @@
               window.openPortal({ preserveSection: false });
             } else {
               window.updatePortalHeader();
+              if (window.appState.handlers.checkAlerts) {
+                await window.appState.handlers.checkAlerts({ notifyNewOnly: true });
+              }
               if (window.appState.activeSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
                 await window.appState.handlers.selectSection(window.appState.activeSection, { silent: true });
               }

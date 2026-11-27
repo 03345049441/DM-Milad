@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
   <title>میلاد کمیٹی ڈھوک میکن | Milad Organization Dhoke Maken</title>
-  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
   <style>
     * { box-sizing: border-box; font-family: "Noto Nastaliq Urdu", Arial, sans-serif; }
     html, body {
@@ -92,9 +90,10 @@
     .avatar-md { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; object-position: center center; border: 2px solid #15803d; background: #dcfce7; flex-shrink: 0; cursor: pointer; }
     h2, h3, h4 { margin: 0; color: #14532d; }
     h2 { font-size: 19px; }
-    h3 { font-size: 16px; }
+    h3 { font-size: 16px; font-weight: 800; }
     h4 {
       font-size: 14px;
+      font-weight: 800;
       margin-bottom: 10px;
       background: #dcfce7;
       color: #14532d;
@@ -108,7 +107,7 @@
     }
     .btn { padding: 7px 11px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
     .btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 6px; }
-    .btn-primary { background: #15803d; color: #fff; width: 100%; padding: 10px; font-size: 14px; }
+    .btn-primary { background: #15803d; color: #fff; width: 100%; padding: 10px; font-size: 14px; font-weight: 800; }
     .btn-secondary { background: #334155; color: #fff; }
     .btn-refresh { background: #0f766e; color: #fff; }
     .btn-danger { background: #b91c1c; color: #fff; }
@@ -137,14 +136,14 @@
       transform: scale(0.97);
     }
     .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-    .tab-btn { flex: 1; padding: 9px; border: 1px solid #15803d; background: #fff; color: #15803d; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .tab-btn { flex: 1; padding: 9px; border: 1px solid #15803d; background: #fff; color: #15803d; border-radius: 8px; font-weight: 800; cursor: pointer; }
     .tab-btn.active { background: #15803d; color: #fff; }
     .field { margin-bottom: 10px; }
-    label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; }
+    label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 4px; }
     input, select, textarea { width: 100%; padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; }
     .date-ltr { direction: ltr; text-align: left; }
     .date-preview { margin-top: 4px; font-size: 12px; color: #166534; font-weight: bold; direction: rtl; }
-    .msg { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; display: none; }
+    .msg { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; display: none; }
     .msg.error { display: block; background: #fee2e2; color: #991b1b; }
     .msg.success { display: block; background: #dcfce7; color: #166534; }
     .app-footer {
@@ -170,12 +169,35 @@
       font-size: 11px;
       color: #64748b;
     }
-    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0 6px; }
-    .menu-btn { padding: 13px 10px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #14532d; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px; text-align: center; transition: 0.15s ease; }
-    .menu-btn.active { background: #15803d; color: #fff; border-color: #15803d; box-shadow: 0 3px 8px rgba(21,128,61,0.22); }
+    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; margin: 12px 0 6px; }
+    .menu-btn {
+      padding: 14px 10px;
+      border: 1.5px solid #4ade80;
+      background: #f0fdf4;
+      color: #052e16;
+      border-radius: 11px;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: 15px;
+      letter-spacing: 0.2px;
+      text-align: center;
+      transition: 0.15s ease;
+      box-shadow: 0 2px 5px rgba(20, 83, 45, 0.08);
+    }
+    .menu-btn:hover {
+      background: #dcfce7;
+      border-color: #16a34a;
+    }
+    .menu-btn.active {
+      background: #15803d;
+      color: #ffffff;
+      border-color: #14532d;
+      font-weight: 900;
+      box-shadow: 0 3px 8px rgba(21,128,61,0.28);
+    }
     .sub-window-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
     .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 10px; }
-    .sub-tab-btn { flex: 1; min-width: 90px; padding: 7px 9px; border: 1px solid #15803d; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; text-align: center; }
+    .sub-tab-btn { flex: 1; min-width: 90px; padding: 7px 9px; border: 1px solid #15803d; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px; text-align: center; }
     .sub-tab-btn.active { background: #15803d; color: #fff; }
     .entry-box, .edit-box { border: 1px solid #bbf7d0; background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
     .edit-box { border-color: #7dd3fc; background: #f0f9ff; margin-top: 10px; margin-bottom: 4px; }
@@ -235,7 +257,7 @@
     }
     .record-title {
       font-size: 16px;
-      font-weight: bold;
+      font-weight: 800;
       color: #0f172a;
       margin-bottom: 8px;
     }
@@ -257,7 +279,7 @@
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
     th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: start; vertical-align: middle; }
-    th { background: #f1f5f9; }
+    th { background: #f1f5f9; font-weight: 800; }
     .row-actions { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
     .crop-editor-box {
       border: 1px solid #86efac;
@@ -502,7 +524,6 @@
     const LANG_STORAGE_KEY = "dm_milad_lang_v1";
     const ADMIN_PASS_OVERRIDE_KEY = "dm_milad_admin_pass_v1";
     const ADMIN_PHOTO_CACHE_KEY = "dm_milad_admin_photo_v1";
-    const SECTION_DATA_CACHE_PREFIX = "dm_milad_sec_cache_v1_";
     const AUTO_REFRESH_MS = 60000;
 
     const ADD_CAPABLE_SECTIONS = ["funds_members", "expenses", "langar", "photos", "videos", "mahafil", "information"];
@@ -794,47 +815,6 @@
 
     const el = (id) => document.getElementById(id);
 
-    const memorySectionCache = new Map();
-
-    window.readSectionCache = (cacheKey) => {
-      if (memorySectionCache.has(cacheKey)) {
-        return memorySectionCache.get(cacheKey);
-      }
-      try {
-        const raw = localStorage.getItem(SECTION_DATA_CACHE_PREFIX + cacheKey);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        memorySectionCache.set(cacheKey, parsed);
-        return parsed;
-      } catch (e) {
-        return null;
-      }
-    };
-
-    window.writeSectionCache = (cacheKey, payload) => {
-      memorySectionCache.set(cacheKey, payload);
-      try {
-        const json = JSON.stringify(payload);
-        if (json.length < 1800000) {
-          localStorage.setItem(SECTION_DATA_CACHE_PREFIX + cacheKey, json);
-        }
-      } catch (e) {}
-    };
-
-    window.clearSectionCache = (cacheKey) => {
-      if (cacheKey) {
-        memorySectionCache.delete(cacheKey);
-        try { localStorage.removeItem(SECTION_DATA_CACHE_PREFIX + cacheKey); } catch (e) {}
-      } else {
-        memorySectionCache.clear();
-        try {
-          Object.keys(localStorage).forEach((k) => {
-            if (k.startsWith(SECTION_DATA_CACHE_PREFIX)) localStorage.removeItem(k);
-          });
-        } catch (e) {}
-      }
-    };
-
     let authMsgTimer = null;
     window.showAuthMsg = (text, type) => {
       const box = el("authMsg");
@@ -1018,9 +998,6 @@
       if (p && !Number.isNaN(p.ts)) return p.ts;
       if (item && item.createdAt && typeof item.createdAt.toMillis === "function") {
         return item.createdAt.toMillis();
-      }
-      if (item && typeof item._createdMs === "number") {
-        return item._createdMs;
       }
       return 0;
     };
@@ -1324,7 +1301,7 @@
           if (fileInp) fileInp.value = "";
           renderEditor("");
         },
-        exportCroppedDataUrl: (outputSize = 260, quality = 0.72) => {
+        exportCroppedDataUrl: (outputSize = 360, quality = 0.78) => {
           if (!sourceImg) return "";
           const canvas = document.createElement("canvas");
           canvas.width = outputSize;
@@ -1656,10 +1633,10 @@
       entryArea.innerHTML = "";
     };
 
-    async function waitForSectionHandler(maxMs = 4500) {
+    async function waitForSectionHandler(maxMs = 6000) {
       const start = Date.now();
       while (!window.appState.handlers.selectSection && Date.now() - start < maxMs) {
-        await new Promise((r) => setTimeout(r, 40));
+        await new Promise((r) => setTimeout(r, 80));
       }
       return window.appState.handlers.selectSection;
     }
@@ -1692,14 +1669,22 @@
         return;
       }
 
+      const runLoad = (fn) => {
+        if (fn && window.appState.activeSection === matched.key && !window.appState.addWindowOpen) {
+          fn(matched.key, { silent });
+        }
+      };
+
       if (window.appState.handlers.selectSection) {
-        window.appState.handlers.selectSection(matched.key, { silent });
-      } else if (!silent) {
-        el("contentArea").innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+        runLoad(window.appState.handlers.selectSection);
+      } else {
+        if (!silent) {
+          el("contentArea").innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
+        }
         waitForSectionHandler().then((fn) => {
-          if (fn && window.appState.activeSection === matched.key && !window.appState.addWindowOpen) {
-            fn(matched.key, { silent: false });
-          } else if (window.appState.activeSection === matched.key && !window.appState.addWindowOpen) {
+          if (fn) {
+            runLoad(fn);
+          } else if (window.appState.activeSection === matched.key && !window.appState.addWindowOpen && !silent) {
             el("contentArea").innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Please refresh or check connection." : "براہِ کرم صفحہ ریفریش کریں یا انٹرنیٹ چیک کریں۔"}</div>`;
           }
         });
@@ -1797,9 +1782,6 @@
       el("roleMenu").style.display = "grid";
       window.updatePortalHeader();
       window.renderRoleMenu();
-      if (window.appState.handlers.prefetchCommonData) {
-        window.appState.handlers.prefetchCommonData();
-      }
     };
 
     window.applyTranslations = () => {
@@ -1853,7 +1835,6 @@
     el("portalLangBtn").addEventListener("click", toggleLanguage);
 
     function reloadAppBypassCache(isPortal = false) {
-      window.clearSectionCache();
       if (isPortal && window.appState.currentUser) {
         window.saveUserSession(window.appState.currentUser);
       }
@@ -1898,10 +1879,10 @@
       el("loginAccountSelect").innerHTML = "";
     });
 
-    async function waitForLoginHandler(maxMs = 3500) {
+    async function waitForLoginHandler(maxMs = 4500) {
       const start = Date.now();
       while (!window.appState.handlers.loginUser && Date.now() - start < maxMs) {
-        await new Promise((r) => setTimeout(r, 60));
+        await new Promise((r) => setTimeout(r, 100));
       }
       return window.appState.handlers.loginUser;
     }
@@ -2231,8 +2212,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-      doc, setDoc, getDoc, updateDoc, deleteDoc, addDoc,
+      getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, addDoc,
       collection, query, where, getDocs, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -2249,9 +2229,8 @@
     const el = (id) => document.getElementById(id);
     let memberNamesMap = {};
     let memberPhotosMap = {};
-    let usersListCache = null;
 
-    function fileToDataUrl(file, maxW = 640, quality = 0.65) {
+    function fileToDataUrl(file, maxW = 800, quality = 0.72) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
@@ -2276,13 +2255,7 @@
     let db = null;
     try {
       const app = initializeApp(firebaseConfig);
-      try {
-        db = initializeFirestore(app, {
-          localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-        });
-      } catch (cacheErr) {
-        db = initializeFirestore(app, {});
-      }
+      db = getFirestore(app);
       window.appState.dbReady = true;
     } catch (e) {
       db = null;
@@ -2292,60 +2265,6 @@
     function isAdminUser() {
       return Boolean(window.appState.currentUser && window.appState.currentUser.role === "admin");
     }
-
-    function serializeDoc(d) {
-      const data = d.data();
-      const out = { id: d.id };
-      for (const [k, v] of Object.entries(data)) {
-        if (v && typeof v.toMillis === "function") {
-          out._createdMs = v.toMillis();
-        } else {
-          out[k] = v;
-        }
-      }
-      return out;
-    }
-
-    async function fetchAllUsersFast(forceFresh = false) {
-      if (!forceFresh && usersListCache) {
-        return usersListCache;
-      }
-      const snap = await getDocs(collection(db, "users"));
-      const list = [];
-      memberNamesMap = {};
-      memberPhotosMap = {};
-      snap.forEach((d) => {
-        const item = serializeDoc(d);
-        list.push(item);
-        if (item.phone) {
-          memberNamesMap[item.phone] = item.name;
-          if (item.photoUrl) memberPhotosMap[item.phone] = item.photoUrl;
-        }
-      });
-      usersListCache = list;
-      return list;
-    }
-
-    window.appState.handlers.prefetchCommonData = () => {
-      if (!db || !window.appState.currentUser) return;
-      const u = window.appState.currentUser;
-      if (u.role === "admin") {
-        fetchAllUsersFast(false).catch(() => {});
-        getDocs(collection(db, "funds")).then((snap) => {
-          const items = [];
-          snap.forEach((d) => items.push(window.normalizeFundRecord(serializeDoc(d))));
-          items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
-          window.writeSectionCache("funds_all", items);
-        }).catch(() => {});
-      } else if (u.role === "management") {
-        getDocs(query(collection(db, "funds"), where("memberPhone", "==", u.phone))).then((snap) => {
-          const items = [];
-          snap.forEach((d) => items.push(window.normalizeFundRecord(serializeDoc(d))));
-          items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
-          window.writeSectionCache("funds_" + u.phone, items);
-        }).catch(() => {});
-      }
-    };
 
     async function loadAdminProfileDoc() {
       if (!db) return null;
@@ -2370,14 +2289,10 @@
     };
 
     async function getAccountsForPhone(phone) {
-      const [qSnap, legacySnap] = await Promise.all([
-        getDocs(query(collection(db, "users"), where("phone", "==", phone))),
-        getDoc(doc(db, "users", phone))
-      ]);
-
       const results = [];
       const seenIds = new Set();
 
+      const qSnap = await getDocs(query(collection(db, "users"), where("phone", "==", phone)));
       qSnap.forEach((d) => {
         if (!seenIds.has(d.id)) {
           seenIds.add(d.id);
@@ -2385,6 +2300,7 @@
         }
       });
 
+      const legacySnap = await getDoc(doc(db, "users", phone));
       if (legacySnap.exists() && !seenIds.has(legacySnap.id)) {
         seenIds.add(legacySnap.id);
         results.push({ id: legacySnap.id, ...legacySnap.data() });
@@ -2404,7 +2320,6 @@
           window.showInlineConfirm(host, window.t("confirmDelete"), async () => {
             try {
               await deleteDoc(doc(db, btn.dataset.delCol, btn.dataset.delId));
-              window.clearSectionCache();
               window.showAdminMsg(window.t("deletedMsg"), "success");
               if (refreshFn) await refreshFn();
             } catch (err) {
@@ -2502,7 +2417,6 @@
                 payload.folder = nextDate;
               }
               await updateDoc(doc(db, colName, item.id), payload);
-              window.clearSectionCache();
               window.showAdminMsg(window.t("updatedMsg"), "success");
               if (refreshFn) await refreshFn();
             } catch (err) {
@@ -2542,7 +2456,7 @@
         : "";
 
       return `
-        <img class="content-img" loading="lazy" decoding="async" data-img-item src="${directImg}" alt="${(item.title || "").replace(/"/g, "&quot;")}" />
+        <img class="content-img" data-img-item src="${directImg}" alt="${(item.title || "").replace(/"/g, "&quot;")}" />
         <div class="img-fallback" style="display:none;">
           <div>${window.t("imgNotDirect")}</div>
           ${openBtn ? `<div class="row-actions">${openBtn}</div>` : ""}
@@ -2551,24 +2465,33 @@
       `;
     }
 
-    function drawMemberFundsHTML(area, items) {
-      if (!items || !items.length) {
+    async function renderMemberFunds(area) {
+      const u = window.appState.currentUser;
+      const q = query(collection(db, "funds"), where("memberPhone", "==", u.phone));
+      const snap = await getDocs(q);
+      if (snap.empty) {
         area.innerHTML = `<div class='item-box'>${window.t("noFunds")}</div>`;
         return;
       }
 
+      const items = [];
       let total = 0;
-      const rows = items.map((f) => {
-        const amt = Number(f.amount || 0);
+      snap.forEach((d) => {
+        const norm = window.normalizeFundRecord({ id: d.id, ...d.data() });
+        const amt = Number(norm.amount || 0);
         total += amt;
-        return `
-          <tr>
-            <td>${window.formatDDMMYYYY(f.date)}</td>
-            <td>${amt}</td>
-            <td>${window.formatPurposeLabel(f.purpose)}</td>
-          </tr>
-        `;
-      }).join("");
+        items.push({ ...norm, amount: amt });
+      });
+
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
+
+      const rows = items.map((f) => `
+        <tr>
+          <td>${window.formatDDMMYYYY(f.date)}</td>
+          <td>${f.amount}</td>
+          <td>${window.formatPurposeLabel(f.purpose)}</td>
+        </tr>
+      `).join("");
 
       area.innerHTML = `
         <h4>${window.t("fundsTitle", { total })}</h4>
@@ -2588,34 +2511,16 @@
         </div>`;
     }
 
-    async function renderMemberFunds(area) {
-      const u = window.appState.currentUser;
-      const cacheKey = "funds_" + u.phone;
-      const cached = window.readSectionCache(cacheKey);
-      if (cached) {
-        drawMemberFundsHTML(area, cached);
-      }
-
-      const q = query(collection(db, "funds"), where("memberPhone", "==", u.phone));
-      const snap = await getDocs(q);
-      const items = [];
-      snap.forEach((d) => {
-        const norm = window.normalizeFundRecord(serializeDoc(d));
-        items.push({ ...norm, amount: Number(norm.amount || 0) });
-      });
-
-      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
-      window.writeSectionCache(cacheKey, items);
-      if (window.appState.activeSection === "funds") {
-        drawMemberFundsHTML(area, items);
-      }
-    }
-
-    function drawImageListHTML(area, colName, title, items) {
-      if (!items || !items.length) {
+    async function renderImageList(area, colName, title) {
+      const snap = await getDocs(collection(db, colName));
+      if (snap.empty) {
         area.innerHTML = `<div class='item-box'>${window.t("noImages", { title })}</div>`;
         return;
       }
+
+      const items = [];
+      snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
 
       let html = `<h4>${title}</h4>`;
       items.forEach((item) => {
@@ -2640,29 +2545,17 @@
       bindDeleteButtons(area, () => renderImageList(area, colName, title));
     }
 
-    async function renderImageList(area, colName, title) {
-      const cacheKey = "col_" + colName;
-      const cached = window.readSectionCache(cacheKey);
-      if (cached) {
-        drawImageListHTML(area, colName, title, cached);
-      }
-
-      const snap = await getDocs(collection(db, colName));
-      const items = [];
-      snap.forEach((d) => items.push(serializeDoc(d)));
-      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
-
-      window.writeSectionCache(cacheKey, items);
-      if (window.appState.activeSection === colName) {
-        drawImageListHTML(area, colName, title, items);
-      }
-    }
-
-    function drawMediaSortedHTML(area, category, title, items) {
-      if (!items || !items.length) {
+    async function renderMediaSorted(area, category, title) {
+      const q = query(collection(db, "media"), where("category", "==", category));
+      const snap = await getDocs(q);
+      if (snap.empty) {
         area.innerHTML = `<div class='item-box'>${window.t("noFolders", { title })}</div>`;
         return;
       }
+
+      const items = [];
+      snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
 
       let html = `<h4>${title}</h4>`;
       items.forEach((m) => {
@@ -2687,27 +2580,9 @@
       bindDeleteButtons(area, () => renderMediaSorted(area, category, title));
     }
 
-    async function renderMediaSorted(area, category, title) {
-      const cacheKey = "media_" + category;
-      const cached = window.readSectionCache(cacheKey);
-      if (cached) {
-        drawMediaSortedHTML(area, category, title, cached);
-      }
-
-      const q = query(collection(db, "media"), where("category", "==", category));
-      const snap = await getDocs(q);
-      const items = [];
-      snap.forEach((d) => items.push(serializeDoc(d)));
-      items.sort((a, b) => window.dateSortValue(b) - window.dateSortValue(a));
-
-      window.writeSectionCache(cacheKey, items);
-      if (window.appState.activeSection === category) {
-        drawMediaSortedHTML(area, category, title, items);
-      }
-    }
-
-    function drawApprovalsHTML(area, pendingList) {
-      if (!pendingList || !pendingList.length) {
+    async function renderApprovalsSection(area) {
+      const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending_approval")));
+      if (snap.empty) {
         area.innerHTML = `<h4>${window.t("admH1")}</h4><div class='item-box'>${window.t("noPending")}</div>`;
         return;
       }
@@ -2715,7 +2590,8 @@
       area.innerHTML = `<h4>${window.t("admH1")}</h4><div id="pendingRequestsList"></div>`;
       const box = el("pendingRequestsList");
 
-      pendingList.forEach((u) => {
+      snap.forEach((d) => {
+        const u = d.data();
         const div = document.createElement("div");
         div.className = "item-box";
         const avatarHtml = u.photoUrl
@@ -2730,8 +2606,8 @@
             </div>
           </div>
           <div class="req-actions">
-            <button type="button" class="btn btn-approve" data-id="${u.id}">${window.t("approveBtn")}</button>
-            <button type="button" class="btn btn-reject" data-id="${u.id}">${window.t("rejectBtn")}</button>
+            <button type="button" class="btn btn-approve" data-id="${d.id}">${window.t("approveBtn")}</button>
+            <button type="button" class="btn btn-reject" data-id="${d.id}">${window.t("rejectBtn")}</button>
           </div>`;
         box.appendChild(div);
       });
@@ -2739,8 +2615,6 @@
       box.querySelectorAll(".btn-approve").forEach((b) => {
         b.addEventListener("click", async () => {
           await updateDoc(doc(db, "users", b.dataset.id), { status: "active" });
-          usersListCache = null;
-          window.clearSectionCache("approvals");
           await renderApprovalsSection(area);
         });
       });
@@ -2748,38 +2622,25 @@
       box.querySelectorAll(".btn-reject").forEach((b) => {
         b.addEventListener("click", async () => {
           await updateDoc(doc(db, "users", b.dataset.id), { status: "rejected" });
-          usersListCache = null;
-          window.clearSectionCache("approvals");
           await renderApprovalsSection(area);
         });
       });
-    }
-
-    async function renderApprovalsSection(area) {
-      const cached = window.readSectionCache("approvals");
-      if (cached) {
-        drawApprovalsHTML(area, cached);
-      }
-
-      const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending_approval")));
-      const list = [];
-      snap.forEach((d) => list.push(serializeDoc(d)));
-
-      window.writeSectionCache("approvals", list);
-      if (window.appState.activeSection === "approvals") {
-        drawApprovalsHTML(area, list);
-      }
     }
 
     async function populateMemberDropdown() {
       const sel = el("fundMemberSelect");
       if (!db || !sel) return;
       const prevSelected = sel.value || window.appState.selectedFundMemberPhone || "";
-      const users = await fetchAllUsersFast(false);
+      const snap = await getDocs(collection(db, "users"));
       sel.innerHTML = "";
+      memberNamesMap = {};
+      memberPhotosMap = {};
       let firstActivePhone = "";
 
-      users.forEach((u) => {
+      snap.forEach((d) => {
+        const u = d.data();
+        memberNamesMap[u.phone] = u.name;
+        if (u.photoUrl) memberPhotosMap[u.phone] = u.photoUrl;
         if (u.role === "management" && u.status === "active") {
           if (!firstActivePhone) firstActivePhone = u.phone;
           const opt = document.createElement("option");
@@ -2808,15 +2669,17 @@
 
     window.appState.handlers.refreshMemberDropdown = populateMemberDropdown;
 
-    function drawFundsAndMembersHTML(area, usersList, rawFundsList) {
+    async function renderFundsAndMembersDetails(area) {
+      const usersSnap = await getDocs(collection(db, "users"));
       memberNamesMap = {};
       memberPhotosMap = {};
       const allMembers = [];
-      (usersList || []).forEach((u) => {
+      usersSnap.forEach((d) => {
+        const u = d.data();
         memberNamesMap[u.phone] = u.name;
         if (u.photoUrl) memberPhotosMap[u.phone] = u.photoUrl;
         if (u.phone !== BUILT_IN_ADMIN.phone) {
-          allMembers.push(u);
+          allMembers.push({ id: d.id, ...u });
         }
       });
 
@@ -2836,6 +2699,7 @@
           ? publicList
           : mgmtList;
 
+      const fundsSnap = await getDocs(collection(db, "funds"));
       const allFundItems = [];
       const memberOptionsMap = new Map();
 
@@ -2845,7 +2709,8 @@
         }
       });
 
-      (rawFundsList || []).forEach((norm) => {
+      fundsSnap.forEach((d) => {
+        const norm = window.normalizeFundRecord({ id: d.id, ...d.data() });
         const amt = Number(norm.amount || 0);
         const mKey = norm.memberPhone || "";
         const mName = memberNamesMap[mKey] || mKey || "-";
@@ -2986,9 +2851,9 @@
         </div>`;
 
       area.querySelectorAll("[data-member-group]").forEach((btn) => {
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", async () => {
           window.appState.activeMemberGroup = btn.dataset.memberGroup;
-          drawFundsAndMembersHTML(area, usersList, rawFundsList);
+          await renderFundsAndMembersDetails(area);
         });
       });
 
@@ -3030,8 +2895,6 @@
               amount: nextAmount,
               purpose: nextPurpose
             });
-            window.clearSectionCache("funds_members_bundle");
-            window.clearSectionCache("funds_all");
             window.showAdminMsg(window.appState.lang === "en" ? "Fund updated." : "فنڈ کی انٹری اپ ڈیٹ ہو گئی۔", "success");
             await renderFundsAndMembersDetails(area);
           });
@@ -3043,8 +2906,6 @@
           const host = btn.closest("td") || btn.parentElement;
           window.showInlineConfirm(host, window.t("confirmDelete"), async () => {
             await deleteDoc(doc(db, "funds", btn.dataset.delId));
-            window.clearSectionCache("funds_members_bundle");
-            window.clearSectionCache("funds_all");
             window.showAdminMsg(window.t("deletedMsg"), "success");
             await renderFundsAndMembersDetails(area);
           });
@@ -3059,8 +2920,6 @@
             btn.disabled = true;
             try {
               await deleteDoc(doc(db, "users", btn.dataset.removeUserId));
-              usersListCache = null;
-              window.clearSectionCache("funds_members_bundle");
               window.showAdminMsg(window.t("memberRemovedMsg"), "success");
               await populateMemberDropdown();
               await renderFundsAndMembersDetails(area);
@@ -3071,31 +2930,6 @@
           });
         });
       });
-    }
-
-    async function renderFundsAndMembersDetails(area) {
-      const cacheKey = "funds_members_bundle";
-      const cached = window.readSectionCache(cacheKey);
-      if (cached && cached.users && cached.funds) {
-        drawFundsAndMembersHTML(area, cached.users, cached.funds);
-      }
-
-      const [usersList, fundsSnap] = await Promise.all([
-        fetchAllUsersFast(true),
-        getDocs(collection(db, "funds"))
-      ]);
-
-      const rawFundsList = [];
-      fundsSnap.forEach((d) => {
-        rawFundsList.push(window.normalizeFundRecord(serializeDoc(d)));
-      });
-
-      window.writeSectionCache(cacheKey, { users: usersList, funds: rawFundsList });
-      window.writeSectionCache("funds_all", rawFundsList);
-
-      if (window.appState.activeSection === "funds_members" && !window.appState.addWindowOpen) {
-        drawFundsAndMembersHTML(area, usersList, rawFundsList);
-      }
     }
 
     async function renderProfileSection(area) {
@@ -3152,8 +2986,8 @@
         el("saveProfilePhotoBtn").disabled = true;
         try {
           const dataUrl = profileCropCtrl.hasImage()
-            ? profileCropCtrl.exportCroppedDataUrl(260, 0.72)
-            : await fileToDataUrl(file, 360, 0.68);
+            ? profileCropCtrl.exportCroppedDataUrl(360, 0.78)
+            : await fileToDataUrl(file, 480, 0.72);
           if (u.role === "admin") {
             setCachedAdminPhoto(dataUrl);
             if (db) {
@@ -3166,7 +3000,6 @@
             }
           } else if (u.id && db) {
             await updateDoc(doc(db, "users", u.id), { photoUrl: dataUrl });
-            usersListCache = null;
           }
           u.photoUrl = dataUrl;
           window.saveUserSession(u);
@@ -3235,77 +3068,106 @@
       });
     }
 
-    function drawMemberComplaintsHTML(area, list) {
+    async function renderComplaintsSection(area) {
       const u = window.appState.currentUser;
       const l = window.appState.lang;
-      const itemsHtml = !list || !list.length
-        ? `<div class="item-box">${window.t("noComplaints")}</div>`
-        : list.map((c) => `
-          <div class="item-box">
-            <div class="item-top">
-              <strong>${c.subject || ""}</strong>
-              <span class="folder-tag">${window.formatDDMMYYYY(c.date)}</span>
-            </div>
-            <div style="margin-top:4px;">${c.message || ""}</div>
-            <div class="reply-box">
-              <strong>${window.t("lblAdminReply")}:</strong>
-              <div>${c.adminReply ? c.adminReply : window.t("awaitingReply")}</div>
-            </div>
-          </div>
-        `).join("");
+      if (!u) return;
 
-      area.innerHTML = `
-        <div class="entry-box">
-          <h4>${window.t("complaintSectionTitle")}</h4>
-          <div class="field">
-            <label for="compSubject">${window.t("lblComplaintSubject")}</label>
-            <input id="compSubject" type="text" placeholder="${window.t("lblComplaintSubject")}" />
-          </div>
-          <div class="field">
-            <label for="compMsg">${window.t("lblComplaintMsg")}</label>
-            <textarea id="compMsg" rows="3" placeholder="${window.t("lblComplaintMsg")}"></textarea>
-          </div>
-          <button type="button" id="submitComplaintBtn" class="btn btn-primary">${window.t("submitComplaintBtn")}</button>
-        </div>
-        <h4>${window.t("myComplaintsTitle")}</h4>
-        ${itemsHtml}`;
+      if (!isAdminUser()) {
+        const q = query(collection(db, "complaints"), where("memberPhone", "==", u.phone));
+        const snap = await getDocs(q);
+        const list = [];
+        snap.forEach((d) => list.push({ id: d.id, ...d.data() }));
+        list.sort((a, b) => {
+          const ta = a.createdAt && typeof a.createdAt.toMillis === "function" ? a.createdAt.toMillis() : 0;
+          const tb = b.createdAt && typeof b.createdAt.toMillis === "function" ? b.createdAt.toMillis() : 0;
+          return tb - ta;
+        });
 
-      el("submitComplaintBtn").addEventListener("click", async () => {
-        const subject = el("compSubject").value.trim();
-        const message = el("compMsg").value.trim();
-        if (!subject || !message) {
-          return window.showAdminMsg(
-            l === "en" ? "Please enter subject and complaint details." : "براہِ کرم موضوع اور شکایت کی تفصیل لکھیں۔",
-            "error"
-          );
-        }
-        el("submitComplaintBtn").disabled = true;
-        try {
-          await addDoc(collection(db, "complaints"), {
-            memberPhone: u.phone,
-            memberName: u.name || u.phone,
-            memberRole: u.role || "public",
-            memberPhotoUrl: u.photoUrl || "",
-            date: todayISO(),
-            subject,
-            message,
-            adminReply: "",
-            createdAt: serverTimestamp()
-          });
-          window.clearSectionCache("complaints_" + u.phone);
-          window.clearSectionCache("complaints_admin");
-          window.showAdminMsg(window.t("complaintSubmittedMsg"), "success");
-          await renderComplaintsSection(area);
-        } catch (err) {
-          window.showAdminMsg(err && err.message ? err.message : "Failed to submit", "error");
-        } finally {
-          if (el("submitComplaintBtn")) el("submitComplaintBtn").disabled = false;
-        }
+        const itemsHtml = !list.length
+          ? `<div class="item-box">${window.t("noComplaints")}</div>`
+          : list.map((c) => `
+            <div class="item-box">
+              <div class="item-top">
+                <strong>${c.subject || ""}</strong>
+                <span class="folder-tag">${window.formatDDMMYYYY(c.date)}</span>
+              </div>
+              <div style="margin-top:4px;">${c.message || ""}</div>
+              <div class="reply-box">
+                <strong>${window.t("lblAdminReply")}:</strong>
+                <div>${c.adminReply ? c.adminReply : window.t("awaitingReply")}</div>
+              </div>
+            </div>
+          `).join("");
+
+        area.innerHTML = `
+          <div class="entry-box">
+            <h4>${window.t("complaintSectionTitle")}</h4>
+            <div class="field">
+              <label for="compSubject">${window.t("lblComplaintSubject")}</label>
+              <input id="compSubject" type="text" placeholder="${window.t("lblComplaintSubject")}" />
+            </div>
+            <div class="field">
+              <label for="compMsg">${window.t("lblComplaintMsg")}</label>
+              <textarea id="compMsg" rows="3" placeholder="${window.t("lblComplaintMsg")}"></textarea>
+            </div>
+            <button type="button" id="submitComplaintBtn" class="btn btn-primary">${window.t("submitComplaintBtn")}</button>
+          </div>
+          <h4>${window.t("myComplaintsTitle")}</h4>
+          ${itemsHtml}`;
+
+        el("submitComplaintBtn").addEventListener("click", async () => {
+          const subject = el("compSubject").value.trim();
+          const message = el("compMsg").value.trim();
+          if (!subject || !message) {
+            return window.showAdminMsg(
+              l === "en" ? "Please enter subject and complaint details." : "براہِ کرم موضوع اور شکایت کی تفصیل لکھیں۔",
+              "error"
+            );
+          }
+          el("submitComplaintBtn").disabled = true;
+          try {
+            await addDoc(collection(db, "complaints"), {
+              memberPhone: u.phone,
+              memberName: u.name || u.phone,
+              memberRole: u.role || "public",
+              memberPhotoUrl: u.photoUrl || "",
+              date: todayISO(),
+              subject,
+              message,
+              adminReply: "",
+              createdAt: serverTimestamp()
+            });
+            window.showAdminMsg(window.t("complaintSubmittedMsg"), "success");
+            await renderComplaintsSection(area);
+          } catch (err) {
+            window.showAdminMsg(err && err.message ? err.message : "Failed to submit", "error");
+          } finally {
+            if (el("submitComplaintBtn")) el("submitComplaintBtn").disabled = false;
+          }
+        });
+        return;
+      }
+
+      const usersSnap = await getDocs(collection(db, "users"));
+      memberNamesMap = {};
+      memberPhotosMap = {};
+      usersSnap.forEach((d) => {
+        const mu = d.data();
+        memberNamesMap[mu.phone] = mu.name;
+        if (mu.photoUrl) memberPhotosMap[mu.phone] = mu.photoUrl;
       });
-    }
 
-    function drawAdminComplaintsHTML(area, complaints) {
-      if (!complaints || !complaints.length) {
+      const snap = await getDocs(collection(db, "complaints"));
+      const complaints = [];
+      snap.forEach((d) => complaints.push({ id: d.id, ...d.data() }));
+      complaints.sort((a, b) => {
+        const ta = a.createdAt && typeof a.createdAt.toMillis === "function" ? a.createdAt.toMillis() : 0;
+        const tb = b.createdAt && typeof b.createdAt.toMillis === "function" ? b.createdAt.toMillis() : 0;
+        return tb - ta;
+      });
+
+      if (!complaints.length) {
         area.innerHTML = `<h4>${window.t("allComplaintsTitle")}</h4><div class="item-box">${window.t("noComplaints")}</div>`;
         return;
       }
@@ -3351,7 +3213,6 @@
               adminReply: replyText,
               repliedAt: serverTimestamp()
             });
-            window.clearSectionCache("complaints_admin");
             window.showAdminMsg(window.t("replySavedMsg"), "success");
           } catch (err) {
             window.showAdminMsg(err && err.message ? err.message : "Failed to save reply", "error");
@@ -3362,50 +3223,6 @@
       });
 
       bindDeleteButtons(area, () => renderComplaintsSection(area));
-    }
-
-    async function renderComplaintsSection(area) {
-      const u = window.appState.currentUser;
-      if (!u) return;
-
-      if (!isAdminUser()) {
-        const cacheKey = "complaints_" + u.phone;
-        const cached = window.readSectionCache(cacheKey);
-        if (cached) {
-          drawMemberComplaintsHTML(area, cached);
-        }
-
-        const q = query(collection(db, "complaints"), where("memberPhone", "==", u.phone));
-        const snap = await getDocs(q);
-        const list = [];
-        snap.forEach((d) => list.push(serializeDoc(d)));
-        list.sort((a, b) => (b._createdMs || 0) - (a._createdMs || 0));
-
-        window.writeSectionCache(cacheKey, list);
-        if (window.appState.activeSection === "complaints") {
-          drawMemberComplaintsHTML(area, list);
-        }
-        return;
-      }
-
-      const cachedAdmin = window.readSectionCache("complaints_admin");
-      if (cachedAdmin) {
-        drawAdminComplaintsHTML(area, cachedAdmin);
-      }
-
-      const [, snap] = await Promise.all([
-        fetchAllUsersFast(false),
-        getDocs(collection(db, "complaints"))
-      ]);
-
-      const complaints = [];
-      snap.forEach((d) => complaints.push(serializeDoc(d)));
-      complaints.sort((a, b) => (b._createdMs || 0) - (a._createdMs || 0));
-
-      window.writeSectionCache("complaints_admin", complaints);
-      if (window.appState.activeSection === "complaints") {
-        drawAdminComplaintsHTML(area, complaints);
-      }
     }
 
     window.appState.handlers.bindSectionMediaAdd = (category) => {
@@ -3437,7 +3254,6 @@
           }
 
           await addDoc(collection(db, "media"), { category, date, title, src, createdAt: serverTimestamp() });
-          window.clearSectionCache("media_" + category);
           el("secMediaTitle").value = "";
           el("secMediaUrl").value = "";
           if (fileInp) fileInp.value = "";
@@ -3485,7 +3301,6 @@
           }
 
           await addDoc(collection(db, "expenses"), { date, title, src, createdAt: serverTimestamp() });
-          window.clearSectionCache("col_expenses");
           el("secExpTitle").value = "";
           el("secExpUrl").value = "";
           if (fileInp) fileInp.value = "";
@@ -3540,8 +3355,6 @@
             purpose,
             createdAt: serverTimestamp()
           });
-          window.clearSectionCache("funds_members_bundle");
-          window.clearSectionCache("funds_all");
           el("fundAmount").value = "";
           el("fundPurpose").value = "";
           window.appState.addWindowOpen = false;
@@ -3559,30 +3372,15 @@
       });
     };
 
-    function getCacheKeyForSection(sectionKey) {
-      const u = window.appState.currentUser;
-      if (sectionKey === "funds" && u) return "funds_" + u.phone;
-      if (sectionKey === "expenses") return "col_expenses";
-      if (["langar", "photos", "videos", "mahafil", "information"].includes(sectionKey)) return "media_" + sectionKey;
-      if (sectionKey === "funds_members") return "funds_members_bundle";
-      if (sectionKey === "approvals") return "approvals";
-      if (sectionKey === "complaints" && u) return u.role === "admin" ? "complaints_admin" : ("complaints_" + u.phone);
-      return null;
-    }
-
     window.appState.handlers.selectSection = async (sectionKey, { silent = false } = {}) => {
       if (window.appState.addWindowOpen) return;
       const area = el("contentArea");
       if (!area) return;
-
-      const cacheKey = getCacheKeyForSection(sectionKey);
-      const hasWarmCache = Boolean(cacheKey && window.readSectionCache(cacheKey));
-
-      if (!silent && !hasWarmCache && sectionKey !== "profile") {
+      if (!silent) {
         area.innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
       }
       if (!db && sectionKey !== "profile") {
-        if (!silent && !hasWarmCache) {
+        if (!silent) {
           area.innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Database offline." : "ڈیٹا بیس دستیاب نہیں۔"}</div>`;
         }
         return;
@@ -3603,7 +3401,7 @@
         else if (sectionKey === "complaints") await renderComplaintsSection(area);
         else if (!silent) area.innerHTML = "";
       } catch (err) {
-        if (!silent && !hasWarmCache) {
+        if (!silent) {
           area.innerHTML = `<div class='item-box'>${err && err.message ? err.message : "Error loading section."}</div>`;
         }
       }
@@ -3675,7 +3473,7 @@
       if (!name) return window.showAuthMsg(l === "en" ? "Please enter your full name." : "براہِ کرم پورا نام لکھیں۔", "error");
       if (!window.isValidPhone(phone)) return window.showAuthMsg(l === "en" ? "Enter a valid phone number (e.g. 03001234567)." : "درست فون نمبر لکھیں (مثلاً 03001234567)۔", "error");
       if (phone === BUILT_IN_ADMIN.phone) return window.showAuthMsg(l === "en" ? "This number is reserved for Admin." : "یہ نمبر ایڈمن کے لیے محفوظ ہے۔", "error");
-      if (password.length < 6) return window.showAuthMsg(l === "en" ? "Password must be at least 6 characters." : "پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
+      if (password.length < 6) return window.showAuthMsg(l === "en" ? "Password must be at least 6 characters." : "نیا پاس ورڈ کم از کم 6 حروف کا ہو۔", "error");
       if (!confirmPassword || password !== confirmPassword) return window.showAuthMsg(window.t("passMismatch"), "error");
       if (!role) return window.showAuthMsg(l === "en" ? "Please select an account type." : "براہِ کرم اکاؤنٹ کی قسم منتخب کریں۔", "error");
 
@@ -3684,4 +3482,130 @@
         const existingAccounts = await getAccountsForPhone(phone);
 
         if (role === "public" && existingAccounts.length > 0) {
-          return window.show
+          return window.showAuthMsg(window.t("publicNotAllowedExisting"), "error");
+        }
+
+        if (existingAccounts.some((acc) => acc.role === role)) {
+          return window.showAuthMsg(window.t("roleAlreadyExists"), "error");
+        }
+
+        let photoUrl = "";
+        if (regCropCtrl && regCropCtrl.hasImage()) {
+          photoUrl = regCropCtrl.exportCroppedDataUrl(360, 0.78);
+        } else {
+          const fileInp = el("regPhotoInput");
+          const file = fileInp && fileInp.files ? fileInp.files[0] : null;
+          if (file) photoUrl = await fileToDataUrl(file, 480, 0.72);
+        }
+
+        const docId = `${phone}_${role}`;
+        const ref = doc(db, "users", docId);
+        const needsApproval = role === "management" || role === "abroad";
+
+        await setDoc(ref, {
+          name,
+          phone,
+          password,
+          role,
+          photoUrl,
+          status: needsApproval ? "pending_approval" : "active",
+          createdAt: serverTimestamp()
+        });
+
+        el("registerForm").reset();
+        if (regCropCtrl) regCropCtrl.reset();
+        el("tabLogin").click();
+        el("loginPhone").value = phone;
+        el("multiAccountPicker").style.display = "none";
+        window.showAuthMsg(
+          needsApproval
+            ? (l === "en" ? "Account created! You can log in after Admin approval." : "اکاؤنٹ بن گیا! ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔")
+            : (l === "en" ? "Public account created! You can log in now." : "عوام اکاؤنٹ بن گیا! اب آپ لاگ ان کر سکتے ہیں۔"),
+          "success"
+        );
+      } catch (err) {
+        window.showAuthMsg(err && err.message ? err.message : "Error", "error");
+      } finally {
+        el("registerBtn").disabled = false;
+      }
+    });
+
+    async function restoreOrRefreshSession({ forceOpenPortal = false } = {}) {
+      const saved = window.loadSavedSession ? window.loadSavedSession() : null;
+      if (!saved || !db) return;
+
+      if (saved.role === "admin" && saved.phone === BUILT_IN_ADMIN.phone) {
+        const wasAlreadyOpen = Boolean(window.appState.currentUser);
+        window.appState.currentUser = {
+          ...saved,
+          photoUrl: saved.photoUrl || getCachedAdminPhoto()
+        };
+        if (!wasAlreadyOpen || forceOpenPortal) {
+          window.openPortal({ preserveSection: false });
+        } else {
+          window.updatePortalHeader();
+          if (window.appState.activeSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
+            await window.appState.handlers.selectSection(window.appState.activeSection, { silent: true });
+          }
+        }
+        if (window.appState.handlers.syncAdminProfile) {
+          await window.appState.handlers.syncAdminProfile();
+        }
+        return;
+      }
+
+      try {
+        const accounts = await getAccountsForPhone(saved.phone);
+        const matchedAcc = accounts.find((acc) =>
+          acc.role === saved.role && acc.status === "active"
+        );
+
+        if (matchedAcc) {
+          const wasAlreadyOpen = Boolean(window.appState.currentUser);
+          window.appState.currentUser = matchedAcc;
+          window.saveUserSession(matchedAcc);
+          if (!wasAlreadyOpen || forceOpenPortal) {
+            window.openPortal({ preserveSection: false });
+          } else {
+            window.updatePortalHeader();
+            if (window.appState.activeSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
+              await window.appState.handlers.selectSection(window.appState.activeSection, { silent: true });
+            }
+          }
+        } else if (saved.role === "public" && saved.status === "active") {
+          const pubAcc = accounts.find((acc) => acc.role === "public" && acc.status !== "rejected");
+          if (pubAcc) {
+            const wasAlreadyOpen = Boolean(window.appState.currentUser);
+            window.appState.currentUser = pubAcc;
+            window.saveUserSession(pubAcc);
+            if (!wasAlreadyOpen || forceOpenPortal) {
+              window.openPortal({ preserveSection: false });
+            } else {
+              window.updatePortalHeader();
+              if (window.appState.activeSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
+                await window.appState.handlers.selectSection(window.appState.activeSection, { silent: true });
+              }
+            }
+          } else {
+            window.saveUserSession(null);
+          }
+        } else {
+          window.saveUserSession(null);
+        }
+      } catch (e) {
+        if (!window.appState.currentUser) {
+          window.appState.currentUser = saved;
+          window.openPortal({ preserveSection: false });
+        }
+      }
+    }
+
+    window.appState.handlers.refreshOnReopen = async () => {
+      if (!window.loadSavedSession || !window.loadSavedSession()) return;
+      await restoreOrRefreshSession({ forceOpenPortal: false });
+    };
+
+    restoreOrRefreshSession({ forceOpenPortal: false });
+  </script>
+</body>
+</html>

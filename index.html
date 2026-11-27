@@ -72,6 +72,7 @@
     .btn-primary { background: #15803d; color: #fff; width: 100%; padding: 10px; font-size: 14px; }
     .btn-secondary { background: #334155; color: #fff; }
     .btn-refresh { background: #0f766e; color: #fff; }
+    .btn-exit { background: #475569; color: #fff; }
     .btn-danger { background: #b91c1c; color: #fff; }
     .btn-edit { background: #0369a1; color: #fff; }
     .btn-approve { background: #15803d; color: #fff; flex: 1; }
@@ -112,9 +113,9 @@
       color: #64748b;
     }
     .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0 6px; }
-    .menu-btn { padding: 13px 10px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #14532d; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; text-align: center; transition: 0.15s ease; }
+    .menu-btn { padding: 13px 10px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #14532d; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px; text-align: center; transition: 0.15s ease; }
     .menu-btn.active { background: #15803d; color: #fff; border-color: #15803d; box-shadow: 0 3px 8px rgba(21,128,61,0.22); }
-    .sub-window-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+    .sub-window-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
     .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 10px; }
     .sub-tab-btn { flex: 1; min-width: 90px; padding: 7px 9px; border: 1px solid #15803d; background: #f0fdf4; color: #14532d; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; text-align: center; }
     .sub-tab-btn.active { background: #15803d; color: #fff; }
@@ -310,7 +311,6 @@
         <h2 id="appTitle">Milad Organization Dhoke Maken</h2>
       </div>
       <div class="auth-controls-row">
-        <button type="button" id="authRefreshBtn" class="btn btn-refresh">Refresh</button>
         <button type="button" id="langBtn" class="btn btn-secondary">اردو</button>
       </div>
 
@@ -390,10 +390,11 @@
             <div id="portalUserRole" style="font-size:12px; color:#475569;"></div>
           </div>
         </div>
-        <div class="header-actions">
+        <div id="mainMenuControls" class="header-actions">
           <button type="button" id="portalRefreshBtn" class="btn btn-refresh">Refresh</button>
           <button type="button" id="portalLangBtn" class="btn btn-secondary">اردو</button>
           <button type="button" id="logoutBtn" class="btn btn-danger">Logout</button>
+          <button type="button" id="exitBtn" class="btn btn-exit">Exit</button>
         </div>
       </div>
 
@@ -402,7 +403,7 @@
       <div id="sectionWindow" style="display:none;">
         <div class="sub-window-bar">
           <h3 id="activeSectionTitle"></h3>
-          <button type="button" id="backToMenuBtn" class="btn btn-sm btn-secondary">Back</button>
+          <button type="button" id="openAddWindowBtn" class="btn btn-sm btn-primary" style="display:none; width:auto;">Add</button>
         </div>
         <div id="adminEntryArea" style="display:none;"></div>
         <div id="contentArea"></div>
@@ -437,10 +438,13 @@
 
     const SESSION_STORAGE_KEY = "dm_milad_session_v1";
     const SECTION_STORAGE_KEY = "dm_milad_active_section_v1";
+    const ADD_WINDOW_STORAGE_KEY = "dm_milad_add_window_v1";
     const LANG_STORAGE_KEY = "dm_milad_lang_v1";
     const ADMIN_PASS_OVERRIDE_KEY = "dm_milad_admin_pass_v1";
     const ADMIN_PHOTO_CACHE_KEY = "dm_milad_admin_photo_v1";
     const AUTO_REFRESH_MS = 60000;
+
+    const ADD_CAPABLE_SECTIONS = ["funds_members", "expenses", "langar", "photos", "videos", "mahafil", "information"];
 
     const FUND_PURPOSES = [
       { id: "monthly", ur: "ماہانہ فنڈ", en: "Monthly Fund" },
@@ -457,6 +461,9 @@
         appHeading: "میلاد کمیٹی ڈھوک میکن",
         toggleBtn: "English",
         refreshBtn: "ریفریش",
+        addBtn: "+ ایڈ کریں",
+        exitBtn: "ایگزٹ",
+        exitNotice: "ایپ بند کرنے کے لیے موبائل کا Back بٹن یا ٹیب بند کریں۔",
         refreshedMsg: "ڈیٹا ریفریش ہو گیا۔",
         tabLogin: "لاگ ان",
         tabRegister: "نیا اکاؤنٹ",
@@ -464,7 +471,6 @@
         loginPass: "پاس ورڈ",
         lblSelectAccountRole: "اکاؤنٹ منتخب کریں",
         loginBtn: "لاگ ان کریں",
-        backBtn: "واپس مینیو",
         regName: "پورا نام",
         regPhone: "فون نمبر",
         regPass: "پاس ورڈ",
@@ -592,6 +598,9 @@
         appHeading: "Milad Organization Dhoke Maken",
         toggleBtn: "اردو",
         refreshBtn: "Refresh",
+        addBtn: "+ Add",
+        exitBtn: "Exit",
+        exitNotice: "Use device Back or close the app tab to exit.",
         refreshedMsg: "Refreshed.",
         tabLogin: "Login",
         tabRegister: "Create Account",
@@ -599,7 +608,6 @@
         loginPass: "Password",
         lblSelectAccountRole: "Select Account",
         loginBtn: "Login",
-        backBtn: "Back",
         regName: "Full Name",
         regPhone: "Phone Number",
         regPass: "Password",
@@ -819,6 +827,24 @@
         return localStorage.getItem(SECTION_STORAGE_KEY) || null;
       } catch (e) {
         return null;
+      }
+    }
+
+    function saveAddWindowOpen(isOpen) {
+      try {
+        if (isOpen) {
+          localStorage.setItem(ADD_WINDOW_STORAGE_KEY, "1");
+        } else {
+          localStorage.removeItem(ADD_WINDOW_STORAGE_KEY);
+        }
+      } catch (e) {}
+    }
+
+    function loadAddWindowOpen() {
+      try {
+        return localStorage.getItem(ADD_WINDOW_STORAGE_KEY) === "1";
+      } catch (e) {
+        return false;
       }
     }
 
@@ -1275,6 +1301,7 @@
     window.appState = {
       currentUser: null,
       activeSection: loadSavedSection(),
+      addWindowOpen: loadAddWindowOpen(),
       activeMemberGroup: "management",
       selectedFundMemberPhone: "",
       lang: readSavedLang(),
@@ -1296,6 +1323,7 @@
         } else {
           localStorage.removeItem(SESSION_STORAGE_KEY);
           saveSavedSection(null);
+          saveAddWindowOpen(false);
         }
       } catch (e) {}
     };
@@ -1400,12 +1428,59 @@
           avatarEl.style.display = "none";
         }
       }
+
+      const isOnMainMenu = !window.appState.activeSection;
+      if (el("mainMenuControls")) {
+        el("mainMenuControls").style.display = isOnMainMenu ? "flex" : "none";
+      }
     };
+
+    function syncAddWindowVisibility(sectionKey) {
+      const u = window.appState.currentUser;
+      const addBtn = el("openAddWindowBtn");
+      const entryArea = el("adminEntryArea");
+      const contentArea = el("contentArea");
+
+      const canAddHere = Boolean(
+        u &&
+        u.role === "admin" &&
+        sectionKey &&
+        ADD_CAPABLE_SECTIONS.includes(sectionKey)
+      );
+
+      if (!canAddHere) {
+        window.appState.addWindowOpen = false;
+        saveAddWindowOpen(false);
+        if (addBtn) addBtn.style.display = "none";
+        if (entryArea) {
+          entryArea.style.display = "none";
+          entryArea.innerHTML = "";
+        }
+        if (contentArea) contentArea.style.display = "block";
+        return;
+      }
+
+      if (window.appState.addWindowOpen) {
+        if (addBtn) addBtn.style.display = "none";
+        if (contentArea) contentArea.style.display = "none";
+        window.renderAdminSectionEntry(sectionKey);
+      } else {
+        if (addBtn) {
+          addBtn.textContent = window.t("addBtn");
+          addBtn.style.display = "inline-block";
+        }
+        if (entryArea) {
+          entryArea.style.display = "none";
+          entryArea.innerHTML = "";
+        }
+        if (contentArea) contentArea.style.display = "block";
+      }
+    }
 
     window.renderAdminSectionEntry = (sectionKey) => {
       const u = window.appState.currentUser;
       const entryArea = el("adminEntryArea");
-      if (!u || u.role !== "admin") {
+      if (!u || u.role !== "admin" || !window.appState.addWindowOpen) {
         entryArea.style.display = "none";
         entryArea.innerHTML = "";
         return;
@@ -1503,6 +1578,12 @@
       entryArea.innerHTML = "";
     };
 
+    function pushNavState(secKey, addOpen) {
+      try {
+        history.pushState({ sec: secKey || null, addOpen: Boolean(addOpen) }, "");
+      } catch (e) {}
+    }
+
     async function waitForSectionHandler(maxMs = 4500) {
       const start = Date.now();
       while (!window.appState.handlers.selectSection && Date.now() - start < maxMs) {
@@ -1511,27 +1592,37 @@
       return window.appState.handlers.selectSection;
     }
 
-    function openSectionWindow(sectionKey, { silent = false } = {}) {
+    function openSectionWindow(sectionKey, { silent = false, fromPop = false } = {}) {
       const u = window.appState.currentUser;
       if (!u) return;
       const sections = window.getSectionsForRole(u.role);
       const matched = sections.find((s) => s.key === sectionKey);
       if (!matched) return;
 
+      const isNewSection = window.appState.activeSection !== matched.key;
+      if (isNewSection && !fromPop) {
+        window.appState.addWindowOpen = false;
+        saveAddWindowOpen(false);
+      }
+
       window.appState.activeSection = matched.key;
       saveSavedSection(matched.key);
+      if (!fromPop && isNewSection) {
+        pushNavState(matched.key, false);
+      }
+
       el("roleMenu").style.display = "none";
       el("sectionWindow").style.display = "block";
       el("activeSectionTitle").textContent = matched.label;
-      el("backToMenuBtn").textContent = window.t("backBtn");
+      window.updatePortalHeader();
       if (!silent) {
         window.scrollTo({ top: 0, behavior: "instant" });
       }
 
-      if (!silent) {
-        window.renderAdminSectionEntry(matched.key);
-      } else if (u.role === "admin" && matched.key === "funds_members" && window.appState.handlers.refreshMemberDropdown) {
-        window.appState.handlers.refreshMemberDropdown().catch(() => {});
+      syncAddWindowVisibility(matched.key);
+
+      if (window.appState.addWindowOpen) {
+        return;
       }
 
       if (window.appState.handlers.selectSection) {
@@ -1539,14 +1630,78 @@
       } else if (!silent) {
         el("contentArea").innerHTML = `<div class='item-box'>${window.t("loading")}</div>`;
         waitForSectionHandler().then((fn) => {
-          if (fn && window.appState.activeSection === matched.key) {
+          if (fn && window.appState.activeSection === matched.key && !window.appState.addWindowOpen) {
             fn(matched.key, { silent: false });
-          } else if (window.appState.activeSection === matched.key) {
+          } else if (window.appState.activeSection === matched.key && !window.appState.addWindowOpen) {
             el("contentArea").innerHTML = `<div class='item-box'>${window.appState.lang === "en" ? "Please refresh or check connection." : "براہِ کرم صفحہ ریفریش کریں یا انٹرنیٹ چیک کریں۔"}</div>`;
           }
         });
       }
     }
+
+    function closeAddWindow({ fromPop = false } = {}) {
+      if (!window.appState.addWindowOpen) return;
+      window.appState.addWindowOpen = false;
+      saveAddWindowOpen(false);
+      if (!fromPop) {
+        pushNavState(window.appState.activeSection, false);
+      }
+      const sec = window.appState.activeSection;
+      syncAddWindowVisibility(sec);
+      if (sec && window.appState.handlers.selectSection) {
+        window.appState.handlers.selectSection(sec, { silent: false });
+      }
+    }
+
+    function returnToMainMenu({ fromPop = false } = {}) {
+      window.appState.activeSection = null;
+      window.appState.addWindowOpen = false;
+      saveSavedSection(null);
+      saveAddWindowOpen(false);
+      if (!fromPop) {
+        pushNavState(null, false);
+      }
+      el("sectionWindow").style.display = "none";
+      el("adminEntryArea").style.display = "none";
+      el("adminEntryArea").innerHTML = "";
+      el("contentArea").innerHTML = "";
+      el("roleMenu").style.display = "grid";
+      window.updatePortalHeader();
+      if (!fromPop) {
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
+      window.renderRoleMenu();
+    }
+
+    el("openAddWindowBtn").addEventListener("click", () => {
+      const sec = window.appState.activeSection;
+      if (!sec || !ADD_CAPABLE_SECTIONS.includes(sec)) return;
+      window.appState.addWindowOpen = true;
+      saveAddWindowOpen(true);
+      pushNavState(sec, true);
+      syncAddWindowVisibility(sec);
+      window.scrollTo({ top: 0, behavior: "instant" });
+    });
+
+    window.addEventListener("popstate", (e) => {
+      if (!window.appState.currentUser) return;
+      const st = e.state;
+      if (st && st.sec) {
+        window.appState.activeSection = st.sec;
+        window.appState.addWindowOpen = Boolean(st.addOpen);
+        saveSavedSection(st.sec);
+        saveAddWindowOpen(Boolean(st.addOpen));
+        openSectionWindow(st.sec, { silent: false, fromPop: true });
+        return;
+      }
+      if (window.appState.addWindowOpen) {
+        closeAddWindow({ fromPop: true });
+        return;
+      }
+      if (window.appState.activeSection) {
+        returnToMainMenu({ fromPop: true });
+      }
+    });
 
     window.renderRoleMenu = () => {
       const u = window.appState.currentUser;
@@ -1567,36 +1722,29 @@
       });
 
       if (window.appState.activeSection && sections.some((s) => s.key === window.appState.activeSection)) {
-        openSectionWindow(window.appState.activeSection);
+        openSectionWindow(window.appState.activeSection, { fromPop: true });
       } else {
         window.appState.activeSection = null;
+        window.appState.addWindowOpen = false;
         saveSavedSection(null);
+        saveAddWindowOpen(false);
         menu.style.display = "grid";
         el("sectionWindow").style.display = "none";
         el("adminEntryArea").style.display = "none";
         el("adminEntryArea").innerHTML = "";
         el("contentArea").innerHTML = "";
+        window.updatePortalHeader();
       }
     };
-
-    el("backToMenuBtn").addEventListener("click", () => {
-      window.appState.activeSection = null;
-      saveSavedSection(null);
-      el("sectionWindow").style.display = "none";
-      el("adminEntryArea").style.display = "none";
-      el("adminEntryArea").innerHTML = "";
-      el("contentArea").innerHTML = "";
-      el("roleMenu").style.display = "grid";
-      window.scrollTo({ top: 0, behavior: "instant" });
-      window.renderRoleMenu();
-    });
 
     window.openPortal = ({ preserveSection = false } = {}) => {
       const u = window.appState.currentUser;
       if (!u) return;
       if (!preserveSection) {
         window.appState.activeSection = null;
+        window.appState.addWindowOpen = false;
         saveSavedSection(null);
+        saveAddWindowOpen(false);
       }
       window.applySelectionRestriction();
       el("authCard").style.display = "none";
@@ -1616,8 +1764,9 @@
 
       el("appTitle").textContent = window.t("appHeading");
       if (el("portalAppTitle")) el("portalAppTitle").textContent = window.t("appHeading");
-      el("authRefreshBtn").textContent = window.t("refreshBtn");
       el("portalRefreshBtn").textContent = window.t("refreshBtn");
+      el("openAddWindowBtn").textContent = window.t("addBtn");
+      el("exitBtn").textContent = window.t("exitBtn");
       el("langBtn").textContent = window.t("toggleBtn");
       el("portalLangBtn").textContent = window.t("toggleBtn");
       el("tabLogin").textContent = window.t("tabLogin");
@@ -1626,7 +1775,6 @@
       el("lblLoginPass").textContent = window.t("loginPass");
       el("lblSelectAccountRole").textContent = window.t("lblSelectAccountRole");
       el("loginBtn").textContent = window.t("loginBtn");
-      el("backToMenuBtn").textContent = window.t("backBtn");
 
       el("lblRegName").textContent = window.t("regName");
       el("lblRegPhone").textContent = window.t("regPhone");
@@ -1664,6 +1812,7 @@
       if (window.appState.activeSection) {
         saveSavedSection(window.appState.activeSection);
       }
+      saveAddWindowOpen(Boolean(window.appState.addWindowOpen));
       const url = new URL(window.location.href);
       url.searchParams.set("v", String(Date.now()));
       try {
@@ -1679,8 +1828,14 @@
       reloadAppBypassCache(isPortal);
     }
 
-    el("authRefreshBtn").addEventListener("click", () => handleManualRefresh(false));
     el("portalRefreshBtn").addEventListener("click", () => handleManualRefresh(true));
+
+    el("exitBtn").addEventListener("click", () => {
+      try {
+        window.close();
+      } catch (e) {}
+      window.showAdminMsg(window.t("exitNotice"), "error");
+    });
 
     el("tabLogin").addEventListener("click", () => {
       el("tabLogin").classList.add("active");
@@ -1762,6 +1917,7 @@
       window.saveUserSession(null);
       window.appState.currentUser = null;
       window.appState.activeSection = null;
+      window.appState.addWindowOpen = false;
       window.applySelectionRestriction();
       el("portalCard").style.display = "none";
       el("sectionWindow").style.display = "none";
@@ -1803,7 +1959,7 @@
         window.appState.handlers.syncAdminProfile().catch(() => {});
       }
 
-      if (window.appState.activeSection && window.appState.handlers.selectSection) {
+      if (window.appState.activeSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
         await window.appState.handlers.selectSection(window.appState.activeSection, { silent: true });
       }
     }
@@ -2484,7 +2640,7 @@
         sel.dataset.boundFundMemberChange = "1";
         sel.addEventListener("change", async () => {
           window.appState.selectedFundMemberPhone = sel.value || "";
-          if (window.appState.activeSection === "funds_members" && el("contentArea")) {
+          if (window.appState.activeSection === "funds_members" && !window.appState.addWindowOpen && el("contentArea")) {
             await renderFundsAndMembersDetails(el("contentArea"));
           }
         });
@@ -3081,6 +3237,10 @@
           el("secMediaTitle").value = "";
           el("secMediaUrl").value = "";
           if (fileInp) fileInp.value = "";
+          window.appState.addWindowOpen = false;
+          saveAddWindowOpen(false);
+          pushNavState(category, false);
+          syncAddWindowVisibility(category);
           window.showAdminMsg(l === "en" ? "Saved successfully." : "کامیابی سے محفوظ ہو گیا۔", "success");
           await window.appState.handlers.selectSection(category);
         } catch (err) {
@@ -3089,7 +3249,7 @@
             "error"
           );
         } finally {
-          btn.disabled = false;
+          if (el("secAddMediaBtn")) el("secAddMediaBtn").disabled = false;
         }
       });
     };
@@ -3126,6 +3286,10 @@
           el("secExpTitle").value = "";
           el("secExpUrl").value = "";
           if (fileInp) fileInp.value = "";
+          window.appState.addWindowOpen = false;
+          saveAddWindowOpen(false);
+          pushNavState("expenses", false);
+          syncAddWindowVisibility("expenses");
           window.showAdminMsg(l === "en" ? "Expense photo saved." : "اخراجات کی تصویر محفوظ ہو گئی۔", "success");
           await window.appState.handlers.selectSection("expenses");
         } catch (err) {
@@ -3134,7 +3298,7 @@
             "error"
           );
         } finally {
-          btn.disabled = false;
+          if (el("secAddExpBtn")) el("secAddExpBtn").disabled = false;
         }
       });
     };
@@ -3177,6 +3341,10 @@
           });
           el("fundAmount").value = "";
           el("fundPurpose").value = "";
+          window.appState.addWindowOpen = false;
+          saveAddWindowOpen(false);
+          pushNavState("funds_members", false);
+          syncAddWindowVisibility("funds_members");
           window.showAdminMsg(l === "en" ? "Fund record saved." : "فنڈ کی تفصیل محفوظ ہو گئی۔", "success");
           await renderFundsAndMembersDetails(el("contentArea"));
         } catch (err) {
@@ -3185,12 +3353,13 @@
             "error"
           );
         } finally {
-          btn.disabled = false;
+          if (el("addFundBtn")) el("addFundBtn").disabled = false;
         }
       });
     };
 
     window.appState.handlers.selectSection = async (sectionKey, { silent = false } = {}) => {
+      if (window.appState.addWindowOpen) return;
       const area = el("contentArea");
       if (!area) return;
       if (!silent) {
@@ -3365,7 +3534,7 @@
           window.openPortal({ preserveSection: true });
         } else {
           window.updatePortalHeader();
-          if (prevSection && window.appState.handlers.selectSection) {
+          if (prevSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
             await window.appState.handlers.selectSection(prevSection, { silent: true });
           }
         }
@@ -3393,7 +3562,7 @@
             window.openPortal({ preserveSection: true });
           } else {
             window.updatePortalHeader();
-            if (prevSection && window.appState.handlers.selectSection) {
+            if (prevSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
               await window.appState.handlers.selectSection(prevSection, { silent: true });
             }
           }
@@ -3411,7 +3580,7 @@
               window.openPortal({ preserveSection: true });
             } else {
               window.updatePortalHeader();
-              if (prevSection && window.appState.handlers.selectSection) {
+              if (prevSection && !window.appState.addWindowOpen && window.appState.handlers.selectSection) {
                 await window.appState.handlers.selectSection(prevSection, { silent: true });
               }
             }

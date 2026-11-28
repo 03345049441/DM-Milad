@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
   <title>میلاد کمیٹی ڈھوک میکن | Milad Organization Dhoke Maken</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; font-family: "Noto Nastaliq Urdu", Arial, sans-serif; }
     html, body {
@@ -518,72 +521,117 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 24px;
-      background: radial-gradient(circle at top, #166534 0%, #052e16 70%, #021a0d 100%);
+      padding: 20px;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(251, 191, 36, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at top, #15803d 0%, #064e3b 52%, #022c22 100%);
       color: #fef3c7;
       opacity: 1;
-      transition: opacity 0.55s ease;
+      transition: opacity 0.6s ease;
     }
     .splash-screen.fade-out {
       opacity: 0;
       pointer-events: none;
     }
     .splash-frame {
-      max-width: 520px;
+      position: relative;
+      max-width: 500px;
       width: 100%;
-      padding: 34px 22px;
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(251, 191, 36, 0.65);
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45), inset 0 0 24px rgba(251, 191, 36, 0.14);
-      animation: splashPop 0.85s ease-out;
+      padding: 28px 20px 30px;
+      border-radius: 24px;
+      background: linear-gradient(165deg, rgba(20, 83, 45, 0.88) 0%, rgba(5, 46, 22, 0.94) 100%);
+      border: 2px solid rgba(251, 191, 36, 0.78);
+      box-shadow:
+        0 22px 50px rgba(0, 0, 0, 0.55),
+        0 0 0 5px rgba(251, 191, 36, 0.12),
+        inset 0 0 28px rgba(251, 191, 36, 0.16);
+      animation: splashFloatIn 0.85s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .splash-bismillah {
-      font-size: 20px;
-      color: #fde68a;
-      margin-bottom: 14px;
-      letter-spacing: 0.5px;
-    }
-    .splash-calligraphy {
-      font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", Arial, sans-serif;
-      font-size: clamp(24px, 6.2vw, 38px);
-      font-weight: 800;
-      line-height: 2.15;
-      color: #ffffff;
-      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 22px rgba(251, 191, 36, 0.35);
-      direction: rtl;
-    }
-    .splash-calligraphy .highlight-gold {
-      color: #fbbf24;
-    }
-    .splash-line {
-      width: 120px;
-      height: 2px;
-      margin: 18px auto 12px;
-      background: linear-gradient(90deg, transparent, #fbbf24, transparent);
-    }
-    .splash-sub {
+    .splash-frame::before {
+      content: "✦ ❖ ✦";
+      display: block;
       font-size: 13px;
-      color: #bbf7d0;
-      opacity: 0.9;
+      letter-spacing: 6px;
+      color: rgba(253, 224, 71, 0.72);
+      margin-bottom: 8px;
     }
-    @keyframes splashPop {
-      0% { transform: scale(0.92); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
+    .splash-kalima {
+      font-family: "Aref Ruqaa", "Traditional Arabic", "Scheherazade New", "Noto Naskh Arabic", serif;
+      font-size: clamp(20px, 5vw, 27px);
+      font-weight: 700;
+      line-height: 1.9;
+      color: #fde68a;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+      margin-bottom: 10px;
+      white-space: nowrap;
+    }
+    .splash-welcome {
+      font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", Arial, sans-serif;
+      font-size: clamp(20px, 5vw, 26px);
+      font-weight: 800;
+      line-height: 1.75;
+      color: #ffffff;
+      background: rgba(251, 191, 36, 0.14);
+      border: 1px solid rgba(251, 191, 36, 0.42);
+      border-radius: 999px;
+      display: inline-block;
+      padding: 3px 22px 6px;
+      margin: 2px auto 14px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+    .splash-org-name {
+      font-family: "Aref Ruqaa", "Traditional Arabic", "Scheherazade New", "Noto Naskh Arabic", serif;
+      font-size: clamp(28px, 7.6vw, 44px);
+      font-weight: 700;
+      line-height: 1.7;
+      color: #ffffff;
+      text-shadow:
+        0 4px 18px rgba(0, 0, 0, 0.65),
+        0 0 26px rgba(251, 191, 36, 0.42);
+      margin: 6px 0 12px;
+      white-space: nowrap;
+    }
+    .splash-divider {
+      width: 150px;
+      height: 1.5px;
+      margin: 8px auto 12px;
+      background: linear-gradient(90deg, transparent, #fbbf24, #fef08a, #fbbf24, transparent);
+    }
+    .splash-durood {
+      font-family: "Aref Ruqaa", "Traditional Arabic", "Scheherazade New", "Noto Naskh Arabic", serif;
+      font-size: clamp(19px, 4.9vw, 26px);
+      font-weight: 700;
+      line-height: 1.9;
+      color: #fde047;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+      margin-bottom: 10px;
+      white-space: nowrap;
+    }
+    .splash-dhoke {
+      font-family: "Aref Ruqaa", "Traditional Arabic", "Scheherazade New", "Noto Naskh Arabic", serif;
+      font-size: clamp(20px, 5.2vw, 28px);
+      font-weight: 700;
+      line-height: 1.8;
+      color: #dcfce7;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+    @keyframes splashFloatIn {
+      0% { transform: scale(0.92) translateY(10px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
     }
   </style>
 </head>
 <body class="no-select">
   <div id="splashScreen" class="splash-screen" dir="rtl">
     <div class="splash-frame">
-      <div class="splash-bismillah">بسم اللّٰہ الرحمن الرحیم</div>
-      <div class="splash-calligraphy">
-        انجمن غلامان<br>
-        <span class="highlight-gold">(مصطفیٰ صلی اللّٰہ علیہ وسلم)</span><br>
-        ڈھوک میکن
-      </div>
-      <div class="splash-line"></div>
-      <div class="splash-sub">خوش آمدید</div>
+      <div class="splash-kalima">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+      <div class="splash-welcome">خوش آمدید</div>
+      <div class="splash-org-name">انجمن غلامان مصطفیٰ</div>
+      <div class="splash-divider"></div>
+      <div class="splash-durood">صَلَّى اللّٰهُ عَلَيْهِ وَاٰلِهٖ وَسَلَّمَ</div>
+      <div class="splash-dhoke">ڈھوک میکن</div>
     </div>
   </div>
 
